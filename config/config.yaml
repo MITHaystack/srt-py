@@ -1,0 +1,14 @@
+STATION:
+  latitude: 42.5
+  longitude: -71.5
+  name: Haystack
+AZLIMITS:
+  lower_bound: 10.0
+  upper_bound: 359.0
+ELLIMITS:
+  lower_bound: -1.0
+  upper_bound: 90.0
+BEAMWIDTH: 7.0
+MOTOR_TYPE: ALFASPID
+TSYS: 171
+TCAL: 290

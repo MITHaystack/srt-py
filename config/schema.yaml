@@ -1,0 +1,16 @@
+STATION: include('location')
+AZLIMITS: include('limit')
+ELLIMITS: include('limit')
+BEAMWIDTH: num()
+MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT')
+TSYS: num()
+TCAL: num()
+---
+location:
+    latitude: num()
+    longitude: num()
+    name: str()
+---
+limit:
+    lower_bound: num()
+    upper_bound: num()
