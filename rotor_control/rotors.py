@@ -1,16 +1,30 @@
+"""
+
+"""
 from enum import Enum
 
 from rotor_control.motors import Rot2Motor, H180Motor, PushRodMotor
 
 
 class RotorType(Enum):
-    ROT2 = 'rot2'
-    H180 = 'h180'
-    PUSH_ROD = 'push_rod'
+    ROT2 = "rot2"
+    H180 = "h180"
+    PUSH_ROD = "push_rod"
 
 
 class Rotor:
+    """
+    Class for Controlling
+    """
+
     def __init__(self, motor_type, port):
+        """
+
+        Parameters
+        ----------
+        motor_type
+        port
+        """
         if motor_type == RotorType.ROT2:
             self.motor = Rot2Motor(port)
         elif motor_type == RotorType.H180:
@@ -21,7 +35,24 @@ class Rotor:
             raise ValueError("Not a known motor type")
 
     def get_azimuth_elevation(self):
+        """
+
+        Returns
+        -------
+
+        """
         return self.motor.status()
 
     def set_azimuth_elevation(self, az, el):
+        """
+
+        Parameters
+        ----------
+        az
+        el
+
+        Returns
+        -------
+
+        """
         self.motor.point(az, el)

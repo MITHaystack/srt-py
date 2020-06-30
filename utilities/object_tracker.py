@@ -1,3 +1,8 @@
+"""object_tracker.py
+
+Module for Tracking and Caching the Azimuth-Elevation Coords of Celestial Objects
+
+"""
 from astropy.coordinates import SkyCoord, EarthLocation, get_sun, get_moon
 from astropy.coordinates import ICRS, Galactic, FK4, CIRS, AltAz
 from astropy.utils.iers.iers import conf
@@ -19,20 +24,29 @@ class EphemerisTracker:
         observer_lon,
         observer_elevation=0,
         config_file="../config/sky_coords.csv",
-        refresh_time=10 * u.second,
+        refresh_time=10,
         auto_download=True,
     ):
-        """
-        Initializer for EphemerisTracker
-            - Reads CSV File for Objects to Track
-            - Converts to Common Coordinate System
-            - Populates AzEl Dictionary with Current Values
-        :param observer_lat: Observer's Location Latitude in degrees
-        :param observer_lon: Observer's Location Longitude in degrees
-        :param observer_elevation: Observer's Location Elevation in meters (optional, default=0m)
-        :param config_file: Location of the List File for Bodies Being Tracked (optional, default=sky_coords.csv)
-        :param refresh_time: Maximum Amount of Time Cache is Valid (optional, default=10s)
-        :param auto_download: Whether AstroPy is Permitted to Use Internet to Increase Accuracy (optional, default=True)
+        """Initializer for EphemerisTracker
+
+        - Reads CSV File for Objects to Track
+        - Converts to Common Coordinate System
+        - Populates AzEl Dictionary with Current Values
+
+        Parameters
+        ----------
+        observer_lat : float
+            Observer's Location Latitude in degrees
+        observer_lon : float
+            Observer's Location Longitude in degrees
+        observer_elevation : float
+            Observer's Location Elevation in meters
+        config_file : str
+            Location of the List File for Bodies Being Tracked
+        refresh_time : float
+            Maximum Amount of Time Cache is Valid
+        auto_download : bool
+            Whether AstroPy is Permitted to Use Internet to Increase Accuracy
         """
         table = Table.read(config_file, format="ascii.csv")
 
@@ -67,19 +81,28 @@ class EphemerisTracker:
             height=observer_elevation * u.m,
         )
         self.latest_time = Time.now()
-        self.refresh_time = refresh_time
+        self.refresh_time = refresh_time * u.second
 
         self.az_el_dict = {}
         self.update_all_az_el()
         conf.auto_download = auto_download
 
     def calculate_az_el(self, name, time, alt_az_frame):
-        """
-        Calculates Azimuth and Elevation of the Specified Object at the Specified Time
-        :param name: Name of the Object being Tracked
-        :param time: Current Time (only necessary for Sun/Moon Ephemeris)
-        :param alt_az_frame: AltAz Frame Object
-        :return: (az, el) Tuple
+        """Calculates Azimuth and Elevation of the Specified Object at the Specified Time
+
+        Parameters
+        ----------
+        name : str
+            Name of the Object being Tracked
+        time : Time
+            Current Time (only necessary for Sun/Moon Ephemeris)
+        alt_az_frame : AltAz
+            AltAz Frame Object
+
+        Returns
+        -------
+        (float, float)
+            (az, el) Tuple
         """
         if name == "Sun":
             alt_az = get_sun(time).transform_to(alt_az_frame)
@@ -92,8 +115,11 @@ class EphemerisTracker:
         return alt_az.az.degree, alt_az.alt.degree
 
     def update_all_az_el(self):
-        """
-        Updates Every Entry in the AzEl Dictionary Cache, if the Cache is Outdated
+        """Updates Every Entry in the AzEl Dictionary Cache, if the Cache is Outdated
+
+        Returns
+        -------
+        None
         """
         if Time.now() < self.latest_time + self.refresh_time:
             return
@@ -111,18 +137,27 @@ class EphemerisTracker:
         self.latest_time = time
 
     def get_all_azimuth_elevation(self):
-        """
-        Returns Dictionary Mapping the Objects to their Current AzEl Coordinates
-        :return: self.az_el_dict
+        """Returns Dictionary Mapping the Objects to their Current AzEl Coordinates
+
+        Returns
+        -------
+        self.az_el_dict : {str: (float, float)}
         """
         return self.az_el_dict
 
     def get_azimuth_elevation(self, name, time_offset):
-        """
-        Returns Individual Object AzEl at Specified Time Offset
-        :param name: Object Name
-        :param time_offset: Any Offset from the Current Time
-        :return: (az, el) Tuple
+        """Returns Individual Object AzEl at Specified Time Offset
+
+        Parameters
+        ----------
+        name : str
+            Object Name
+        time_offset : Time
+            Any Offset from the Current Time
+        Returns
+        -------
+        (float, float)
+            (az, el) Tuple
         """
         if time_offset == 0:
             return self.get_all_azimuth_elevation()[name]

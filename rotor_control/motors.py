@@ -1,3 +1,6 @@
+"""
+
+"""
 import serial
 
 from abc import ABC, abstractmethod
@@ -6,32 +9,45 @@ from time import sleep
 
 class Motor(ABC):
     """
-
+    Abstract Class for All Motors Types
     """
 
     def __init__(self, port):
-        """
+        """Constructor for the Abstract Motor Class
 
-        :param port:
+        Parameters
+        ----------
+        port : str
+            Serial Port Identifier String for Communicating with the Motor
         """
         self.port = port
         self.serial = None
 
     @abstractmethod
     def point(self, az, el):
-        """
+        """Abstract Method Prototype for Pointing a Motor at an AzEl Coordinate
 
-        :param az:
-        :param el:
-        :return:
+        Parameters
+        ----------
+        az : float
+            Azimuth Coordinate Value to Point At
+        el : float
+            Elevation Coordinate Value to Point At
+
+        Returns
+        -------
+        None
         """
         pass
 
     @abstractmethod
     def status(self):
-        """
+        """Abstract Method Prototype for Getting a Motor's Current AzEl Position
 
-        :return:
+        Returns
+        -------
+        (float, float)
+            Azimuth and Elevation Coordinate as a Tuple of Floats
         """
         pass
 
@@ -39,14 +55,18 @@ class Motor(ABC):
     def stop(self):
         """
 
-        :return:
+        Returns
+        -------
+
         """
         pass
 
     def __del__(self):
         """
 
-        :return:
+        Returns
+        -------
+
         """
         if self.serial is not None and self.serial.is_open():
             self.serial.close()
@@ -62,11 +82,20 @@ class Rot2Motor(Motor):
     def __init__(self, port, pulses_per_degree=2):
         """
 
-        :param port:
-        :param pulses_per_degree:
+        Parameters
+        ----------
+        port
+        pulses_per_degree
         """
         Motor.__init__(self, port)
-        self.serial = serial.Serial(port=self.port, baudrate=600, bytesize=8, parity='N', stopbits=1, timeout=None)
+        self.serial = serial.Serial(
+            port=self.port,
+            baudrate=600,
+            bytesize=8,
+            parity="N",
+            stopbits=1,
+            timeout=None,
+        )
         if pulses_per_degree in Rot2Motor.VALID_PULSES_PER_DEGREE:
             self.pulses_per_degree = pulses_per_degree
         else:
@@ -75,23 +104,42 @@ class Rot2Motor(Motor):
     def send_rot2_pkt(self, cmd, az=None, el=None):
         """
 
-        :param cmd:
-        :param az:
-        :param el:
-        :return:
+        Parameters
+        ----------
+        cmd
+        az
+        el
+
+        Returns
+        -------
+
         """
         if az is not None and el is not None:
-            azimuth = int(self.pulses_per_degree * (az + 360.0) + 0.5)  # Formatted Az Pulse Value
-            elevation = int(self.pulses_per_degree * (el + 360.0) + 0.5)  # Formatted El Pulse Value
+            azimuth = int(
+                self.pulses_per_degree * (az + 360.0) + 0.5
+            )  # Formatted Az Pulse Value
+            elevation = int(
+                self.pulses_per_degree * (el + 360.0) + 0.5
+            )  # Formatted El Pulse Value
         else:
             azimuth = 0
             elevation = 0
 
-        azimuth_ticks = self.pulses_per_degree  # Documentation for Rot2 Says This Is Ignored
-        elevation_ticks = self.pulses_per_degree  # Documentation for Rot2 Says This Is Ignored
+        azimuth_ticks = (
+            self.pulses_per_degree
+        )  # Documentation for Rot2 Says This Is Ignored
+        elevation_ticks = (
+            self.pulses_per_degree
+        )  # Documentation for Rot2 Says This Is Ignored
 
-        cmd_string = "W%04d%c%04d%c%c " % (azimuth, azimuth_ticks, elevation, elevation_ticks, cmd)
-        cmd_bytes = cmd_string.encode('ascii')
+        cmd_string = "W%04d%c%04d%c%c " % (
+            azimuth,
+            azimuth_ticks,
+            elevation,
+            elevation_ticks,
+            cmd,
+        )
+        cmd_bytes = cmd_string.encode("ascii")
         print("Packet of Size " + str(len(cmd_bytes)))  # TODO: Remove
         print([hex(val) for val in cmd_bytes])  # TODO: Remove
         self.serial.write(cmd_bytes)
@@ -99,26 +147,48 @@ class Rot2Motor(Motor):
     def receive_rot2_pkt(self):
         """
 
-        :return:
+        Returns
+        -------
+
         """
         received_bytes = self.serial.read(12)
         received_vals = [ord(val) for val in received_bytes]
-        az = (received_vals[1] * 100) + (received_vals[2] * 10) + received_vals[3] + (received_vals[4] / 10.0) - 360.0
-        el = (received_vals[6] * 100) + (received_vals[7] * 10) + received_vals[8] + (received_vals[9] / 10.0) - 360.0
+        az = (
+            (received_vals[1] * 100)
+            + (received_vals[2] * 10)
+            + received_vals[3]
+            + (received_vals[4] / 10.0)
+            - 360.0
+        )
+        el = (
+            (received_vals[6] * 100)
+            + (received_vals[7] * 10)
+            + received_vals[8]
+            + (received_vals[9] / 10.0)
+            - 360.0
+        )
         az_pulse_per_deg = received_vals[5]
         el_pulse_per_deg = received_vals[10]
-        assert (az_pulse_per_deg == el_pulse_per_deg)  # Consistency Check
+        assert az_pulse_per_deg == el_pulse_per_deg  # Consistency Check
         if az_pulse_per_deg != self.pulses_per_degree:
-            print("Motor Pulses Per Degree Incorrect, Changing Value to " + str(az_pulse_per_deg))
+            print(
+                "Motor Pulses Per Degree Incorrect, Changing Value to "
+                + str(az_pulse_per_deg)
+            )
             self.pulses_per_degree = az_pulse_per_deg
         return az, el
 
     def point(self, az, el):
         """
 
-        :param az:
-        :param el:
-        :return:
+        Parameters
+        ----------
+        az
+        el
+
+        Returns
+        -------
+
         """
         cmd = 0x2F  # Rot2 Set Command
         self.send_rot2_pkt(cmd, az=az, el=el)
@@ -128,7 +198,9 @@ class Rot2Motor(Motor):
     def status(self):
         """
 
-        :return:
+        Returns
+        -------
+
         """
         cmd = 0x1F  # Rot2 Status Command
         self.send_rot2_pkt(cmd)
@@ -138,7 +210,9 @@ class Rot2Motor(Motor):
     def stop(self):
         """
 
-        :return:
+        Returns
+        -------
+
         """
         cmd = 0x0F  # Rot2 Stop Command
         self.send_rot2_pkt(cmd)
@@ -147,13 +221,29 @@ class Rot2Motor(Motor):
 
 
 class H180Motor(Motor):
-    AZCOUNTS_PER_DEG = (52.0 * 27.0 / 120.0)
-    ELCOUNTS_PER_DEG = (52.0 * 27.0 / 120.0)
+    """
+
+    """
+
+    AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
+    ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
     def __init__(self, port):
+        """
+
+        Parameters
+        ----------
+        port
+        """
         Motor.__init__(self, port)
-        self.serial = serial.Serial(port=port, baudrate=2400, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE,
-                                    stopbits=serial.STOPBITS_ONE, timeout=None)
+        self.serial = serial.Serial(
+            port=port,
+            baudrate=2400,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            timeout=None,
+        )
         self.az_count = 0.0
         self.el_count = 0.0
         self.count_per_step = 100  # TODO: Is this right/needed?
@@ -164,6 +254,16 @@ class H180Motor(Motor):
         self.stow = 0
 
     def connect(self, cmd):
+        """
+
+        Parameters
+        ----------
+        cmd
+
+        Returns
+        -------
+
+        """
         count = 0
         azz = self.azcmd - self.azlim1
         ell = self.elcmd - self.ellim1
@@ -207,7 +307,7 @@ class H180Motor(Motor):
                 count = 8000
             if cmd == 2 and mm >= 0 and count:
                 cmd_string = " move %d %d%1c" % (mm, count, 13)
-                self.serial.write(cmd_string.encode('ascii'))
+                self.serial.write(cmd_string.encode("ascii"))
                 resp = ""
                 sleep(0.01)
                 im = 0
@@ -223,10 +323,10 @@ class H180Motor(Motor):
                 status = i
                 sleep(0.1)
                 for i in range(status):
-                    if resp[i] == 'M' or resp[i] == 'T':
+                    if resp[i] == "M" or resp[i] == "T":
                         im = i
                 ccount = int(resp[im:status].split(" ")[-1])
-                if resp[im] == 'M':
+                if resp[im] == "M":
                     if mm == 1:
                         self.az_count += ccount
                     if mm == 0:
@@ -235,7 +335,7 @@ class H180Motor(Motor):
                         self.el_count += ccount
                     if mm == 2:
                         self.el_count -= ccount
-                if resp[im] == 'T':
+                if resp[im] == "T":
                     if mm == 1:
                         self.az_count += count
                     if mm == 0:
@@ -245,26 +345,81 @@ class H180Motor(Motor):
                     if mm == 2:
                         self.el_count -= count
 
-
     def point(self, az, el):
+        """
+
+        Parameters
+        ----------
+        az
+        el
+
+        Returns
+        -------
+
+        """
         pass
 
     def status(self):
+        """
+
+        Returns
+        -------
+
+        """
         pass
 
     def stop(self):
+        """
+
+        Returns
+        -------
+
+        """
         pass
 
 
 class PushRodMotor(Motor):
+    """
+
+    """
+
     def __init__(self, port):
+        """
+
+        Parameters
+        ----------
+        port
+        """
         Motor.__init__(self, port)
 
     def point(self, az, el):
+        """
+
+        Parameters
+        ----------
+        az
+        el
+
+        Returns
+        -------
+
+        """
         pass
 
     def status(self):
+        """
+
+        Returns
+        -------
+
+        """
         pass
 
     def stop(self):
+        """
+
+        Returns
+        -------
+
+        """
         pass
