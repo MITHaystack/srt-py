@@ -1,4 +1,6 @@
-"""
+"""test_ephemeris.py
+
+Calculates and Displays All AzEl Coordinates Above the Horizon
 
 """
 from utilities.object_tracker import EphemerisTracker

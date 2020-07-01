@@ -1,4 +1,6 @@
-"""
+"""test_motor.py
+
+Moves a Motor Through 10 Random Points and Back to Stow
 
 """
 from random import uniform
