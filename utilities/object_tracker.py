@@ -80,7 +80,7 @@ class EphemerisTracker:
             lon=observer_lon * u.deg,
             height=observer_elevation * u.m,
         )
-        self.latest_time = Time.now()
+        self.latest_time = None
         self.refresh_time = refresh_time * u.second
 
         self.az_el_dict = {}
@@ -121,7 +121,7 @@ class EphemerisTracker:
         -------
         None
         """
-        if Time.now() < self.latest_time + self.refresh_time:
+        if self.latest_time is not None and Time.now() < self.latest_time + self.refresh_time:
             return
         time = Time.now()
         frame = AltAz(obstime=time, location=self.location)
