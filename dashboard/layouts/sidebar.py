@@ -50,13 +50,7 @@ def generate_sidebar(pages):
             # we wrap the horizontal rule and short blurb in a div that can be
             # hidden on a small screen
             html.Div(
-                [
-                    html.Hr(),
-                    html.P(
-                        "Select the view dashboard ",
-                        className="lead",
-                    ),
-                ],
+                [html.Hr(), html.P("Select the view dashboard ", className="lead",),],
                 id="blurb",
             ),
             # use the Collapse component to animate hiding / revealing links

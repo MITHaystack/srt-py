@@ -16,12 +16,15 @@ def generate_az_el_graph(az_limits, el_limits):
 
     # fig.add_scatter()
 
-    fig.add_trace(go.Scatter(
-        x=[random.randint(0, 360)], y=[45],
-        name='sin',
-        mode='markers',
-        marker_color='rgba(152, 0, 0, .8)'
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=[random.randint(0, 360)],
+            y=[45],
+            name="sin",
+            mode="markers",
+            marker_color="rgba(152, 0, 0, .8)",
+        )
+    )
 
     for val in az_limits:
         fig.add_shape(
@@ -30,11 +33,7 @@ def generate_az_el_graph(az_limits, el_limits):
             y0=el_lower_display_lim,
             x1=val,
             y1=el_upper_display_lim,
-            line=dict(
-                color="LightCoral",
-                width=4,
-                dash="dashdot",
-            ),
+            line=dict(color="LightCoral", width=4, dash="dashdot",),
         )
 
     for val in el_limits:
@@ -44,11 +43,7 @@ def generate_az_el_graph(az_limits, el_limits):
             y0=val,
             x1=az_upper_display_lim,
             y1=val,
-            line=dict(
-                color="LightBlue",
-                width=4,
-                dash="dashdot",
-            ),
+            line=dict(color="LightBlue", width=4, dash="dashdot",),
         )
 
     # Set axes ranges

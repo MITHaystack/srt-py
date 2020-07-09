@@ -12,58 +12,59 @@ from astropy.time import Time
 
 
 def generate_layout():
-    layout = html.Div([
-        html.Div([
-            dcc.Graph(
-                id='az-el-graph'
+    layout = html.Div(
+        [
+            html.Div(
+                [
+                    dcc.Graph(id="az-el-graph"),
+                    dcc.Graph(id="spectrum-histogram"),
+                    dcc.Graph(id="power-graph"),
+                    dcc.Markdown(id="status-display"),
+                ]
             ),
-            dcc.Graph(
-                id='spectrum-histogram'
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Header"),
+                    dbc.ModalBody("This is the content of the modal"),
+                    dbc.ModalFooter(
+                        dbc.Button("Close", id="close", className="ml-auto")
+                    ),
+                ],
+                id="modal",
             ),
-            dcc.Graph(
-                id='power-graph'
-            ),
-            dcc.Markdown(
-                id='status-display'
-            )
-        ]),
-        dbc.Modal(
-            [
-                dbc.ModalHeader("Header"),
-                dbc.ModalBody("This is the content of the modal"),
-                dbc.ModalFooter(
-                    dbc.Button("Close", id="close", className="ml-auto")
-                ),
-            ],
-            id="modal",
-        )
-    ])
+        ]
+    )
     return layout
 
 
 def register_callbacks(app):
-    # Multiple components can update everytime interval gets fired.
-    @app.callback(Output('az-el-graph', 'figure'),
-                  [Input('interval-component', 'n_intervals')])
+    @app.callback(
+        Output("az-el-graph", "figure"), [Input("interval-component", "n_intervals")]
+    )
     def update_az_el_graph(n):
         return generate_az_el_graph((270, 90), (30, 60))
 
-    @app.callback(Output('spectrum-histogram', 'figure'),
-                  [Input('interval-component', 'n_intervals')])
+    @app.callback(
+        Output("spectrum-histogram", "figure"),
+        [Input("interval-component", "n_intervals")],
+    )
     def update_spectrum_histogram(n):
         x = np.random.randn(500)
         fig = go.Figure(data=[go.Histogram(x=x)])
         return fig
 
-    @app.callback(Output('power-graph', 'figure'),
-                  [Input('interval-component', 'n_intervals')])
+    @app.callback(
+        Output("power-graph", "figure"), [Input("interval-component", "n_intervals")]
+    )
     def update_power_graph(n):
         x = np.arange(10)
         fig = go.Figure(data=go.Scatter(x=x, y=x ** 2))
         return fig
 
-    @app.callback(Output('status-display', 'children'),
-                  [Input('interval-component', 'n_intervals')])
+    @app.callback(
+        Output("status-display", "children"),
+        [Input("interval-component", "n_intervals")],
+    )
     def update_status_display(n):
         name = "Haystack"
         lat = 42.5
@@ -87,8 +88,9 @@ def register_callbacks(app):
 
     @app.callback(
         Output("modal", "is_open"),
-        [Input('az-el-graph', 'clickData'), Input("close", "n_clicks")],
-        [State("modal", "is_open")])
+        [Input("az-el-graph", "clickData"), Input("close", "n_clicks")],
+        [State("modal", "is_open")],
+    )
     def display_click_data(clickData, n_clicks, is_open):
         print(clickData, end=" ")  # TODO: Remove
         print(n_clicks, end=" ")  # TODO: Remove

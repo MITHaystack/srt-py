@@ -9,16 +9,13 @@ import flask
 from dashboard.layouts.sidebar import generate_sidebar
 from dashboard.layouts import control_page, monitor_page
 
-# from dashboard.layouts import navbar
 
 server = flask.Flask(__name__)
 app = dash.Dash(
     __name__,
     server=server,
     external_stylesheets=[dbc.themes.BOOTSTRAP],
-    meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
-    ],
+    meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
 
 pages = {"Monitor Page": "monitor-page", "Control Page": "control-page"}
@@ -31,9 +28,7 @@ layout = html.Div(
         dcc.Location(id="url"),
         sidebar,
         content,
-        dcc.Interval(
-            id="interval-component", interval=refresh_time, n_intervals=0
-        ),
+        dcc.Interval(id="interval-component", interval=refresh_time, n_intervals=0),
     ]
 )
 
