@@ -6,8 +6,8 @@ from dash.dependencies import Input, Output, State
 
 import flask
 
-from dashboard.layouts.sidebar import generate_sidebar
-from dashboard.layouts import control_page, monitor_page
+from layouts.sidebar import generate_sidebar
+from layouts import control_page, monitor_page
 
 
 server = flask.Flask(__name__)
