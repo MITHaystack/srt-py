@@ -412,7 +412,7 @@ class H180Motor(Motor):
         return az, el
 
 
-class PushRodMotor(Motor):
+class PushRodMotor(Motor):  # TODO: Ask About the Necessary Pushrod Parameters
     """
 
     """

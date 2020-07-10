@@ -14,7 +14,7 @@ class RotorType(Enum):
     """
 
     ROT2 = "ALFASPID"
-    H180 = "H180Mount"
+    H180 = "H180MOUNT"
     PUSH_ROD = "PUSHROD"
 
 
@@ -41,11 +41,11 @@ class Rotor:
         el_limits : (float, float)
             Tuple of Lower and Upper Elevation Limits
         """
-        if motor_type == RotorType.ROT2:
+        if motor_type == RotorType.ROT2 or motor_type == RotorType.ROT2.value:
             self.motor = Rot2Motor(port, az_limits, el_limits)
-        elif motor_type == RotorType.H180:
+        elif motor_type == RotorType.H180 or motor_type == RotorType.H180.value:
             self.motor = H180Motor(port, az_limits, el_limits)
-        elif motor_type == RotorType.PUSH_ROD:
+        elif motor_type == RotorType.PUSH_ROD == RotorType.PUSH_ROD.value:
             self.motor = PushRodMotor(port, az_limits, el_limits)
         else:
             raise ValueError("Not a known motor type")

@@ -13,7 +13,7 @@ az_limit = (38, 355)  # Taken From Haystack srt.cat
 el_limit = (0, 89)  # Taken From Haystack srt.cat
 
 if __name__ == "__main__":
-    rotor = Rotor(RotorType.ROT2, "/dev/ttyUSB0")
+    rotor = Rotor(RotorType.ROT2, "/dev/ttyUSB0", az_limit, el_limit)
     az, el = rotor.get_azimuth_elevation()
     print("Current AzEl: " + str((az, el)))
 
