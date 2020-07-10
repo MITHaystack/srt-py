@@ -32,17 +32,25 @@ def generate_layout():
                 ],
                 id="modal",
             ),
+            html.Div(id='signal', style={'display': 'none'})
         ]
     )
     return layout
 
 
-def register_callbacks(app):
+def register_callbacks(app, status_thread):
+    # @app.callback(
+    #     Out
+    #     [Input("interval-component", "n_intervals")]
+    # )
+
     @app.callback(
         Output("az-el-graph", "figure"), [Input("interval-component", "n_intervals")]
     )
     def update_az_el_graph(n):
-        return generate_az_el_graph((270, 90), (30, 60))
+        status = status_thread.get_status()
+        if status is not None:
+            return generate_az_el_graph(status["az_limits"], status["el_limits"], status["object_locs"])
 
     @app.callback(
         Output("spectrum-histogram", "figure"),
@@ -66,11 +74,15 @@ def register_callbacks(app):
         [Input("interval-component", "n_intervals")],
     )
     def update_status_display(n):
-        name = "Haystack"
-        lat = 42.5
-        lon = -71
-        az = 80
-        el = 45
+        status = status_thread.get_status()
+        if status is None:
+            return ""
+
+        name = status["location"]["name"]
+        lat = status["location"]["latitude"]
+        lon = status["location"]["longitude"]
+        az = status["motor_azel"][0]
+        el = status["motor_azel"][1]
         az_offset = 0
         el_offset = 0
         cf = 1420

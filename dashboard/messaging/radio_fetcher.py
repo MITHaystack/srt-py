@@ -3,8 +3,6 @@ import numpy as np
 from threading import Thread
 from time import sleep
 
-import matplotlib.pyplot as plt
-
 
 class RadioThread(Thread):
     def __init__(
@@ -41,6 +39,8 @@ class RadioThread(Thread):
 
 
 if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
     thread = RadioThread()
     thread.start()
     for _ in range(5):

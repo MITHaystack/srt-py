@@ -3,10 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
 
-import random
 
-
-def generate_az_el_graph(az_limits, el_limits):
+def generate_az_el_graph(az_limits, el_limits, points_dict):
     fig = go.Figure()
 
     az_lower_display_lim = 0
@@ -18,8 +16,8 @@ def generate_az_el_graph(az_limits, el_limits):
 
     fig.add_trace(
         go.Scatter(
-            x=[random.randint(0, 360)],
-            y=[45],
+            x=[points_dict[name][0] for name in points_dict],
+            y=[points_dict[name][1] for name in points_dict],
             name="sin",
             mode="markers",
             marker_color="rgba(152, 0, 0, .8)",

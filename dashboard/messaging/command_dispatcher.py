@@ -26,6 +26,7 @@ class CommandThread(Thread):
 
 def test_cmd_send():  # TODO: Look into PyTest Fixtures - Having Multiple Threads in PyTest Causes Copious Warnings
     from time import sleep
+
     port = 5556
     num_dispatchers = 10
     num_in_queue = 5
@@ -50,4 +51,4 @@ def test_cmd_send():  # TODO: Look into PyTest Fixtures - Having Multiple Thread
     receive_thread.start()
     sleep(1)
     print(received)
-    assert len(received) == num_in_queue*num_dispatchers
+    assert len(received) == num_in_queue * num_dispatchers

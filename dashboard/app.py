@@ -6,8 +6,9 @@ from dash.dependencies import Input, Output, State
 
 import flask
 
-from layouts.sidebar import generate_sidebar
 from layouts import control_page, monitor_page
+from layouts.sidebar import generate_sidebar
+from messaging.status_fetcher import StatusThread
 
 
 server = flask.Flask(__name__)
@@ -17,6 +18,9 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
+
+statusThread = StatusThread()
+statusThread.start()
 
 pages = {"Monitor Page": "monitor-page", "Control Page": "control-page"}
 refresh_time = 1000  # ms
@@ -36,7 +40,7 @@ app.layout = layout
 app.validation_layout = html.Div(
     [layout, control_page.generate_layout(), monitor_page.generate_layout()]
 )
-monitor_page.register_callbacks(app)
+monitor_page.register_callbacks(app, statusThread)
 control_page.register_callbacks(app)
 
 

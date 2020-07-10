@@ -1,8 +1,10 @@
 STATION: include('location')
 AZLIMITS: include('limit')
 ELLIMITS: include('limit')
+STOW_LOCATION: include('az_el_point')
 BEAMWIDTH: num()
 MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT')
+MOTOR_PORT: str()
 TSYS: num()
 TCAL: num()
 ---
@@ -14,3 +16,7 @@ location:
 limit:
     lower_bound: num()
     upper_bound: num()
+---
+az_el_point:
+    azimuth: num()
+    elevation: num()
