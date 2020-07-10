@@ -81,7 +81,7 @@ class Motor(ABC):
         -------
         None
         """
-        if self.serial is not None and self.serial.is_open():
+        if self.serial is not None and self.serial.is_open:
             self.serial.close()
 
 
@@ -97,7 +97,14 @@ class Rot2Motor(Motor):
 
     VALID_PULSES_PER_DEGREE = (1, 2, 4)
 
-    def __init__(self, port, az_limits, el_limits, pulses_per_degree=2):
+    def __init__(
+        self,
+        port,
+        az_limits,
+        el_limits,
+        pulses_per_degree=2,
+        test_pulses_per_degree=True,
+    ):
         """Initializer for Rot2Motor
 
         Parameters
@@ -110,6 +117,8 @@ class Rot2Motor(Motor):
             Tuple of Lower and Upper Elevation Limits
         pulses_per_degree : int
             Number of Motor Pulses per Degree of Movement
+        test_pulses_per_degree : bool
+            Whether to Run A Call to Ask the Motor What its True Pulses per Degree Is (By Calling status)
         """
         Motor.__init__(self, port, az_limits, el_limits)
         self.serial = serial.Serial(
@@ -124,6 +133,8 @@ class Rot2Motor(Motor):
             self.pulses_per_degree = pulses_per_degree
         else:
             raise ValueError("Invalid Pulse Per Degree Value")
+        if test_pulses_per_degree:
+            self.status()
 
     def send_rot2_pkt(self, cmd, az=None, el=None):
         """Builds and Sends a ROT2 Command Packet over Serial
@@ -171,8 +182,8 @@ class Rot2Motor(Motor):
             cmd,
         )
         cmd_bytes = cmd_string.encode("ascii")
-        print("Packet of Size " + str(len(cmd_bytes)))  # TODO: Remove
-        print([hex(val) for val in cmd_bytes])  # TODO: Remove
+        # print("Packet of Size " + str(len(cmd_bytes)))
+        # print([hex(val) for val in cmd_bytes])
         self.serial.write(cmd_bytes)
 
     def receive_rot2_pkt(self):
@@ -183,8 +194,7 @@ class Rot2Motor(Motor):
         (float, float)
             Azimuth and Elevation Coordinate as a Tuple of Floats
         """
-        received_bytes = self.serial.read(12)
-        received_vals = [ord(val) for val in received_bytes]
+        received_vals = self.serial.read(12)
         az = (
             (received_vals[1] * 100)
             + (received_vals[2] * 10)
@@ -222,13 +232,12 @@ class Rot2Motor(Motor):
 
         Returns
         -------
-        (float, float)
-            Current Azimuth and Elevation Coordinate as a Tuple of Floats
+        None
         """
         cmd = 0x2F  # Rot2 Set Command
-        self.send_rot2_pkt(cmd, az=az, el=el)
-        returned_vals = self.receive_rot2_pkt()
-        return returned_vals
+        az_relative = az - self.az_limits[0]
+        el_relative = el - self.el_limits[0]
+        self.send_rot2_pkt(cmd, az=az_relative, el=el_relative)
 
     def status(self):
         """Requests the Current Location of the ROT2 Motor
@@ -240,21 +249,20 @@ class Rot2Motor(Motor):
         """
         cmd = 0x1F  # Rot2 Status Command
         self.send_rot2_pkt(cmd)
-        returned_vals = self.receive_rot2_pkt()
-        return returned_vals
+        az_relative, el_relative = self.receive_rot2_pkt()
+        return az_relative + self.az_limits[0], el_relative + self.el_limits[0]
 
     def stop(self):
         """Stops the ROT2 Motor at its Current Location
 
         Returns
         -------
-        (float, float)
-            Current Azimuth and Elevation Coordinate as a Tuple of Floats
+        None
         """
         cmd = 0x0F  # Rot2 Stop Command
         self.send_rot2_pkt(cmd)
-        returned_vals = self.receive_rot2_pkt()
-        return returned_vals
+        # az_relative, el_relative = self.receive_rot2_pkt()
+        # return (az_relative + self.az_limits[0], el_relative + self.el_limits[0])
 
 
 class H180Motor(Motor):
