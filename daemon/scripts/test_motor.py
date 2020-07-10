@@ -18,10 +18,10 @@ if __name__ == "__main__":
     print("Current AzEl: " + str((az, el)))
 
     num_points = 10
-    test_points = (
+    test_points = [
         (uniform(az_limit[0], az_limit[1]), uniform(el_limit[0], el_limit[1]))
         for _ in range(num_points)
-    )
+    ]
 
     for point in test_points:
         rotor.set_azimuth_elevation(point[0], point[1])
