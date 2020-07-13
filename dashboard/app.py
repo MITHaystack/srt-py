@@ -2,13 +2,15 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ClientsideFunction
 
 import flask
+import plotly.io as pio
 
 from layouts import control_page, monitor_page
 from layouts.sidebar import generate_sidebar
 from messaging.status_fetcher import StatusThread
+from messaging.command_dispatcher import CommandThread
 
 
 server = flask.Flask(__name__)
@@ -22,9 +24,13 @@ app = dash.Dash(
 statusThread = StatusThread()
 statusThread.start()
 
-pages = {"Monitor Page": "monitor-page", "Control Page": "control-page"}
-refresh_time = 1000  # ms
+command_thread = CommandThread()
+command_thread.start()
 
+pages = {"Monitor Page": "monitor-page", "Control Page": "control-page"}
+refresh_time = 5000  # ms
+
+pio.templates.default = "seaborn"
 sidebar = generate_sidebar(pages)
 content = html.Div(id="page-content")
 layout = html.Div(
@@ -33,15 +39,24 @@ layout = html.Div(
         sidebar,
         content,
         dcc.Interval(id="interval-component", interval=refresh_time, n_intervals=0),
-    ]
+        html.Div(id="output-clientside")
+    ],
+    id="mainContainer",
+    style={"height": "100vh", "min_height": "100vh", "width": "100%", 'display': 'inline-block'},
 )
 
 app.layout = layout
 app.validation_layout = html.Div(
     [layout, control_page.generate_layout(), monitor_page.generate_layout()]
 )
+# Create callbacks
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="resize"),
+    Output("output-clientside", "children"),
+    [Input("page-content", "children")],
+)
 monitor_page.register_callbacks(app, statusThread)
-control_page.register_callbacks(app)
+control_page.register_callbacks(app, command_thread)
 
 
 @app.callback(
