@@ -1,6 +1,7 @@
 from time import sleep
 from threading import Thread
 from queue import Queue
+from xmlrpc.client import ServerProxy
 
 import zmq
 
@@ -18,16 +19,22 @@ az_limits = (
     config_dict["AZLIMITS"]["upper_bound"],
 )
 el_limits = (
-    config_dict["ELLIMITS"][   "lower_bound"],
+    config_dict["ELLIMITS"]["lower_bound"],
     config_dict["ELLIMITS"]["upper_bound"],
 )
 stow_location = (
     config_dict["STOW_LOCATION"]["azimuth"],
     config_dict["STOW_LOCATION"]["elevation"]
 )
-beamwidth = config_dict["BEAMWIDTH"]
+motor_offsets = (
+    config_dict["MOTOR_OFFSETS"]["azimuth"],
+    config_dict["MOTOR_OFFSETS"]["elevation"]
+)
 motor_type = config_dict["MOTOR_TYPE"]
 motor_port = config_dict["MOTOR_PORT"]
+radio_center_frequency = config_dict["RADIO_CF"]
+radio_sample_frequency = config_dict["RADIO_SF"]
+beamwidth = config_dict["BEAMWIDTH"]
 temp_sys = config_dict["TSYS"]
 temp_cal = config_dict["TCAL"]
 
@@ -41,6 +48,8 @@ ephemeris_cmd_location = None
 rotor_location = stow_location
 rotor_cmd_location = stow_location
 
+
+
 command_queue = Queue()
 
 
@@ -48,6 +57,7 @@ def update_ephemeris_location():
     global ephemeris_locations
     global rotor_cmd_location
     while True:
+        ephemeris_tracker.update_all_az_el()
         ephemeris_locations = ephemeris_tracker.get_all_azimuth_elevation()
         if ephemeris_cmd_location is not None:
             rotor_cmd_location = ephemeris_locations[ephemeris_cmd_location]
@@ -81,9 +91,8 @@ def update_status():
     while True:
         status = {"beam_width": beamwidth, "location": station, "motor_azel": rotor_location,
                   "motor_cmd_azel": rotor_cmd_location, "object_locs": ephemeris_locations,
-                  "az_limits": az_limits, "el_limits": el_limits}
-        # status["center_frequency"] =
-        # status["bandwidth"] =
+                  "az_limits": az_limits, "el_limits": el_limits, "center_frequency": radio_center_frequency,
+                  "bandwidth": radio_sample_frequency, "motor_offsets": motor_offsets}
         status_socket.send_json(status)
         sleep(0.5)
 
@@ -93,6 +102,7 @@ def srt_daemon_main():
     rotor_pointing_thread = Thread(target=update_rotor_status, daemon=True)
     command_queueing_thread = Thread(target=update_command_queue, daemon=True)
     status_thread = Thread(target=update_status, daemon=True)
+    rpc_server = ServerProxy("http://localhost:5557/")
 
     ephemeris_tracker_thread.start()
     # rotor_pointing_thread.start()
@@ -102,6 +112,7 @@ def srt_daemon_main():
     while True:
         try:
             command = command_queue.get()
+            print(command)
             if command[0] == "*":
                 continue
             command_parts = command.split(" ")
@@ -125,7 +136,7 @@ def srt_daemon_main():
             elif command_name == "roff":
                 pass  # TODO: Implement
             elif command_name == "freq":
-                pass  # TODO: Implement
+                rpc_server.set_freq(int(command_parts[1]))
             elif command_name == "azel":
                 ephemeris_cmd_location = None
                 rotor_cmd_location = (float(command_parts[1]), float(command_parts[2]))
