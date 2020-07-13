@@ -9,7 +9,7 @@ def generate_sidebar(pages):
     # it consists of a title, and a toggle, the latter is hidden on large screens
     sidebar_header = dbc.Row(
         [
-            dbc.Col(html.H2("SRT Views", className="display-7")),
+            dbc.Col(html.H3("Small Radio Telescope", className="display-7")),
             dbc.Col(
                 [
                     html.Button(

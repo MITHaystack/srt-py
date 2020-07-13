@@ -1,7 +1,6 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 
@@ -16,23 +15,76 @@ def generate_layout():
         [
             html.Div(
                 [
-                    dcc.Graph(id="az-el-graph"),
-                    dcc.Graph(id="spectrum-histogram"),
-                    dcc.Graph(id="power-graph"),
-                    dcc.Markdown(id="status-display"),
-                ]
-            ),
-            dbc.Modal(
-                [
-                    dbc.ModalHeader("Header"),
-                    dbc.ModalBody("This is the content of the modal"),
-                    dbc.ModalFooter(
-                        dbc.Button("Close", id="close", className="ml-auto")
+                    html.Div(
+                        [
+                        ],
+                        className="one-third column",
+                    ),
+                    html.Div(
+                        [
+                            html.H3(
+                                "SRT Monitoring Page",
+                                style={"margin-bottom": "0px", "text-align": "center"},
+                            ),
+                        ],
+                        className="one-third column",
+                        id="title",
+                    ),
+                    html.Div(
+                        [
+                        ],
+                        className="one-third column",
+                        id="button"
                     ),
                 ],
-                id="modal",
+                id="header",
+                className="row flex-display",
+                style={"margin-bottom": "25px"},
             ),
-            html.Div(id='signal', style={'display': 'none'})
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Div(
+                                [dcc.Graph(id="power-graph")],
+                                className="pretty_container seven columns",
+                            ),
+                            html.Div(
+                                [
+                                    html.Div(
+                                        [dcc.Graph(id="spectrum-histogram-a"),],
+                                        className="mini_container",
+                                    ),
+                                    html.Div(
+                                        [dcc.Graph(id="spectrum-histogram-b"),],
+                                        className="mini_container",
+                                    ),
+                                    html.Div(
+                                        [dcc.Graph(id="spectrum-histogram-c")],
+                                        className="mini_container",
+                                    ),
+                                ],
+                                className="three columns",
+                            ),
+                            html.Div(
+                                [dcc.Markdown(id="status-display")],
+                                style={},
+                                className="pretty_container two columns",
+                            ),
+                        ],
+                        className="row flex-display",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [dcc.Graph(id="az-el-graph")],
+                                className="pretty_container twelve columns",
+                            ),
+                        ],
+                        className="row flex-display",
+                    ),
+                ]
+            ),
         ]
     )
     return layout
@@ -50,15 +102,56 @@ def register_callbacks(app, status_thread):
     def update_az_el_graph(n):
         status = status_thread.get_status()
         if status is not None:
-            return generate_az_el_graph(status["az_limits"], status["el_limits"], status["object_locs"])
+            return generate_az_el_graph(
+                status["az_limits"], status["el_limits"], status["object_locs"]
+            )
 
     @app.callback(
-        Output("spectrum-histogram", "figure"),
+        Output("spectrum-histogram-a", "figure"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_spectrum_histogram(n):
+    def update_spectrum_histogram_a(n):
         x = np.random.randn(500)
-        fig = go.Figure(data=[go.Histogram(x=x)])
+        fig = go.Figure(
+            data=[go.Histogram(x=x)],
+            layout={
+                "title": "Spectrum",
+                "height": 150,
+                "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
+            },
+        )
+        return fig
+
+    @app.callback(
+        Output("spectrum-histogram-b", "figure"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_spectrum_histogram_b(n):
+        x = np.random.randn(500)
+        fig = go.Figure(
+            data=[go.Histogram(x=x)],
+            layout={
+                "title": "Spectrum",
+                "height": 150,
+                "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
+            },
+        )
+        return fig
+
+    @app.callback(
+        Output("spectrum-histogram-c", "figure"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_spectrum_histogram_c(n):
+        x = np.random.randn(500)
+        fig = go.Figure(
+            data=[go.Histogram(x=x)],
+            layout={
+                "title": "Spectrum",
+                "height": 150,
+                "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
+            },
+        )
         return fig
 
     @app.callback(
@@ -66,7 +159,14 @@ def register_callbacks(app, status_thread):
     )
     def update_power_graph(n):
         x = np.arange(10)
-        fig = go.Figure(data=go.Scatter(x=x, y=x ** 2))
+        fig = go.Figure(
+            data=go.Scatter(x=x, y=x ** 2),
+            layout={
+                "title": "Power vs Time",
+                "height": 500,
+                "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
+            },
+        )
         return fig
 
     @app.callback(
@@ -83,30 +183,17 @@ def register_callbacks(app, status_thread):
         lon = status["location"]["longitude"]
         az = status["motor_azel"][0]
         el = status["motor_azel"][1]
-        az_offset = 0
-        el_offset = 0
-        cf = 1420
-        bandwidth = 2
+        az_offset = status["motor_offsets"][0]
+        el_offset = status["motor_offsets"][1]
+        cf = status["center_frequency"]
+        bandwidth = status["bandwidth"]
         status_string = f"""
-        ## Current Status
+        #### Current Status
          - Location: {name} (lat: {lat}, lon {lon})
          - Motor Azimuth, Elevation: {az}, {el} deg
          - Motor Offsets: {az_offset}, {el_offset} deg
          - Time: {Time.now()}
-         - Center Frequency: {cf} MHz
-         - Bandwidth: {bandwidth} MHz
+         - Center Frequency: {cf / pow(10, 6)} MHz
+         - Bandwidth: {bandwidth / pow(10, 6)} MHz
         """
         return status_string
-
-    @app.callback(
-        Output("modal", "is_open"),
-        [Input("az-el-graph", "clickData"), Input("close", "n_clicks")],
-        [State("modal", "is_open")],
-    )
-    def display_click_data(clickData, n_clicks, is_open):
-        print(clickData, end=" ")  # TODO: Remove
-        print(n_clicks, end=" ")  # TODO: Remove
-        print(is_open)  # TODO: Remove
-        if n_clicks or clickData:
-            return not is_open
-        return is_open

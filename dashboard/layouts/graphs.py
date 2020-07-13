@@ -18,7 +18,8 @@ def generate_az_el_graph(az_limits, el_limits, points_dict):
         go.Scatter(
             x=[points_dict[name][0] for name in points_dict],
             y=[points_dict[name][1] for name in points_dict],
-            name="sin",
+            text=[name for name in points_dict],
+            name="Celestial Objects",
             mode="markers",
             marker_color="rgba(152, 0, 0, .8)",
         )
@@ -47,10 +48,9 @@ def generate_az_el_graph(az_limits, el_limits, points_dict):
     # Set axes ranges
     fig.update_layout(
         title="Azimuth-Elevation Chart",
-        # yaxis=dict(
-        #   scaleanchor="x",
-        #   scaleratio=1,
-        # )
+        margin=dict(
+            l=20, r=20, b=20, t=30, pad=4,
+        )
     )
     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
