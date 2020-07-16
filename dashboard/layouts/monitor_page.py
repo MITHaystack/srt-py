@@ -4,8 +4,6 @@ import dash_html_components as html
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 
-from .graphs import generate_az_el_graph
-
 import numpy as np
 from astropy.time import Time
 
@@ -74,15 +72,15 @@ def generate_layout():
                         ],
                         className="row flex-display",
                     ),
-                    html.Div(
-                        [
-                            html.Div(
-                                [dcc.Graph(id="az-el-graph")],
-                                className="pretty_container twelve columns",
-                            ),
-                        ],
-                        className="row flex-display",
-                    ),
+                    # html.Div(
+                    #     [
+                    #         html.Div(
+                    #             [dcc.Graph(id="az-el-graph")],
+                    #             className="pretty_container twelve columns",
+                    #         ),
+                    #     ],
+                    #     className="row flex-display",
+                    # ),
                 ]
             ),
         ]
@@ -95,16 +93,6 @@ def register_callbacks(app, status_thread):
     #     Out
     #     [Input("interval-component", "n_intervals")]
     # )
-
-    @app.callback(
-        Output("az-el-graph", "figure"), [Input("interval-component", "n_intervals")]
-    )
-    def update_az_el_graph(n):
-        status = status_thread.get_status()
-        if status is not None:
-            return generate_az_el_graph(
-                status["az_limits"], status["el_limits"], status["object_locs"]
-            )
 
     @app.callback(
         Output("spectrum-histogram-a", "figure"),
@@ -189,7 +177,7 @@ def register_callbacks(app, status_thread):
         bandwidth = status["bandwidth"]
         status_string = f"""
         #### Current Status
-         - Location: {name} (lat: {lat}, lon {lon})
+         - Location: {name} ({lat}, {lon})
          - Motor Azimuth, Elevation: {az}, {el} deg
          - Motor Offsets: {az_offset}, {el_offset} deg
          - Time: {Time.now()}

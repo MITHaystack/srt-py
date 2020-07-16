@@ -4,7 +4,7 @@ import dash_html_components as html
 import plotly.graph_objects as go
 
 
-def generate_az_el_graph(az_limits, el_limits, points_dict):
+def generate_az_el_graph(az_limits, el_limits, points_dict, current_location):
     fig = go.Figure()
 
     az_lower_display_lim = 0
@@ -16,12 +16,12 @@ def generate_az_el_graph(az_limits, el_limits, points_dict):
 
     fig.add_trace(
         go.Scatter(
-            x=[points_dict[name][0] for name in points_dict],
-            y=[points_dict[name][1] for name in points_dict],
-            text=[name for name in points_dict],
+            x=[points_dict[name][0] for name in points_dict] + [current_location[0]],
+            y=[points_dict[name][1] for name in points_dict] + [current_location[1]],
+            text=[name for name in points_dict] + ["Antenna Location"],
             name="Celestial Objects",
             mode="markers",
-            marker_color="rgba(152, 0, 0, .8)",
+            marker_color=["rgba(152, 0, 0, .8)" for _ in points_dict] + ["rgba(0, 0, 152, .8)"],
         )
     )
 

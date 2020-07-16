@@ -56,7 +56,7 @@ app.clientside_callback(
     [Input("page-content", "children")],
 )
 monitor_page.register_callbacks(app, statusThread)
-control_page.register_callbacks(app, command_thread)
+control_page.register_callbacks(app, statusThread, command_thread)
 
 
 @app.callback(
