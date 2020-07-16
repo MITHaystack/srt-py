@@ -14,6 +14,7 @@ validate_yaml_schema()
 config_dict = load_yaml()
 
 station = config_dict["STATION"]
+contact = config_dict["EMERGENCY_CONTACT"]
 az_limits = (
     config_dict["AZLIMITS"]["lower_bound"],
     config_dict["AZLIMITS"]["upper_bound"],
@@ -24,11 +25,11 @@ el_limits = (
 )
 stow_location = (
     config_dict["STOW_LOCATION"]["azimuth"],
-    config_dict["STOW_LOCATION"]["elevation"]
+    config_dict["STOW_LOCATION"]["elevation"],
 )
 motor_offsets = (
     config_dict["MOTOR_OFFSETS"]["azimuth"],
-    config_dict["MOTOR_OFFSETS"]["elevation"]
+    config_dict["MOTOR_OFFSETS"]["elevation"],
 )
 motor_type = config_dict["MOTOR_TYPE"]
 motor_port = config_dict["MOTOR_PORT"]
@@ -49,18 +50,23 @@ rotor_location = stow_location
 rotor_cmd_location = stow_location
 
 current_queue_item = "None"
-upcoming_queue_items = 0
 command_queue = Queue()
 
 
 def update_ephemeris_location():
     global ephemeris_locations
     global rotor_cmd_location
+    global ephemeris_cmd_location
     while True:
         ephemeris_tracker.update_all_az_el()
         ephemeris_locations = ephemeris_tracker.get_all_azimuth_elevation()
         if ephemeris_cmd_location is not None:
-            rotor_cmd_location = ephemeris_locations[ephemeris_cmd_location]
+            new_rotor_cmd_location = ephemeris_locations[ephemeris_cmd_location]
+            if rotor.angles_within_bounds(*new_rotor_cmd_location):
+                rotor_cmd_location = new_rotor_cmd_location
+            else:
+                print(f"Object {ephemeris_cmd_location} moved out of motor bounds")
+                ephemeris_cmd_location = None
         sleep(5)
 
 
@@ -89,17 +95,26 @@ def update_status():
     status_socket = context.socket(zmq.PUB)
     status_socket.bind("tcp://*:%s" % status_port)
     while True:
-        status = {"beam_width": beamwidth, "location": station, "motor_azel": rotor_location,
-                  "motor_cmd_azel": rotor_cmd_location, "object_locs": ephemeris_locations,
-                  "az_limits": az_limits, "el_limits": el_limits, "center_frequency": radio_center_frequency,
-                  "bandwidth": radio_sample_frequency, "motor_offsets": motor_offsets}
+        status = {
+            "beam_width": beamwidth,
+            "location": station,
+            "motor_azel": rotor_location,
+            "motor_cmd_azel": rotor_cmd_location,
+            "object_locs": ephemeris_locations,
+            "az_limits": az_limits,
+            "el_limits": el_limits,
+            "center_frequency": radio_center_frequency,
+            "bandwidth": radio_sample_frequency,
+            "motor_offsets": motor_offsets,
+            "queued_item": current_queue_item,
+            "queue_size": command_queue.qsize(),
+        }
         status_socket.send_json(status)
         sleep(0.5)
 
 
 def srt_daemon_main():
     global current_queue_item
-    global upcoming_queue_items
     global ephemeris_cmd_location
     global rotor_cmd_location
     global motor_offsets
@@ -121,14 +136,14 @@ def srt_daemon_main():
     command_queueing_thread.start()
     status_thread.start()
 
-    while True:
+    keep_running = True
+
+    while keep_running:
         try:
             current_queue_item = "None"
-            upcoming_queue_items = command_queue.qsize()
             command = command_queue.get()
             print(command)
             current_queue_item = command
-            upcoming_queue_items = command_queue.qsize()
             if command[0] == "*":
                 continue
             command_parts = command.split(" ")
@@ -141,7 +156,7 @@ def srt_daemon_main():
             elif command_name == "calibrate":
                 pass  # TODO: Implement Calibration Routine
             elif command_name == "quit":
-                pass  # TODO: Decide on if/what quit should do
+                keep_running = False
             elif command_name == "record":
                 rpc_server.set_record(True)
             elif command_name == "roff":
@@ -168,6 +183,13 @@ def srt_daemon_main():
             print(e)
         except ValueError as e:
             print(e)
+
+    rotor_cmd_location = stow_location
+    while (
+        abs(rotor_location[0] - stow_location[0]) > 0.5
+        or abs(rotor_location[1] - stow_location[1]) > 0.5
+    ):
+        sleep(1)
 
 
 if __name__ == "__main__":

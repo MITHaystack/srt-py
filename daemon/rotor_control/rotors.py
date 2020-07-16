@@ -93,9 +93,16 @@ class Rotor:
         -------
         None
         """
-        if angle_within_range(az, self.az_limits) and angle_within_range(el, self.el_limits):
+        if angle_within_range(az, self.az_limits) and angle_within_range(
+            el, self.el_limits
+        ):
             azz = (az - self.az_offset + 360) % 360
             ell = el - self.el_offset
             self.motor.point(azz, ell)
         else:
             raise ValueError("Angle Not Within Bounds")
+
+    def angles_within_bounds(self, az, el):
+        return angle_within_range(az, self.az_limits) and angle_within_range(
+            el, self.el_limits
+        )

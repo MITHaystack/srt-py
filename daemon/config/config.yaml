@@ -2,6 +2,10 @@ STATION:
   latitude: 42.5
   longitude: -71.5
   name: Haystack
+EMERGENCY_CONTACT:
+  name: John Doe
+  email: test@example.com
+  phone_number: 555-555-5555
 AZLIMITS:
   lower_bound: 10.0
   upper_bound: 359.0

@@ -1,4 +1,5 @@
 STATION: include('location')
+EMERGENCY_CONTACT: include('contact_info')
 AZLIMITS: include('limit')
 ELLIMITS: include('limit')
 STOW_LOCATION: include('az_el_point')
@@ -23,3 +24,8 @@ limit:
 az_el_point:
     azimuth: num()
     elevation: num()
+---
+contact_info:
+    name: str()
+    email: str()
+    phone_number: str()
