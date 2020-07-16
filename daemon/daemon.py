@@ -44,12 +44,12 @@ ephemeris_tracker = EphemerisTracker(
 ephemeris_locations = ephemeris_tracker.get_all_azimuth_elevation()
 ephemeris_cmd_location = None
 
-# rotor = Rotor(motor_type, motor_port, az_limits, el_limits)
+rotor = Rotor(motor_type, motor_port, az_limits, el_limits, *motor_offsets)
 rotor_location = stow_location
 rotor_cmd_location = stow_location
 
-
-
+current_queue_item = "None"
+upcoming_queue_items = 0
 command_queue = Queue()
 
 
@@ -98,33 +98,44 @@ def update_status():
 
 
 def srt_daemon_main():
+    global current_queue_item
+    global upcoming_queue_items
+    global ephemeris_cmd_location
+    global rotor_cmd_location
+    global motor_offsets
+    global radio_center_frequency
+    global radio_sample_frequency
+
     ephemeris_tracker_thread = Thread(target=update_ephemeris_location, daemon=True)
     rotor_pointing_thread = Thread(target=update_rotor_status, daemon=True)
     command_queueing_thread = Thread(target=update_command_queue, daemon=True)
     status_thread = Thread(target=update_status, daemon=True)
     rpc_server = ServerProxy("http://localhost:5557/")
 
+    rpc_server.set_freq(radio_center_frequency)
+    rpc_server.set_samp_rate(radio_sample_frequency)
+    rpc_server.set_record(False)
+
     ephemeris_tracker_thread.start()
-    # rotor_pointing_thread.start()
+    rotor_pointing_thread.start()
     command_queueing_thread.start()
     status_thread.start()
 
     while True:
         try:
+            current_queue_item = "None"
+            upcoming_queue_items = command_queue.qsize()
             command = command_queue.get()
             print(command)
+            current_queue_item = command
+            upcoming_queue_items = command_queue.qsize()
             if command[0] == "*":
                 continue
             command_parts = command.split(" ")
             command_name = command_parts[0].lower()
-            if command_name == "sourcename":
-                global ephemeris_cmd_location
-                if command_parts[1] in ephemeris_locations:
-                    ephemeris_cmd_location = command_parts[1]
-                else:
-                    raise ValueError
+            if command_parts[0] in ephemeris_locations:
+                ephemeris_cmd_location = command_parts[0]
             elif command_name == "stow":
-                global rotor_cmd_location
                 ephemeris_cmd_location = None
                 rotor_cmd_location = stow_location
             elif command_name == "calibrate":
@@ -132,16 +143,26 @@ def srt_daemon_main():
             elif command_name == "quit":
                 pass  # TODO: Decide on if/what quit should do
             elif command_name == "record":
-                pass  # TODO: Implement
+                rpc_server.set_record(True)
             elif command_name == "roff":
-                pass  # TODO: Implement
+                rpc_server.set_record(False)
             elif command_name == "freq":
-                rpc_server.set_freq(int(command_parts[1]))
+                rpc_server.set_freq(float(command_parts[1]) * pow(10, 6))
+                radio_center_frequency = float(command_parts[1]) * pow(10, 6)
+            elif command_name == "samp":
+                rpc_server.set_samp_rate(float(command_parts[1]) * pow(10, 6))
+                radio_sample_frequency = float(command_parts[1]) * pow(10, 6)
             elif command_name == "azel":
                 ephemeris_cmd_location = None
                 rotor_cmd_location = (float(command_parts[1]), float(command_parts[2]))
+            elif command_name == "offset":
+                motor_offsets = (float(command_parts[1]), float(command_parts[2]))
+                rotor.az_offset = float(command_parts[1])
+                rotor.el_offset = float(command_parts[2])
             elif command_name == "wait":
                 sleep(int(command_parts[1]))
+            else:
+                print(f"Command Not Identified '{command}'")
 
         except IndexError as e:
             print(e)

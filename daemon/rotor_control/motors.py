@@ -85,6 +85,54 @@ class Motor(ABC):
             self.serial.close()
 
 
+class NoMotor(Motor):
+    """
+    Class for Simulating a Motor or Using a Stationary Telescope
+    """
+
+    def __init__(self, port, az_limits, el_limits):
+        """
+        Initializer for Rot2Motor
+
+        Parameters
+        ----------
+        port : str
+            NOT USED - Needed For Abstract Motor Initializer
+        az_limits : (float, float)
+            Tuple of Lower and Upper Azimuth Limits (if Stationary, both should be the same value)
+        el_limits : (float, float)
+            Tuple of Lower and Upper Elevation Limits (if Stationary, both should be the same value)
+        """
+        super().__init__(port, az_limits, el_limits)
+        self.position = (az_limits[0], el_limits[0])
+
+    def point(self, az, el):
+        """Changes the Unchanging Position of the Stationary / Simulated Motor
+
+        Parameters
+        ----------
+        az : float
+            Azimuth Coordinate to Point At
+        el : float
+            Elevation Coordinate to Point At
+
+        Returns
+        -------
+        None
+        """
+        self.position = (az, el)
+
+    def status(self):
+        """Returns the Unchanging Position of the Stationary / Simulated Motor
+
+        Returns
+        -------
+        (float, float)
+            Current Azimuth and Elevation Coordinate as a Tuple of Floats
+        """
+        return self.position
+
+
 class Rot2Motor(Motor):
     """Class for Controlling any ROT2 Protocol-Supporting Motor (e.g. SPID Motors)
 
