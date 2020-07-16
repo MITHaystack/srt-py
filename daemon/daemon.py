@@ -108,6 +108,7 @@ def update_status():
             "motor_offsets": motor_offsets,
             "queued_item": current_queue_item,
             "queue_size": command_queue.qsize(),
+            "emergency_contact": contact
         }
         status_socket.send_json(status)
         sleep(0.5)
@@ -182,6 +183,8 @@ def srt_daemon_main():
         except IndexError as e:
             print(e)
         except ValueError as e:
+            print(e)
+        except ConnectionRefusedError as e:
             print(e)
 
     rotor_cmd_location = stow_location

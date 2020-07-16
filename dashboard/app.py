@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output, State, ClientsideFunction
 import flask
 import plotly.io as pio
 
-from layouts import control_page, monitor_page
+from layouts import control_page, monitor_page, system_page
 from layouts.sidebar import generate_sidebar
 from messaging.status_fetcher import StatusThread
 from messaging.command_dispatcher import CommandThread
@@ -27,7 +27,7 @@ statusThread.start()
 command_thread = CommandThread()
 command_thread.start()
 
-pages = {"Monitor Page": "monitor-page", "Control Page": "control-page"}
+pages = {"Monitor Page": "monitor-page", "Control Page": "control-page", "System Page": "system-page"}
 refresh_time = 5000  # ms
 
 pio.templates.default = "seaborn"
@@ -47,7 +47,7 @@ layout = html.Div(
 
 app.layout = layout
 app.validation_layout = html.Div(
-    [layout, control_page.generate_layout(), monitor_page.generate_layout()]
+    [layout, control_page.generate_layout(), monitor_page.generate_layout(), system_page.generate_layout()]
 )
 # Create callbacks
 app.clientside_callback(
@@ -57,6 +57,7 @@ app.clientside_callback(
 )
 monitor_page.register_callbacks(app, statusThread)
 control_page.register_callbacks(app, statusThread, command_thread)
+system_page.register_callbacks(app, statusThread, command_thread)
 
 
 @app.callback(
@@ -87,6 +88,8 @@ def render_page_content(pathname):
         return monitor_page.generate_layout()
     elif pathname == f"/{pages['Control Page']}":
         return control_page.generate_layout()
+    elif pathname == f"/{pages['System Page']}":
+        return system_page.generate_layout()
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
