@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Test
+# Title: radio_load_raw
 # GNU Radio version: 3.8.1.0
 
 from distutils.version import StrictVersion
@@ -25,28 +25,22 @@ from gnuradio import qtgui
 from gnuradio.filter import firdes
 import sip
 from gnuradio import blocks
-import pmt
 from gnuradio import gr
 import sys
 import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-from gnuradio import zeromq
-import xmlrpc.server
-import threading
-import numpy as np; import gr_digital_rf
-import osmosdr
-import time
+import gr_digital_rf
 
 from gnuradio import qtgui
 
-class test(gr.top_block, Qt.QWidget):
+class radio_load_raw(gr.top_block, Qt.QWidget):
 
-    def __init__(self):
-        gr.top_block.__init__(self, "Test")
+    def __init__(self, directory_name="./rf_data", samp_rate=2400000):
+        gr.top_block.__init__(self, "radio_load_raw")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Test")
+        self.setWindowTitle("radio_load_raw")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -64,7 +58,7 @@ class test(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "test")
+        self.settings = Qt.QSettings("GNU Radio", "radio_load_raw")
 
         try:
             if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
@@ -75,42 +69,23 @@ class test(gr.top_block, Qt.QWidget):
             pass
 
         ##################################################
-        # Variables
+        # Parameters
         ##################################################
-        self.samp_rate = samp_rate = 2000000
-        self.record = record = True
-        self.freq = freq = 100e6
+        self.directory_name = directory_name
+        self.samp_rate = samp_rate
 
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:5555', 100, False, -1)
-        self.xmlrpc_server_0 = xmlrpc.server.SimpleXMLRPCServer(('localhost', 5557), allow_none=True)
-        self.xmlrpc_server_0.register_instance(self)
-        self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
-        self.xmlrpc_server_0_thread.daemon = True
-        self.xmlrpc_server_0_thread.start()
-        self.rtlsdr_source_0 = osmosdr.source(
-            args="numchan=" + str(1) + " " + ""
-        )
-        self.rtlsdr_source_0.set_time_unknown_pps(osmosdr.time_spec_t())
-        self.rtlsdr_source_0.set_sample_rate(samp_rate)
-        self.rtlsdr_source_0.set_center_freq(freq, 0)
-        self.rtlsdr_source_0.set_freq_corr(0, 0)
-        self.rtlsdr_source_0.set_gain(10, 0)
-        self.rtlsdr_source_0.set_if_gain(20, 0)
-        self.rtlsdr_source_0.set_bb_gain(20, 0)
-        self.rtlsdr_source_0.set_antenna('', 0)
-        self.rtlsdr_source_0.set_bandwidth(0, 0)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
-            8192, #size
+            1024, #size
             firdes.WIN_BLACKMAN_hARRIS, #wintype
-            freq, #fc
+            0, #fc
             samp_rate, #bw
             "", #name
             1 #number of inputs
         )
-        self.qtgui_waterfall_sink_x_0.set_update_time(0.10)
+        self.qtgui_waterfall_sink_x_0.set_update_time(0.05)
         self.qtgui_waterfall_sink_x_0.enable_grid(False)
         self.qtgui_waterfall_sink_x_0.enable_axis_labels(True)
 
@@ -135,78 +110,55 @@ class test(gr.top_block, Qt.QWidget):
 
         self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_waterfall_sink_x_0_win)
-        self.gr_digital_rf_digital_rf_channel_sink_0 = gr_digital_rf.digital_rf_channel_sink(
-            channel_dir='./test',
-            dtype=np.complex64,
-            subdir_cadence_secs=3600,
-            file_cadence_millisecs=1000,
-            sample_rate_numerator=int(samp_rate),
-            sample_rate_denominator=1,
+        self.gr_digital_rf_digital_rf_channel_source_0 = gr_digital_rf.digital_rf_channel_source(
+            directory_name,
             start='',
-            ignore_tags=False,
-            is_complex=True,
-            num_subchannels=1,
-            uuid_str=None,
-            center_frequencies=[],
-            metadata={},
-            is_continuous=True,
-            compression_level=0,
-            checksum=False,
-            marching_periods=True,
-            stop_on_skipped=False,
-            stop_on_time_tag=False,
-            debug=False,
+            end='',
+            repeat=False,
+            gapless=False,
             min_chunksize=None,
         )
-        self.blocks_selector_0 = blocks.selector(gr.sizeof_gr_complex*1,0,0)
-        self.blocks_selector_0.set_enabled(True)
-        self.blocks_message_strobe_0 = blocks.message_strobe(pmt.to_pmt(record), 10)
+        self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.blocks_selector_0, 'en'))
-        self.connect((self.blocks_selector_0, 0), (self.gr_digital_rf_digital_rf_channel_sink_0, 0))
-        self.connect((self.blocks_selector_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.blocks_selector_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.zeromq_pub_sink_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
+        self.connect((self.gr_digital_rf_digital_rf_channel_source_0, 0), (self.blocks_throttle_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "test")
+        self.settings = Qt.QSettings("GNU Radio", "radio_load_raw")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
+
+    def get_directory_name(self):
+        return self.directory_name
+
+    def set_directory_name(self, directory_name):
+        self.directory_name = directory_name
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
-        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
-
-    def get_record(self):
-        return self.record
-
-    def set_record(self, record):
-        self.record = record
-        self.blocks_message_strobe_0.set_msg(pmt.to_pmt(self.record))
-
-    def get_freq(self):
-        return self.freq
-
-    def set_freq(self, freq):
-        self.freq = freq
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
-        self.rtlsdr_source_0.set_center_freq(self.freq, 0)
+        self.blocks_throttle_0.set_sample_rate(self.samp_rate)
+        self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
 
 
 
 
+def argument_parser():
+    parser = ArgumentParser()
+    return parser
 
-def main(top_block_cls=test, options=None):
+
+def main(top_block_cls=radio_load_raw, options=None):
+    if options is None:
+        options = argument_parser().parse_args()
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')
