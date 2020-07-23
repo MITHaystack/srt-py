@@ -1,3 +1,6 @@
+import os
+import signal
+import subprocess
 from time import sleep
 from threading import Thread
 from queue import Queue
@@ -8,6 +11,7 @@ import zmq
 from rotor_control.rotors import Rotor
 from utilities.object_tracker import EphemerisTracker
 from utilities.yaml_tools import validate_yaml_schema, load_yaml
+from utilities.functions import azel_within_range
 
 
 validate_yaml_schema()
@@ -49,6 +53,9 @@ rotor = Rotor(motor_type, motor_port, az_limits, el_limits, *motor_offsets)
 rotor_location = stow_location
 rotor_cmd_location = stow_location
 
+recording_script = None
+
+rpc_server = ServerProxy("http://localhost:5557/")
 current_queue_item = "None"
 command_queue = Queue()
 
@@ -76,6 +83,8 @@ def update_rotor_status():
         rotor.set_azimuth_elevation(*rotor_cmd_location)
         sleep(1)
         rotor_location = rotor.get_azimuth_elevation()
+        rpc_server.set_motor_az(float(rotor_location[0]))
+        rpc_server.set_motor_el(float(rotor_location[1]))
         sleep(0.1)
 
 
@@ -91,7 +100,7 @@ def update_command_queue():
 
 def update_status():
     context = zmq.Context()
-    status_port = 5554
+    status_port = 5555
     status_socket = context.socket(zmq.PUB)
     status_socket.bind("tcp://*:%s" % status_port)
     while True:
@@ -108,7 +117,7 @@ def update_status():
             "motor_offsets": motor_offsets,
             "queued_item": current_queue_item,
             "queue_size": command_queue.qsize(),
-            "emergency_contact": contact
+            "emergency_contact": contact,
         }
         status_socket.send_json(status)
         sleep(0.5)
@@ -121,16 +130,27 @@ def srt_daemon_main():
     global motor_offsets
     global radio_center_frequency
     global radio_sample_frequency
+    global recording_script
 
     ephemeris_tracker_thread = Thread(target=update_ephemeris_location, daemon=True)
     rotor_pointing_thread = Thread(target=update_rotor_status, daemon=True)
     command_queueing_thread = Thread(target=update_command_queue, daemon=True)
     status_thread = Thread(target=update_status, daemon=True)
-    rpc_server = ServerProxy("http://localhost:5557/")
 
-    rpc_server.set_freq(radio_center_frequency)
-    rpc_server.set_samp_rate(radio_sample_frequency)
-    rpc_server.set_record(False)
+    radio_params = {
+        "Frequency": (rpc_server.set_freq, radio_center_frequency),
+        "Sample Rate": (rpc_server.set_samp_rate, radio_sample_frequency),
+        # "FFT Size": (rpc_server.set_fft_size, 8192),
+        "Num Integrations": (rpc_server.set_num_integrations, 1000),
+        "Motor Azimuth": (rpc_server.set_motor_az, rotor_location[0]),
+        "Motor Elevation": (rpc_server.set_motor_el, rotor_location[1]),
+        "Is Running": (rpc_server.set_is_running, True),
+    }
+    for name in radio_params:
+        method, value = radio_params[name]
+        print(f"Setting {name} to {value}")
+        method(value)
+        sleep(0.1)
 
     ephemeris_tracker_thread.start()
     rotor_pointing_thread.start()
@@ -150,18 +170,30 @@ def srt_daemon_main():
             command_parts = command.split(" ")
             command_name = command_parts[0].lower()
             if command_parts[0] in ephemeris_locations:
-                ephemeris_cmd_location = command_parts[0]
+                new_rotor_cmd_location = ephemeris_locations[command_parts[0]]
+                if rotor.angles_within_bounds(*new_rotor_cmd_location):
+                    ephemeris_cmd_location = command_parts[0]
+                    rotor_cmd_location = new_rotor_cmd_location
+                    while not azel_within_range(rotor_location, rotor_cmd_location):
+                        sleep(0.1)
+                else:
+                    print(f"Object {command_parts[0]} Not in Motor Bounds")
+                    ephemeris_cmd_location = None
             elif command_name == "stow":
                 ephemeris_cmd_location = None
                 rotor_cmd_location = stow_location
+                while not azel_within_range(rotor_location, rotor_cmd_location):
+                    sleep(0.1)
             elif command_name == "calibrate":
                 pass  # TODO: Implement Calibration Routine
             elif command_name == "quit":
                 keep_running = False
+                rpc_server.set_is_running(False)
             elif command_name == "record":
-                rpc_server.set_record(True)
+                app = subprocess.Popen(args=args, stdout=open('somefile', 'w'))
             elif command_name == "roff":
-                rpc_server.set_record(False)
+                pass
+                # rpc_server.set_record(False)
             elif command_name == "freq":
                 rpc_server.set_freq(float(command_parts[1]) * pow(10, 6))
                 radio_center_frequency = float(command_parts[1]) * pow(10, 6)
@@ -170,7 +202,16 @@ def srt_daemon_main():
                 radio_sample_frequency = float(command_parts[1]) * pow(10, 6)
             elif command_name == "azel":
                 ephemeris_cmd_location = None
-                rotor_cmd_location = (float(command_parts[1]), float(command_parts[2]))
+                new_rotor_cmd_location = (
+                    float(command_parts[1]),
+                    float(command_parts[2]),
+                )
+                if rotor.angles_within_bounds(*new_rotor_cmd_location):
+                    rotor_cmd_location = new_rotor_cmd_location
+                    while not azel_within_range(rotor_location, rotor_cmd_location):
+                        sleep(0.1)
+                else:
+                    print(f"Object at {new_rotor_cmd_location} Not in Motor Bounds")
             elif command_name == "offset":
                 motor_offsets = (float(command_parts[1]), float(command_parts[2]))
                 rotor.az_offset = float(command_parts[1])
@@ -188,11 +229,8 @@ def srt_daemon_main():
             print(e)
 
     rotor_cmd_location = stow_location
-    while (
-        abs(rotor_location[0] - stow_location[0]) > 0.5
-        or abs(rotor_location[1] - stow_location[1]) > 0.5
-    ):
-        sleep(1)
+    while not azel_within_range(rotor_location, rotor_cmd_location):
+        sleep(0.1)
 
 
 if __name__ == "__main__":
