@@ -7,14 +7,14 @@ EMERGENCY_CONTACT:
   email: test@example.com
   phone_number: 555-555-5555
 AZLIMITS:
-  lower_bound: 10.0
-  upper_bound: 359.0
+  lower_bound: 38.0
+  upper_bound: 355.0
 ELLIMITS:
-  lower_bound: -1.0
-  upper_bound: 90.0
+  lower_bound: 0.0
+  upper_bound: 89.0
 STOW_LOCATION:
-  azimuth: 10.0
-  elevation: -1.0
+  azimuth: 38.0
+  elevation: 0.0
 MOTOR_OFFSETS:
   azimuth: 0.0
   elevation: 0.0
