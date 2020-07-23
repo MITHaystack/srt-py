@@ -1,0 +1,7 @@
+stow
+wait 10
+Sun
+record
+wait 50
+roff
+stow
