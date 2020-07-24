@@ -2,11 +2,12 @@ import zmq
 import numpy as np
 from threading import Thread
 from time import sleep
+import pmt
 
 
 class RadioThread(Thread):
     def __init__(
-        self, group=None, target=None, name=None, port=5555, cache_size=4_000_000
+        self, group=None, target=None, name=None, port=5559, cache_size=4_000_000
     ):
         super().__init__(group=group, target=target, name=name, daemon=True)
         self.history = np.zeros(cache_size, dtype="complex64")
@@ -20,6 +21,7 @@ class RadioThread(Thread):
         socket.subscribe("")
         while True:
             rec = socket.recv()
+            print(len(rec))
             var = np.frombuffer(rec, dtype="complex64")
             new_history_index = self.history_index + len(var)
             self.history.put(
@@ -43,11 +45,10 @@ if __name__ == "__main__":
 
     thread = RadioThread()
     thread.start()
-    for _ in range(5):
-        sleep(1)
-        powerSpectrum, freqenciesFound, time, imageAxis = plt.specgram(
-            thread.get_sample_history(), Fc=100000000, Fs=2000000
-        )
-        plt.xlabel("Time")
-        plt.ylabel("Frequency")
-        plt.show()
+    sleep(1)
+    powerSpectrum, freqenciesFound, time, imageAxis = plt.specgram(
+        thread.get_sample_history(), Fc=100000000, Fs=2000000
+    )
+    plt.xlabel("Time")
+    plt.ylabel("Frequency")
+    plt.show()

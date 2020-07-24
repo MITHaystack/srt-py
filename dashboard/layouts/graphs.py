@@ -12,8 +12,6 @@ def generate_az_el_graph(az_limits, el_limits, points_dict, current_location):
     el_lower_display_lim = 0
     el_upper_display_lim = 90
 
-    # fig.add_scatter()
-
     fig.add_trace(
         go.Scatter(
             x=[points_dict[name][0] for name in points_dict] + [current_location[0]],
@@ -56,3 +54,6 @@ def generate_az_el_graph(az_limits, el_limits, points_dict, current_location):
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
 
     return fig
+
+
+    # def generate_spectrum_graph():

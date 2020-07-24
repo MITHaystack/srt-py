@@ -2,10 +2,13 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
+import plotly.express as px
 from dash.dependencies import Input, Output, State
 
 import numpy as np
 from astropy.time import Time
+from scipy import signal
+from datetime import datetime
 
 
 def generate_layout():
@@ -13,11 +16,7 @@ def generate_layout():
         [
             html.Div(
                 [
-                    html.Div(
-                        [
-                        ],
-                        className="one-third column",
-                    ),
+                    html.Div([], className="one-third column",),
                     html.Div(
                         [
                             html.H3(
@@ -28,12 +27,7 @@ def generate_layout():
                         className="one-third column",
                         id="title",
                     ),
-                    html.Div(
-                        [
-                        ],
-                        className="one-third column",
-                        id="button"
-                    ),
+                    html.Div([], className="one-third column", id="button"),
                 ],
                 id="header",
                 className="row flex-display",
@@ -48,39 +42,21 @@ def generate_layout():
                                 className="pretty_container seven columns",
                             ),
                             html.Div(
-                                [
-                                    html.Div(
-                                        [dcc.Graph(id="spectrum-histogram-a"),],
-                                        className="mini_container",
-                                    ),
-                                    html.Div(
-                                        [dcc.Graph(id="spectrum-histogram-b"),],
-                                        className="mini_container",
-                                    ),
-                                    html.Div(
-                                        [dcc.Graph(id="spectrum-histogram-c")],
-                                        className="mini_container",
-                                    ),
-                                ],
-                                className="three columns",
-                            ),
-                            html.Div(
                                 [dcc.Markdown(id="status-display")],
                                 style={},
-                                className="pretty_container two columns",
+                                className="pretty_container four columns",
                             ),
                         ],
                         className="row flex-display",
                     ),
-                    # html.Div(
-                    #     [
-                    #         html.Div(
-                    #             [dcc.Graph(id="az-el-graph")],
-                    #             className="pretty_container twelve columns",
-                    #         ),
-                    #     ],
-                    #     className="row flex-display",
-                    # ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [dcc.Graph(id="spectrum-histogram")],
+                                className="pretty_container twelve columns",
+                            ),
+                        ],
+                    ),
                 ]
             ),
         ]
@@ -88,70 +64,47 @@ def generate_layout():
     return layout
 
 
-def register_callbacks(app, status_thread):
-    # @app.callback(
-    #     Out
-    #     [Input("interval-component", "n_intervals")]
-    # )
-
+def register_callbacks(app, status_thread, spectrum_thread):
     @app.callback(
-        Output("spectrum-histogram-a", "figure"),
+        Output("spectrum-histogram", "figure"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_spectrum_histogram_a(n):
-        x = np.random.randn(500)
+    def update_spectrum_histogram(n):
+        max_precision = 2048
+        spectrum = spectrum_thread.get_spectrum()
+        status = status_thread.get_status()
+        if status is None or spectrum is None:
+            return
+
+        data = signal.resample(spectrum, max_precision)
+        bandwidth = float(status["bandwidth"])
+        cf = float(status["center_frequency"])
+        data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(data)) + cf
         fig = go.Figure(
-            data=[go.Histogram(x=x)],
             layout={
                 "title": "Spectrum",
                 "height": 150,
                 "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
             },
         )
-        return fig
-
-    @app.callback(
-        Output("spectrum-histogram-b", "figure"),
-        [Input("interval-component", "n_intervals")],
-    )
-    def update_spectrum_histogram_b(n):
-        x = np.random.randn(500)
-        fig = go.Figure(
-            data=[go.Histogram(x=x)],
-            layout={
-                "title": "Spectrum",
-                "height": 150,
-                "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
-            },
-        )
-        return fig
-
-    @app.callback(
-        Output("spectrum-histogram-c", "figure"),
-        [Input("interval-component", "n_intervals")],
-    )
-    def update_spectrum_histogram_c(n):
-        x = np.random.randn(500)
-        fig = go.Figure(
-            data=[go.Histogram(x=x)],
-            layout={
-                "title": "Spectrum",
-                "height": 150,
-                "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
-            },
-        )
+        fig.add_trace(go.Scatter(x=data_range, y=data, name="Spectrum", mode="lines",))
         return fig
 
     @app.callback(
         Output("power-graph", "figure"), [Input("interval-component", "n_intervals")]
     )
     def update_power_graph(n):
-        x = np.arange(10)
+        status = status_thread.get_status()
+        if status is None:
+            return
+        bandwidth = float(status["bandwidth"])
+        power_history = spectrum_thread.get_power_history(bandwidth)
+        power_time, power_vals = zip(*power_history)
         fig = go.Figure(
-            data=go.Scatter(x=x, y=x ** 2),
+            data=go.Scatter(x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals),
             layout={
                 "title": "Power vs Time",
-                "height": 500,
+                "height": 300,
                 "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
             },
         )
@@ -178,7 +131,7 @@ def register_callbacks(app, status_thread):
         status_string = f"""
         #### Current Status
          - Location: {name} ({lat}, {lon})
-         - Motor Azimuth, Elevation: {az}, {el} deg
+         - Motor Azimuth, Elevation: {az:.1f}, {el:.1f} deg
          - Motor Offsets: {az_offset}, {el_offset} deg
          - Time: {Time.now()}
          - Center Frequency: {cf / pow(10, 6)} MHz

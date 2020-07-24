@@ -4,7 +4,7 @@ import json
 
 
 class StatusThread(Thread):
-    def __init__(self, group=None, target=None, name=None, port=5554):
+    def __init__(self, group=None, target=None, name=None, port=5555):
         super().__init__(group=group, target=target, name=name, daemon=True)
         self.status = None
         self.port = port
