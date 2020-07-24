@@ -86,7 +86,7 @@ def generate_layout():
                                 id="output-data-upload", style={"text-align": "center"}
                             ),
                         ],
-                        className="pretty_container five columns",
+                        className="pretty_container six columns",
                     ),
                 ],
                 className="row flex-display",
