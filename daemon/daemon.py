@@ -1,7 +1,4 @@
-import os
-import signal
-import subprocess
-from time import sleep
+from time import sleep, time
 from threading import Thread
 from queue import Queue
 from xmlrpc.client import ServerProxy
@@ -9,6 +6,7 @@ from xmlrpc.client import ServerProxy
 import zmq
 
 from rotor_control.rotors import Rotor
+from radio_utils.radio_task_starter import start_save_raw, stop_save_raw
 from utilities.object_tracker import EphemerisTracker
 from utilities.yaml_tools import validate_yaml_schema, load_yaml
 from utilities.functions import azel_within_range
@@ -42,6 +40,7 @@ radio_sample_frequency = config_dict["RADIO_SF"]
 beamwidth = config_dict["BEAMWIDTH"]
 temp_sys = config_dict["TSYS"]
 temp_cal = config_dict["TCAL"]
+save_dir = config_dict["SAVE_DIRECTORY"]
 
 ephemeris_tracker = EphemerisTracker(
     station["latitude"], station["longitude"], config_file="./config/sky_coords.csv"
@@ -53,11 +52,15 @@ rotor = Rotor(motor_type, motor_port, az_limits, el_limits, *motor_offsets)
 rotor_location = stow_location
 rotor_cmd_location = stow_location
 
-recording_script = None
-
 rpc_server = ServerProxy("http://localhost:5557/")
 current_queue_item = "None"
 command_queue = Queue()
+command_error_logs = []
+
+
+def log_message(message):
+    command_error_logs.append((time(), message))
+    print(message)
 
 
 def update_ephemeris_location():
@@ -72,7 +75,7 @@ def update_ephemeris_location():
             if rotor.angles_within_bounds(*new_rotor_cmd_location):
                 rotor_cmd_location = new_rotor_cmd_location
             else:
-                print(f"Object {ephemeris_cmd_location} moved out of motor bounds")
+                log_message(f"Object {ephemeris_cmd_location} moved out of motor bounds")
                 ephemeris_cmd_location = None
         sleep(5)
 
@@ -118,6 +121,7 @@ def update_status():
             "queued_item": current_queue_item,
             "queue_size": command_queue.qsize(),
             "emergency_contact": contact,
+            "error_logs": command_error_logs
         }
         status_socket.send_json(status)
         sleep(0.5)
@@ -130,7 +134,6 @@ def srt_daemon_main():
     global motor_offsets
     global radio_center_frequency
     global radio_sample_frequency
-    global recording_script
 
     ephemeris_tracker_thread = Thread(target=update_ephemeris_location, daemon=True)
     rotor_pointing_thread = Thread(target=update_rotor_status, daemon=True)
@@ -148,7 +151,7 @@ def srt_daemon_main():
     }
     for name in radio_params:
         method, value = radio_params[name]
-        print(f"Setting {name} to {value}")
+        log_message(f"Setting {name} to {value}")
         method(value)
         sleep(0.1)
 
@@ -163,7 +166,7 @@ def srt_daemon_main():
         try:
             current_queue_item = "None"
             command = command_queue.get()
-            print(command)
+            log_message(f"Running Command {command}")
             current_queue_item = command
             if command[0] == "*":
                 continue
@@ -177,7 +180,7 @@ def srt_daemon_main():
                     while not azel_within_range(rotor_location, rotor_cmd_location):
                         sleep(0.1)
                 else:
-                    print(f"Object {command_parts[0]} Not in Motor Bounds")
+                    log_message(f"Object {command_parts[0]} Not in Motor Bounds")
                     ephemeris_cmd_location = None
             elif command_name == "stow":
                 ephemeris_cmd_location = None
@@ -190,16 +193,18 @@ def srt_daemon_main():
                 keep_running = False
                 rpc_server.set_is_running(False)
             elif command_name == "record":
-                app = subprocess.Popen(args=args, stdout=open('somefile', 'w'))
+                start_save_raw(radio_sample_frequency, save_dir)
             elif command_name == "roff":
-                pass
-                # rpc_server.set_record(False)
+                stop_save_raw()
             elif command_name == "freq":
                 rpc_server.set_freq(float(command_parts[1]) * pow(10, 6))
                 radio_center_frequency = float(command_parts[1]) * pow(10, 6)
             elif command_name == "samp":
+                was_running = stop_save_raw()
                 rpc_server.set_samp_rate(float(command_parts[1]) * pow(10, 6))
                 radio_sample_frequency = float(command_parts[1]) * pow(10, 6)
+                if was_running:
+                    start_save_raw(radio_sample_frequency, save_dir)
             elif command_name == "azel":
                 ephemeris_cmd_location = None
                 new_rotor_cmd_location = (
@@ -211,7 +216,7 @@ def srt_daemon_main():
                     while not azel_within_range(rotor_location, rotor_cmd_location):
                         sleep(0.1)
                 else:
-                    print(f"Object at {new_rotor_cmd_location} Not in Motor Bounds")
+                    log_message(f"Object at {new_rotor_cmd_location} Not in Motor Bounds")
             elif command_name == "offset":
                 motor_offsets = (float(command_parts[1]), float(command_parts[2]))
                 rotor.az_offset = float(command_parts[1])
@@ -219,14 +224,14 @@ def srt_daemon_main():
             elif command_name == "wait":
                 sleep(int(command_parts[1]))
             else:
-                print(f"Command Not Identified '{command}'")
+                log_message(f"Command Not Identified '{command}'")
 
         except IndexError as e:
-            print(e)
+            log_message(str(e))
         except ValueError as e:
-            print(e)
+            log_message(str(e))
         except ConnectionRefusedError as e:
-            print(e)
+            log_message(str(e))
 
     rotor_cmd_location = stow_location
     while not azel_within_range(rotor_location, rotor_cmd_location):

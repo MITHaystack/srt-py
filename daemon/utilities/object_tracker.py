@@ -11,6 +11,10 @@ from astropy.time import Time
 import astropy.units as u
 
 import numpy as np
+from pathlib import Path
+
+
+root_folder = Path(__file__).parent.parent
 
 
 class EphemerisTracker:
@@ -23,7 +27,7 @@ class EphemerisTracker:
         observer_lat,
         observer_lon,
         observer_elevation=0,
-        config_file="../config/sky_coords.csv",
+        config_file="config/sky_coords.csv",
         refresh_time=10,
         auto_download=True,
     ):
@@ -48,7 +52,7 @@ class EphemerisTracker:
         auto_download : bool
             Whether AstroPy is Permitted to Use Internet to Increase Accuracy
         """
-        table = Table.read(config_file, format="ascii.csv")
+        table = Table.read(Path(root_folder, config_file), format="ascii.csv")
 
         self.sky_coord_names = {}
         sky_coords_ra = np.zeros(len(table))

@@ -82,6 +82,8 @@ class radio_save_raw(gr.top_block):
         self.samp_rate = samp_rate
 
 
+
+
 def argument_parser():
     parser = ArgumentParser()
     return parser
@@ -90,7 +92,7 @@ def argument_parser():
 def main(top_block_cls=radio_save_raw, options=None):
     if options is None:
         options = argument_parser().parse_args()
-    tb = top_block_cls()
+    tb = top_block_cls(**options)
 
     def sig_handler(sig=None, frame=None):
         tb.stop()
@@ -109,3 +111,7 @@ def main(top_block_cls=radio_save_raw, options=None):
         pass
     tb.stop()
     tb.wait()
+
+
+if __name__ == '__main__':
+    main()

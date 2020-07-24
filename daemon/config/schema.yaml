@@ -11,6 +11,7 @@ RADIO_SF: num()
 BEAMWIDTH: num()
 TSYS: num()
 TCAL: num()
+SAVE_DIRECTORY: str()
 ---
 location:
     latitude: num()
