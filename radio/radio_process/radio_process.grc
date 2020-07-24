@@ -56,6 +56,18 @@ blocks:
     coordinate: [8, 245]
     rotation: 0
     state: true
+- name: fft_window
+  id: variable
+  parameters:
+    comment: ''
+    value: window.blackmanharris(fft_size)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [7, 312]
+    rotation: 0
+    state: enabled
 - name: freq
   id: variable
   parameters:
@@ -77,7 +89,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [11, 311]
+    coordinate: [185, 313]
     rotation: 0
     state: true
 - name: motor_az
@@ -104,6 +116,19 @@ blocks:
     coordinate: [109, 180]
     rotation: 0
     state: true
+- name: nlog_k
+  id: variable
+  parameters:
+    comment: ''
+    value: '-20*math.log10(fft_size) -10*math.log10(float(window_power) / fft_size)-20*math.log10(float(ref_scale)
+      / 2) '
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [9, 447]
+    rotation: 0
+    state: true
 - name: num_integrations
   id: variable
   parameters:
@@ -114,6 +139,18 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [108, 246]
+    rotation: 0
+    state: true
+- name: ref_scale
+  id: variable
+  parameters:
+    comment: ''
+    value: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [121, 378]
     rotation: 0
     state: true
 - name: samp_rate
@@ -150,6 +187,18 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [188, 14]
+    rotation: 0
+    state: enabled
+- name: window_power
+  id: variable
+  parameters:
+    comment: ''
+    value: sum([x*x for x in fft_window])
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 377]
     rotation: 0
     state: enabled
 - name: blocks_add_xx_0
@@ -201,9 +250,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [444, 726]
+    coordinate: [425, 700]
     rotation: 0
-    state: enabled
+    state: true
 - name: blocks_delay_0
   id: blocks_delay
   parameters:
@@ -276,9 +325,27 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [672, 767]
+    coordinate: [840, 810]
     rotation: 0
     state: enabled
+- name: blocks_keep_one_in_n_0
+  id: blocks_keep_one_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: num_integrations
+    type: float
+    vlen: fft_size
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1265, 692]
+    rotation: 0
+    state: true
 - name: blocks_message_strobe_0
   id: blocks_message_strobe
   parameters:
@@ -303,17 +370,17 @@ blocks:
     alias: ''
     comment: ''
     length: num_integrations
-    max_iter: '4000'
+    max_iter: num_integrations
     maxoutbuf: '0'
     minoutbuf: '0'
-    scale: '1'
+    scale: 1.0/num_integrations
     type: float
     vlen: fft_size
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [674, 658]
+    coordinate: [1052, 676]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -394,7 +461,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    k: '0'
+    k: nlog_k
     maxoutbuf: '0'
     minoutbuf: '0'
     n: '10'
@@ -403,7 +470,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [907, 666]
+    coordinate: [847, 684]
     rotation: 0
     state: enabled
 - name: blocks_selector_0
@@ -610,7 +677,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [585, 187]
+    coordinate: [586, 187]
     rotation: 0
     state: true
 - name: fft_vxx_0
@@ -626,14 +693,14 @@ blocks:
     nthreads: '1'
     shift: 'True'
     type: complex
-    window: window.blackmanharris(fft_size)
+    window: fft_window
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [183, 748]
+    coordinate: [179, 668]
     rotation: 0
-    state: enabled
+    state: true
 - name: import_0
   id: import
   parameters:
@@ -645,6 +712,19 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [698, 16]
+    rotation: 0
+    state: enabled
+- name: import_0_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import math
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [777, 16]
     rotation: 0
     state: enabled
 - name: osmosdr_source_0
@@ -822,7 +902,7 @@ blocks:
     dc_offset_mode7: '0'
     dc_offset_mode8: '0'
     dc_offset_mode9: '0'
-    freq0: 100e6
+    freq0: freq
     freq1: 100e6
     freq10: 100e6
     freq11: 100e6
@@ -1004,6 +1084,24 @@ blocks:
     coordinate: [277, 99]
     rotation: 0
     state: true
+- name: single_pole_iir_filter_xx_0
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: '1.0'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fft_size
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [622, 692]
+    rotation: 0
+    state: true
 - name: xmlrpc_server_0
   id: xmlrpc_server
   parameters:
@@ -1015,7 +1113,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [171, 372]
+    coordinate: [229, 404]
     rotation: 0
     state: true
 - name: zeromq_pub_sink_0
@@ -1072,7 +1170,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [891, 783]
+    coordinate: [1047, 794]
     rotation: 0
     state: enabled
 - name: zeromq_pub_sink_1_0
@@ -1091,26 +1189,26 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1103, 658]
+    coordinate: [1444, 676]
     rotation: 0
     state: enabled
 
 connections:
 - [blocks_add_xx_0, '0', fft_vxx_0, '0']
 - [blocks_add_xx_0_0, '0', blocks_selector_0, '0']
-- [blocks_complex_to_mag_squared_0, '0', blocks_integrate_xx_0, '0']
-- [blocks_complex_to_mag_squared_0, '0', blocks_moving_average_xx_0, '0']
+- [blocks_complex_to_mag_squared_0, '0', single_pole_iir_filter_xx_0, '0']
 - [blocks_delay_0, '0', blocks_stream_to_vector_0_2, '0']
 - [blocks_delay_0_0, '0', blocks_stream_to_vector_0_0, '0']
 - [blocks_delay_0_1, '0', blocks_stream_to_vector_0_1, '0']
 - [blocks_integrate_xx_0, '0', zeromq_pub_sink_1, '0']
+- [blocks_keep_one_in_n_0, '0', zeromq_pub_sink_1_0, '0']
 - [blocks_message_strobe_0, strobe, blocks_selector_0, en]
-- [blocks_moving_average_xx_0, '0', blocks_nlog10_ff_0, '0']
+- [blocks_moving_average_xx_0, '0', blocks_keep_one_in_n_0, '0']
 - [blocks_multiply_const_vxx_0, '0', blocks_add_xx_0, '0']
 - [blocks_multiply_const_vxx_0_0, '0', blocks_add_xx_0, '1']
 - [blocks_multiply_const_vxx_0_0_0, '0', blocks_add_xx_0, '2']
 - [blocks_multiply_const_vxx_0_0_0_0, '0', blocks_add_xx_0, '3']
-- [blocks_nlog10_ff_0, '0', zeromq_pub_sink_1_0, '0']
+- [blocks_nlog10_ff_0, '0', blocks_moving_average_xx_0, '0']
 - [blocks_selector_0, '0', blocks_stream_to_vector_0_2_0, '0']
 - [blocks_selector_0, '0', dc_blocker_xx_0, '0']
 - [blocks_selector_0, '0', zeromq_pub_sink_0_0, '0']
@@ -1128,6 +1226,8 @@ connections:
 - [epy_block_0_0, '0', blocks_add_xx_0_0, '1']
 - [fft_vxx_0, '0', blocks_complex_to_mag_squared_0, '0']
 - [osmosdr_source_0, '0', epy_block_0_0, '0']
+- [single_pole_iir_filter_xx_0, '0', blocks_integrate_xx_0, '0']
+- [single_pole_iir_filter_xx_0, '0', blocks_nlog10_ff_0, '0']
 
 metadata:
   file_format: 1
