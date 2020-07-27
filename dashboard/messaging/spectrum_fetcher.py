@@ -8,7 +8,7 @@ import time
 
 class SpectrumThread(Thread):
     def __init__(
-        self, group=None, target=None, name=None, history_length=100, port=5560
+        self, group=None, target=None, name=None, history_length=1000, port=5560
     ):
         super().__init__(group=group, target=target, name=name, daemon=True)
         self.history_length = history_length
@@ -26,7 +26,7 @@ class SpectrumThread(Thread):
             var = np.frombuffer(rec, dtype="float32")
             if len(self.history) >= self.history_length:
                 self.history.pop()
-            self.history.append((time.time(), var))
+            self.history.insert(0, (time.time(), var))
             self.spectrum = var
 
     def get_spectrum(self):
