@@ -6,7 +6,7 @@ Extra Functions Condensed for Ease-of-Use
 
 
 def angle_within_range(actual_angle, desired_angle, bounds=0.5):
-    return abs(actual_angle - desired_angle) > bounds
+    return abs(actual_angle - desired_angle) < bounds
 
 
 def azel_within_range(actual_azel, desired_azel, bounds=(0.5, 0.5)):
