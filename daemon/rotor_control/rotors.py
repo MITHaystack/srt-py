@@ -36,7 +36,7 @@ class Rotor:
     motors.py
     """
 
-    def __init__(self, motor_type, port, az_limits, el_limits, az_offset, el_offset):
+    def __init__(self, motor_type, port, az_limits, el_limits):
         """Initializes the Rotor with its Motor Object
 
         Parameters
@@ -63,8 +63,6 @@ class Rotor:
 
         self.az_limits = az_limits
         self.el_limits = el_limits
-        self.az_offset = az_offset
-        self.el_offset = el_offset
 
     def get_azimuth_elevation(self):
         """Latest Known Azimuth and Elevation
@@ -74,10 +72,7 @@ class Rotor:
         (float, float)
             Azimuth and Elevation Coordinate as a Tuple of Floats
         """
-        azz, ell = self.motor.status()
-        az = (azz + self.az_offset + 360) % 360
-        el = ell + self.el_offset
-        return az, el
+        return self.motor.status()
 
     def set_azimuth_elevation(self, az, el):
         """Sets the Azimuth and Elevation of the Motor
@@ -93,12 +88,8 @@ class Rotor:
         -------
         None
         """
-        if angle_within_range(az, self.az_limits) and angle_within_range(
-            el, self.el_limits
-        ):
-            azz = (az - self.az_offset + 360) % 360
-            ell = el - self.el_offset
-            self.motor.point(azz, ell)
+        if self.angles_within_bounds(az, el):
+            self.motor.point(az, el)
         else:
             raise ValueError("Angle Not Within Bounds")
 
