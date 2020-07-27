@@ -8,7 +8,6 @@
 # Title: radio_save_raw
 # GNU Radio version: 3.8.1.0
 
-from gnuradio import blocks
 from gnuradio import gr
 from gnuradio.filter import firdes
 import sys
@@ -34,7 +33,7 @@ class radio_save_raw(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, pow(2, 16), 'tcp://127.0.0.1:5558', 100, True, -1)
+        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:5558', 100, True, -1)
         self.gr_digital_rf_digital_rf_channel_sink_0 = gr_digital_rf.digital_rf_channel_sink(
             channel_dir=directory_name,
             dtype=np.complex64,
@@ -58,15 +57,13 @@ class radio_save_raw(gr.top_block):
             debug=False,
             min_chunksize=None,
         )
-        self.blocks_vector_to_stream_0 = blocks.vector_to_stream(gr.sizeof_gr_complex*1, pow(2, 16))
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_vector_to_stream_0, 0), (self.gr_digital_rf_digital_rf_channel_sink_0, 0))
-        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_vector_to_stream_0, 0))
+        self.connect((self.zeromq_sub_source_0, 0), (self.gr_digital_rf_digital_rf_channel_sink_0, 0))
 
 
     def get_directory_name(self):
@@ -86,13 +83,19 @@ class radio_save_raw(gr.top_block):
 
 def argument_parser():
     parser = ArgumentParser()
+    parser.add_argument(
+        "--directory-name", dest="directory_name", type=str, default="./rf_data",
+        help="Set ./rf_data [default=%(default)r]")
+    parser.add_argument(
+        "--samp-rate", dest="samp_rate", type=intx, default=2400000,
+        help="Set samp_rate [default=%(default)r]")
     return parser
 
 
 def main(top_block_cls=radio_save_raw, options=None):
     if options is None:
         options = argument_parser().parse_args()
-    tb = top_block_cls(**options)
+    tb = top_block_cls(directory_name=options.directory_name, samp_rate=options.samp_rate)
 
     def sig_handler(sig=None, frame=None):
         tb.stop()
@@ -105,11 +108,6 @@ def main(top_block_cls=radio_save_raw, options=None):
 
     tb.start()
 
-    try:
-        input('Press Enter to quit: ')
-    except EOFError:
-        pass
-    tb.stop()
     tb.wait()
 
 
