@@ -20,11 +20,12 @@ def generate_layout():
         ],
         "Radio": [
             dbc.DropdownMenuItem("Set Frequency", id="btn-set-freq"),
-            dbc.DropdownMenuItem("Set Bandwidth", id="btn-set-samp"),  #
+            dbc.DropdownMenuItem("Set Bandwidth", id="btn-set-samp"),
         ],
         "Routine": [
             dbc.DropdownMenuItem("Start Recording", id="btn-start-record"),
             dbc.DropdownMenuItem("Stop Recording", id="btn-stop-record"),
+            dbc.DropdownMenuItem("Calibrate", id="btn-calibrate"),
         ],
         "Power": [dbc.DropdownMenuItem("Shutdown", id="btn-quit")],
     }
@@ -104,7 +105,20 @@ def generate_layout():
             dbc.Modal(
                 [
                     dbc.ModalHeader("Point at Object"),
-                    dbc.ModalBody("Confirm Pointing to This Object?"),
+                    dbc.ModalBody(
+                        [
+                            html.H5("Confirm Pointing to This Object?"),
+                            dcc.RadioItems(
+                                options=[
+                                    {"label": "Direct Point", "value": ""},
+                                    {"label": "N-Point Scan", "value": " n"},
+                                    {"label": "Beam-switch", "value": " b"},
+                                ],
+                                id="point-options",
+                                value="",
+                            ),
+                        ]
+                    ),
                     dbc.ModalFooter(
                         [
                             dbc.Button(
@@ -291,7 +305,7 @@ def register_callbacks(app, status_thread, command_thread):
             content_type, content_string = contents.split(",")
             decoded = base64.b64decode(content_string)
             try:
-                if "txt" in name:
+                if "txt" in name or "cmd" in name:
                     # Assume that the user uploaded a txt file
                     loaded_file = io.StringIO(decoded.decode("utf-8"))
                     lines = [line.rstrip() for line in loaded_file]
@@ -353,16 +367,16 @@ def register_callbacks(app, status_thread, command_thread):
             Input("az-el-graph-btn-yes", "n_clicks"),
             Input("az-el-graph-btn-no", "n_clicks"),
         ],
-        [State("az-el-graph-modal", "is_open")],
+        [State("az-el-graph-modal", "is_open"), State("point-options", "value")],
     )
-    def az_el_click_func(clickData, n_clicks_yes, n_clicks_no, is_open):
+    def az_el_click_func(clickData, n_clicks_yes, n_clicks_no, is_open, mode):
         ctx = dash.callback_context
         if not ctx.triggered:
             return is_open
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "az-el-graph-btn-yes":
-                command_thread.add_to_queue(clickData["points"][0]["text"])
+                command_thread.add_to_queue(f"{clickData['points'][0]['text']}{mode}")
             if n_clicks_yes or n_clicks_no or clickData:
                 return not is_open
             return is_open
@@ -466,9 +480,16 @@ def register_callbacks(app, status_thread, command_thread):
             Input("btn-start-record", "n_clicks"),
             Input("btn-stop-record", "n_clicks"),
             Input("btn-quit", "n_clicks"),
+            Input("btn-calibrate", "n_clicks"),
         ],
     )
-    def cmd_button_pressed(n_clicks_stow, n_clicks_start_record, n_clicks_stop_record, n_clicks_shutdown):
+    def cmd_button_pressed(
+        n_clicks_stow,
+        n_clicks_start_record,
+        n_clicks_stop_record,
+        n_clicks_shutdown,
+        n_clicks_calibrate,
+    ):
         ctx = dash.callback_context
         if not ctx.triggered:
             return
@@ -482,3 +503,5 @@ def register_callbacks(app, status_thread, command_thread):
                 command_thread.add_to_queue("roff")
             elif button_id == "btn-quit":
                 command_thread.add_to_queue("quit")
+            elif button_id == "btn-calibrate":
+                command_thread.add_to_queue("calibrate")

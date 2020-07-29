@@ -97,8 +97,10 @@ def register_callbacks(app, status_thread, spectrum_thread):
         status = status_thread.get_status()
         if status is None:
             return
-        bandwidth = float(status["bandwidth"])
-        power_history = spectrum_thread.get_power_history(bandwidth)
+        tsys = float(status["temp_sys"])
+        tcal = float(status["temp_cal"])
+        cal_pwr = float(status["cal_power"])
+        power_history = spectrum_thread.get_power_history(tsys, tcal, cal_pwr)
         power_time, power_vals = zip(*power_history)
         fig = go.Figure(
             data=go.Scatter(x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals),

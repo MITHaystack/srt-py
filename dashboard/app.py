@@ -36,7 +36,7 @@ pages = {
     "Control Page": "control-page",
     "System Page": "system-page",
 }
-refresh_time = 5000  # ms
+refresh_time = 3000  # ms
 
 pio.templates.default = "seaborn"
 sidebar = generate_sidebar(pages)

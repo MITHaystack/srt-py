@@ -32,14 +32,14 @@ class SpectrumThread(Thread):
     def get_spectrum(self):
         return self.spectrum
 
-    def get_power_history(self, bandwidth):
-        # Based on https://electronics.stackexchange.com/questions/242263/how-to-calculate-total-power-from-spectrum
+    def get_power_history(self, tsys, tcal, calpwr):
         spectrum_history = self.history.copy()
         power_history = []
         for t, spectrum in spectrum_history:
-            s_lin = np.power(10, spectrum / 10.0)
-            current_power = 2 * (bandwidth / len(s_lin)) * np.sum(s_lin)
-            power_history.insert(0, (t, current_power))
+            p = np.sum(spectrum)
+            a = len(spectrum)
+            pwr = (tsys + tcal) * p / (a * calpwr)
+            power_history.insert(0, (t, pwr))
         return power_history
 
     def get_history(self):
