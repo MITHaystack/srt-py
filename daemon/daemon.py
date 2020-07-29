@@ -6,10 +6,15 @@ from pathlib import Path
 from operator import add
 
 import zmq
+import json
 import numpy as np
 
 from rotor_control.rotors import Rotor
-from radio_control.radio_task_starter import RadioProcessTask, RadioSaveRawTask
+from radio_control.radio_task_starter import (
+    RadioProcessTask,
+    RadioSaveRawTask,
+    RadioCalibrateTask,
+)
 from utilities.object_tracker import EphemerisTracker
 from utilities.yaml_tools import validate_yaml_schema, load_yaml
 from utilities.functions import azel_within_range
@@ -17,6 +22,7 @@ from utilities.functions import azel_within_range
 
 class SmallRadioTelescopeDaemon:
     def __init__(self, config_directory):
+        self.config_directory = config_directory
         validate_yaml_schema(path=config_directory)
         config_dict = load_yaml(path=config_directory)
 
@@ -48,6 +54,15 @@ class SmallRadioTelescopeDaemon:
         self.temp_sys = config_dict["TSYS"]
         self.temp_cal = config_dict["TCAL"]
         self.save_dir = config_dict["SAVE_DIRECTORY"]
+
+        if Path(self.config_directory, "calibration.json").is_file():
+            with open(Path(self.config_directory, "calibration.json"), "r") as input_file:
+                cal_data = json.load(input_file)
+                self.cal_values = cal_data["cal_values"]
+                self.cal_power = cal_data["cal_pwr"]
+        else:
+            self.cal_values = [1 for _ in range(self.radio_num_bins)]
+            self.cal_power = 1
 
         self.ephemeris_tracker = EphemerisTracker(
             self.station["latitude"],
@@ -155,6 +170,9 @@ class SmallRadioTelescopeDaemon:
                 "queue_size": self.command_queue.qsize(),
                 "emergency_contact": self.contact,
                 "error_logs": self.command_error_logs,
+                "temp_cal": self.temp_cal,
+                "temp_sys": self.temp_sys,
+                "cal_power": self.cal_power,
             }
             status_socket.send_json(status)
             sleep(0.5)
@@ -178,11 +196,15 @@ class SmallRadioTelescopeDaemon:
             "Sample Rate": (self.rpc_server.set_samp_rate, self.radio_sample_frequency),
             "Motor Azimuth": (self.rpc_server.set_motor_az, self.rotor_location[0]),
             "Motor Elevation": (self.rpc_server.set_motor_el, self.rotor_location[1]),
+            "System Temp": (self.rpc_server.set_tsys, self.temp_sys),
+            "Calibration Temp": (self.rpc_server.set_tcal, self.temp_cal),
+            "Calibration Power": (self.rpc_server.set_cal_pwr, self.cal_power),
+            "Calibration Values": (self.rpc_server.set_cal_values, self.cal_values),
             "Is Running": (self.rpc_server.set_is_running, True),
         }
         for name in radio_params:
             method, value = radio_params[name]
-            self.log_message(f"Setting {name} to {value}")
+            self.log_message(f"Setting {name}")
             method(value)
             sleep(0.1)
 
@@ -199,8 +221,10 @@ class SmallRadioTelescopeDaemon:
                 command = self.command_queue.get()
                 self.log_message(f"Running Command '{command}'")
                 self.current_queue_item = command
-                if command[0] == "*":
+                if len(command) < 2 or command[0] == "*":
                     continue
+                elif command[0] == ":":
+                    command = command[1:].strip()
                 command_parts = command.split(" ")
                 command_name = command_parts[0].lower()
                 if command_parts[0] in self.ephemeris_locations:
@@ -250,7 +274,7 @@ class SmallRadioTelescopeDaemon:
                                 map(add, new_rotor_cmd_location, self.motor_offsets)
                             )
                             while not azel_within_range(
-                                    self.rotor_location, self.rotor_cmd_location
+                                self.rotor_location, self.rotor_cmd_location
                             ):
                                 sleep(0.1)
                             sleep(5)
@@ -274,6 +298,10 @@ class SmallRadioTelescopeDaemon:
                                 f"Object {command_parts[0]} Not in Motor Bounds"
                             )
                             self.ephemeris_cmd_location = None
+                elif command_name.isnumeric():
+                    sleep(float(command_name))
+                elif command_name == "wait":
+                    sleep(float(command_parts[1]))
                 elif command_name == "stow":
                     self.ephemeris_cmd_location = None
                     self.rotor_cmd_location = self.stow_location
@@ -282,7 +310,21 @@ class SmallRadioTelescopeDaemon:
                     ):
                         sleep(0.1)
                 elif command_name == "calibrate":
-                    pass  # TODO: Implement Calibration Routine
+                    radio_cal_task = RadioCalibrateTask(
+                        self.radio_num_bins,
+                        self.radio_integ_cycles,
+                        self.config_directory,
+                    )
+                    radio_cal_task.start()
+                    radio_cal_task.join(30)
+                    path = Path(self.config_directory, "calibration.json")
+                    with open(path, "r") as input_file:
+                        cal_data = json.load(input_file)
+                        self.cal_values = cal_data["cal_values"]
+                        self.cal_power = cal_data["cal_pwr"]
+                    self.rpc_server.set_cal_pwr(self.cal_power)
+                    self.rpc_server.set_cal_values(self.cal_values)
+                    self.log_message("Calibration Done")
                 elif command_name == "quit":
                     keep_running = False
                     self.rpc_server.set_is_running(False)
@@ -334,8 +376,6 @@ class SmallRadioTelescopeDaemon:
                         float(command_parts[1]),
                         float(command_parts[2]),
                     )
-                elif command_name == "wait":
-                    sleep(int(command_parts[1]))
                 else:
                     self.log_message(f"Command Not Identified '{command}'")
 
