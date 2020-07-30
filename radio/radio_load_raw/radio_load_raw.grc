@@ -59,13 +59,13 @@ blocks:
     hide: none
     label: directory_name
     short_id: ''
-    type: ''
-    value: '"./rf_data"'
+    type: str
+    value: '"/home/blaine/Desktop/SRT-Saves/SRT_RAW_SAVE-2020:07:27:10:59:20"'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [10, 180]
+    coordinate: [10, 192]
     rotation: 0
     state: true
 - name: gr_digital_rf_digital_rf_channel_source_0
@@ -159,7 +159,7 @@ blocks:
     hide: none
     label: samp_rate
     short_id: ''
-    type: ''
+    type: intx
     value: '2400000'
   states:
     bus_sink: false

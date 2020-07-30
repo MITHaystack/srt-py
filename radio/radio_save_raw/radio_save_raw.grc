@@ -18,7 +18,7 @@ options:
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
+    run_options: run
     sizing_mode: fixed
     thread_safe_setters: ''
     title: radio_save_raw
@@ -32,24 +32,6 @@ options:
     state: enabled
 
 blocks:
-- name: blocks_vector_to_stream_0
-  id: blocks_vector_to_stream
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_items: pow(2, 16)
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [534, 129]
-    rotation: 0
-    state: true
 - name: directory_name
   id: parameter
   parameters:
@@ -58,13 +40,13 @@ blocks:
     hide: none
     label: directory_name
     short_id: ''
-    type: ''
+    type: str
     value: '"./rf_data"'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [10, 187]
+    coordinate: [11, 203]
     rotation: 0
     state: true
 - name: gr_digital_rf_digital_rf_channel_sink_0
@@ -97,7 +79,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [727, 101]
+    coordinate: [659, 110]
     rotation: 0
     state: true
 - name: samp_rate
@@ -108,7 +90,7 @@ blocks:
     hide: none
     label: samp_rate
     short_id: ''
-    type: ''
+    type: intx
     value: '2400000'
   states:
     bus_sink: false
@@ -130,18 +112,17 @@ blocks:
     pass_tags: 'True'
     timeout: '100'
     type: complex
-    vlen: pow(2, 16)
+    vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [291, 101]
+    coordinate: [328, 119]
     rotation: 0
     state: true
 
 connections:
-- [blocks_vector_to_stream_0, '0', gr_digital_rf_digital_rf_channel_sink_0, '0']
-- [zeromq_sub_source_0, '0', blocks_vector_to_stream_0, '0']
+- [zeromq_sub_source_0, '0', gr_digital_rf_digital_rf_channel_sink_0, '0']
 
 metadata:
   file_format: 1

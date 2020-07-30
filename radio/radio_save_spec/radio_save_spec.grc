@@ -1,0 +1,164 @@
+options:
+  parameters:
+    author: ''
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: radio_save_raw
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: run
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: radio_save_raw
+    window_size: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: directory_name
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: directory_name
+    short_id: ''
+    type: str
+    value: '"./rf_data"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [10, 301]
+    rotation: 0
+    state: true
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\nimport pmt\n\nimport pathlib\nfrom datetime import\
+      \ datetime, timezone\nimport time\n\n\ndef parse_time(rx_time):\n    time_since_epoch\
+      \ = (rx_time[0] + rx_time[1])\n    date = datetime.fromtimestamp(time_since_epoch,\
+      \ timezone.utc)\n    new_year_day = datetime(year=date.year, month=1, day=1,\
+      \ tzinfo=timezone.utc)\n    day_of_year = (date - new_year_day).days + 1\n \
+      \   return date.year, day_of_year, date.hour, date.minute, date.second\n\n\n\
+      class blk(gr.basic_block):  # other base classes are basic_block, decim_block,\
+      \ interp_block\n    \"\"\"Embedded Python Block example - a simple multiply\
+      \ const\"\"\"\n\n    def __init__(self, directory=\".\", filename=\"test.rad\"\
+      , vec_length=4096):  # only default arguments here\n        \"\"\"arguments\
+      \ to this function show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n\
+      \            self,\n            name='Embedded Python Block',   # will show\
+      \ up in GRC\n            in_sig=[(np.float32, vec_length)],\n            out_sig=None\n\
+      \        )\n        # if an attribute with the same name as a parameter is found,\n\
+      \        # a callback is registered (properties work, too).\n        self.directory\
+      \ = directory\n        self.filename = filename\n        self.vec_length = vec_length\n\
+      \n    def work(self, input_items, output_items):\n        \"\"\"example: multiply\
+      \ with constant\"\"\"\n        #file = open(pathlib.Path(self.directory, self.filename),\"\
+      a+\")\n        tags = self.get_tags_in_window(0, 0, len(input_items[0]))\n \
+      \       latest_data_dict = {pmt.to_python(tag.key) : pmt.to_python(tag.value)\
+      \ for tag in tags}\n        yr, da, hr, mn, sc = parse_time(latest_data_dict['rx_time'])\n\
+      \        print(yr, da, hr, mn, sc)\n        for input_array in input_items[0]:\n\
+      \            header_line = \"DATE %4d:%03d:%02d:%02d:%02d obsn %3d az %4.1f\
+      \ el %3.1f freq_MHz %10.4f Tsys %6.3f Tant %6.3f vlsr %7.2f glat %6.3f glon\
+      \ %6.3f source %s\"\n            #header_line %= (yr, da, hr, mn, sc, d1.obsn,\
+      \ d1.aznow, d1.elnow, d1.freq, d1.tsys, ppwr, d1.vlsr, d1.glat, d1.glon, soutrack)\n\
+      \            #print(header_line)\n        #file.close()\n        return len(input_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    directory: directory_name
+    filename: '''test.rad'''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vec_length: num_bins
+  states:
+    _io_cache: ('Embedded Python Block', 'blk', [('directory', "'.'"), ('filename',
+      "'test.rad'"), ('vec_length', '4096')], [('0', 'float', 4096)], [], 'Embedded
+      Python Block example - a simple multiply const', ['directory', 'filename', 'vec_length'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [636, 127]
+    rotation: 0
+    state: true
+- name: num_bins
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: num_bins
+    short_id: ''
+    type: intx
+    value: '4096'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [9, 204]
+    rotation: 0
+    state: true
+- name: samp_rate
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: samp_rate
+    short_id: ''
+    type: intx
+    value: '2400000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [10, 107]
+    rotation: 0
+    state: true
+- name: zeromq_sub_source_0
+  id: zeromq_sub_source
+  parameters:
+    address: tcp://127.0.0.1:5560
+    affinity: ''
+    alias: ''
+    comment: ''
+    hwm: '-1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'True'
+    timeout: '100'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 119]
+    rotation: 0
+    state: true
+
+connections:
+- [zeromq_sub_source_0, '0', epy_block_0, '0']
+
+metadata:
+  file_format: 1

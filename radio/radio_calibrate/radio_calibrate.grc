@@ -1,0 +1,291 @@
+options:
+  parameters:
+    author: ''
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: radio_calibrate
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: run
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: radio_calibrate
+    window_size: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: blocks_complex_to_mag_squared_0
+  id: blocks_complex_to_mag_squared
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [384, 174]
+    rotation: 180
+    state: true
+- name: blocks_head_0
+  id: blocks_head
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: num_bins*num_integrations
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [613, 65]
+    rotation: 0
+    state: true
+- name: blocks_integrate_xx_0
+  id: blocks_integrate_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: num_integrations
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [391, 282]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_xx_0
+  id: blocks_multiply_const_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: 1.0/float(num_integrations)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [605, 282]
+    rotation: 0
+    state: true
+- name: blocks_stream_to_vector_0_2
+  id: blocks_stream_to_vector
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: num_bins
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [826, 178]
+    rotation: 180
+    state: enabled
+- name: dc_blocker_xx_0
+  id: dc_blocker_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    length: num_bins
+    long_form: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: cc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [814, 57]
+    rotation: 0
+    state: enabled
+- name: directory_name
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: directory_name
+    short_id: ''
+    type: str
+    value: '"."'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 205]
+    rotation: 0
+    state: true
+- name: fft_vxx_0
+  id: fft_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    fft_size: num_bins
+    forward: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '3'
+    shift: 'True'
+    type: complex
+    window: window.blackmanharris(num_bins)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [589, 142]
+    rotation: 180
+    state: true
+- name: num_bins
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: num_bins
+    short_id: ''
+    type: intx
+    value: '4096'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [9, 106]
+    rotation: 0
+    state: true
+- name: num_integrations
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: num_integrations
+    short_id: ''
+    type: intx
+    value: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [115, 106]
+    rotation: 0
+    state: true
+- name: save_calibration
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      import json\n\nfrom gnuradio import gr\nimport pmt\n\nimport pathlib\n\n\nclass\
+      \ blk(gr.basic_block):  # other base classes are basic_block, decim_block, interp_block\n\
+      \    \"\"\"Embedded Python Block - Calculate Calibration Values\"\"\"\n\n  \
+      \  def __init__(self, directory=\".\", filename=\"test.rad\", vec_length=4096):\
+      \  # only default arguments here\n        \"\"\"arguments to this function show\
+      \ up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n         \
+      \   self,\n            name='Embedded Python Block',   # will show up in GRC\n\
+      \            in_sig=[(np.float32, vec_length)],\n            out_sig=None\n\
+      \        )\n        # if an attribute with the same name as a parameter is found,\n\
+      \        # a callback is registered (properties work, too).\n        self.directory\
+      \ = directory\n        self.filename = filename\n        self.vec_length = vec_length\n\
+      \n    def work(self, input_items, output_items):\n        \"\"\"Divide Input\
+      \ by Average, Determine Calibration Power, and Save\"\"\"\n        averaged_input\
+      \ = np.zeros(len(input_items[0][0]))\n        for input_array in input_items[0]:\n\
+      \            averaged_input += input_array\n        averaged_input /= len(input_items[0])\n\
+      \        average_value = np.average(averaged_input)\n        averaged_input\
+      \ /= average_value\n        file_output = {\"cal_pwr\": average_value, \"cal_values\"\
+      : averaged_input.tolist()}\n        with open(pathlib.Path(self.directory, self.filename),\"\
+      w\") as outfile:\n            json.dump(file_output, outfile)\n        return\
+      \ len(input_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    directory: directory_name
+    filename: '''calibration.json'''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vec_length: num_bins
+  states:
+    _io_cache: ('Embedded Python Block', 'blk', [('directory', "'.'"), ('filename',
+      "'test.rad'"), ('vec_length', '4096')], [('0', 'float', 4096)], [], 'Embedded
+      Python Block - Calculate Calibration Values', ['directory', 'filename', 'vec_length'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [816, 274]
+    rotation: 0
+    state: true
+- name: zeromq_sub_source_0
+  id: zeromq_sub_source
+  parameters:
+    address: tcp://127.0.0.1:5558
+    affinity: ''
+    alias: ''
+    comment: ''
+    hwm: '-1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'True'
+    timeout: '100'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [367, 49]
+    rotation: 0
+    state: true
+
+connections:
+- [blocks_complex_to_mag_squared_0, '0', blocks_integrate_xx_0, '0']
+- [blocks_head_0, '0', dc_blocker_xx_0, '0']
+- [blocks_integrate_xx_0, '0', blocks_multiply_const_xx_0, '0']
+- [blocks_multiply_const_xx_0, '0', save_calibration, '0']
+- [blocks_stream_to_vector_0_2, '0', fft_vxx_0, '0']
+- [dc_blocker_xx_0, '0', blocks_stream_to_vector_0_2, '0']
+- [fft_vxx_0, '0', blocks_complex_to_mag_squared_0, '0']
+- [zeromq_sub_source_0, '0', blocks_head_0, '0']
+
+metadata:
+  file_format: 1

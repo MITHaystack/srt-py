@@ -18,7 +18,7 @@ options:
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
+    run_options: run
     sizing_mode: fixed
     thread_safe_setters: ''
     title: radio_process
@@ -32,40 +32,64 @@ options:
     state: enabled
 
 blocks:
+- name: beam_switch
+  id: variable
+  parameters:
+    comment: ''
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [108, 398]
+    rotation: 0
+    state: true
+- name: cal_pwr
+  id: variable
+  parameters:
+    comment: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 464]
+    rotation: 0
+    state: true
+- name: cal_values
+  id: variable
+  parameters:
+    comment: ''
+    value: np.repeat(np.nan, num_bins)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [12, 594]
+    rotation: 0
+    state: true
 - name: custom_window
   id: variable
   parameters:
     comment: ''
-    value: sinc*np.hamming(4*fft_size)
+    value: sinc_samples*np.hamming(4*num_bins)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [523, 15]
+    coordinate: [541, 10]
     rotation: 0
     state: enabled
-- name: fft_size
-  id: variable
-  parameters:
-    comment: ''
-    value: '8192'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [8, 245]
-    rotation: 0
-    state: true
 - name: fft_window
   id: variable
   parameters:
     comment: ''
-    value: window.blackmanharris(fft_size)
+    value: window.blackmanharris(num_bins)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [7, 312]
+    coordinate: [8, 661]
     rotation: 0
     state: enabled
 - name: freq
@@ -77,7 +101,31 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [14, 179]
+    coordinate: [99, 202]
+    rotation: 0
+    state: true
+- name: glat
+  id: variable
+  parameters:
+    comment: ''
+    value: np.nan
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [13, 332]
+    rotation: 0
+    state: true
+- name: glon
+  id: variable
+  parameters:
+    comment: ''
+    value: np.nan
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [104, 333]
     rotation: 0
     state: true
 - name: is_running
@@ -89,7 +137,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [185, 313]
+    coordinate: [14, 726]
     rotation: 0
     state: true
 - name: motor_az
@@ -101,7 +149,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [109, 116]
+    coordinate: [10, 268]
     rotation: 0
     state: true
 - name: motor_el
@@ -113,32 +161,20 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [109, 180]
+    coordinate: [100, 268]
     rotation: 0
     state: true
 - name: nlog_k
   id: variable
   parameters:
     comment: ''
-    value: '-20*math.log10(fft_size) -10*math.log10(float(window_power) / fft_size)-20*math.log10(float(ref_scale)
+    value: '-20*math.log10(num_bins) -10*math.log10(float(window_power) / num_bins)-20*math.log10(float(ref_scale)
       / 2) '
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [9, 447]
-    rotation: 0
-    state: true
-- name: num_integrations
-  id: variable
-  parameters:
-    comment: ''
-    value: '1000'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [108, 246]
+    coordinate: [225, 827]
     rotation: 0
     state: true
 - name: ref_scale
@@ -150,7 +186,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [121, 378]
+    coordinate: [137, 827]
     rotation: 0
     state: true
 - name: samp_rate
@@ -162,10 +198,22 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [14, 116]
+    coordinate: [9, 202]
     rotation: 0
     state: enabled
-- name: sinc
+- name: sinc_sample_locations
+  id: variable
+  parameters:
+    comment: ''
+    value: np.arange(-np.pi*4/2.0, np.pi*4/2.0, np.pi/num_bins)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [206, 9]
+    rotation: 0
+    state: enabled
+- name: sinc_samples
   id: variable
   parameters:
     comment: ''
@@ -174,21 +222,57 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [356, 15]
+    coordinate: [374, 10]
     rotation: 0
     state: enabled
-- name: sinc_sample_locations
+- name: soutrack
   id: variable
   parameters:
     comment: ''
-    value: np.arange(-np.pi*4/2.0, np.pi*4/2.0, np.pi/fft_size)
+    value: '"at_stow"'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [188, 14]
+    coordinate: [10, 397]
     rotation: 0
-    state: enabled
+    state: true
+- name: tcal
+  id: variable
+  parameters:
+    comment: ''
+    value: '290'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [15, 529]
+    rotation: 0
+    state: true
+- name: tsys
+  id: variable
+  parameters:
+    comment: ''
+    value: '171'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [97, 529]
+    rotation: 0
+    state: true
+- name: vslr
+  id: variable
+  parameters:
+    comment: ''
+    value: np.nan
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [99, 464]
+    rotation: 0
+    state: true
 - name: window_power
   id: variable
   parameters:
@@ -198,9 +282,44 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 377]
+    coordinate: [24, 826]
     rotation: 0
     state: enabled
+- name: add_clock_tags
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\nimport time\nimport pmt\n\ndef make_time_pair(t):\n\
+      \    return pmt.make_tuple(pmt.to_pmt(int(np.trunc(t))), pmt.to_pmt(t - int(np.trunc(t))))\n\
+      \nclass clk(gr.sync_block):\n    def __init__(self, nsamps=8192):\n        gr.sync_block.__init__(\n\
+      \            self,\n            name='Add Clock Tags',\n            in_sig=[np.complex64],\n\
+      \            out_sig=[np.complex64]\n        )\n        self.pmt_key = pmt.intern(\"\
+      rx_time\")\n        self.offset = 0\n        self.nsamps = nsamps\n \n    def\
+      \ work(self, input_items, output_items):\n        nitems = len(input_items[0])\
+      \ + self.nitems_written(0)\n        if self.nitems_written(0) == 0:\n      \
+      \      self.add_item_tag(0, 0, self.pmt_key, make_time_pair(time.time()))\n\
+      \        while ((nitems - self.offset) > self.nsamps):\n            self.offset\
+      \ += self.nsamps\n            self.add_item_tag(0, self.offset, self.pmt_key,\
+      \ make_time_pair(time.time()))\n        output_items[0][:] = input_items[0]\
+      \ # copy input to output\n        return len(output_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nsamps: num_bins*4
+  states:
+    _io_cache: ('Add Clock Tags', 'clk', [('nsamps', '8192')], [('0', 'complex', 1)],
+      [('0', 'complex', 1)], '', ['nsamps'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [602, 187]
+    rotation: 0
+    state: true
 - name: blocks_add_xx_0
   id: blocks_add_xx
   parameters:
@@ -211,12 +330,12 @@ blocks:
     minoutbuf: '0'
     num_inputs: '4'
     type: complex
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [193, 502]
+    coordinate: [313, 453]
     rotation: 180
     state: enabled
 - name: blocks_add_xx_0_0
@@ -234,7 +353,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [840, 159]
+    coordinate: [856, 159]
     rotation: 0
     state: true
 - name: blocks_complex_to_mag_squared_0
@@ -245,12 +364,12 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [425, 700]
+    coordinate: [514, 703]
     rotation: 0
     state: true
 - name: blocks_delay_0
@@ -259,7 +378,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    delay: fft_size*3
+    delay: num_bins*3
     maxoutbuf: '0'
     minoutbuf: '0'
     num_ports: '1'
@@ -269,7 +388,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [867, 361]
+    coordinate: [938, 372]
     rotation: 180
     state: enabled
 - name: blocks_delay_0_0
@@ -278,7 +397,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    delay: fft_size*2
+    delay: num_bins*2
     maxoutbuf: '0'
     minoutbuf: '0'
     num_ports: '1'
@@ -288,7 +407,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [867, 425]
+    coordinate: [938, 436]
     rotation: 180
     state: enabled
 - name: blocks_delay_0_1
@@ -297,7 +416,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    delay: fft_size
+    delay: num_bins
     maxoutbuf: '0'
     minoutbuf: '0'
     num_ports: '1'
@@ -307,7 +426,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [867, 489]
+    coordinate: [938, 500]
     rotation: 180
     state: enabled
 - name: blocks_integrate_xx_0
@@ -320,32 +439,14 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [840, 810]
+    coordinate: [884, 694]
     rotation: 0
     state: enabled
-- name: blocks_keep_one_in_n_0
-  id: blocks_keep_one_in_n
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    n: num_integrations
-    type: float
-    vlen: fft_size
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1265, 692]
-    rotation: 0
-    state: true
 - name: blocks_message_strobe_0
   id: blocks_message_strobe
   parameters:
@@ -360,45 +461,25 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [807, 280]
+    coordinate: [823, 280]
     rotation: 0
     state: true
-- name: blocks_moving_average_xx_0
-  id: blocks_moving_average_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    length: num_integrations
-    max_iter: num_integrations
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    scale: 1.0/num_integrations
-    type: float
-    vlen: fft_size
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1052, 676]
-    rotation: 0
-    state: enabled
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    const: custom_window[-fft_size:]
+    const: custom_window[-num_bins:]
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [465, 562]
+    coordinate: [536, 573]
     rotation: 180
     state: enabled
 - name: blocks_multiply_const_vxx_0_0
@@ -407,16 +488,16 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: custom_window[2*fft_size:3*fft_size]
+    const: custom_window[2*num_bins:3*num_bins]
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [465, 498]
+    coordinate: [536, 509]
     rotation: 180
     state: enabled
 - name: blocks_multiply_const_vxx_0_0_0
@@ -425,16 +506,16 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: custom_window[fft_size:2*fft_size]
+    const: custom_window[num_bins:2*num_bins]
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [465, 434]
+    coordinate: [536, 445]
     rotation: 180
     state: enabled
 - name: blocks_multiply_const_vxx_0_0_0_0
@@ -443,36 +524,54 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: custom_window[0:fft_size]
+    const: custom_window[0:num_bins]
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [465, 370]
+    coordinate: [536, 381]
     rotation: 180
     state: enabled
-- name: blocks_nlog10_ff_0
-  id: blocks_nlog10_ff
+- name: blocks_multiply_const_vxx_1
+  id: blocks_multiply_const_vxx
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    k: nlog_k
+    const: '[(tsys + tcal)/(value * cal_pwr) for value in cal_values]'
     maxoutbuf: '0'
     minoutbuf: '0'
-    n: '10'
-    vlen: fft_size
+    type: float
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [847, 684]
+    coordinate: [1149, 792]
     rotation: 0
-    state: enabled
+    state: true
+- name: blocks_multiply_const_xx_0
+  id: blocks_multiply_const_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: 1.0/float(num_integrations)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1055, 694]
+    rotation: 0
+    state: true
 - name: blocks_selector_0
   id: blocks_selector
   parameters:
@@ -493,7 +592,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [999, 171]
+    coordinate: [1015, 171]
     rotation: 0
     state: true
 - name: blocks_stream_to_vector_0
@@ -504,14 +603,14 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    num_items: fft_size
+    num_items: num_bins
     type: complex
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [731, 553]
+    coordinate: [802, 564]
     rotation: 180
     state: enabled
 - name: blocks_stream_to_vector_0_0
@@ -522,14 +621,14 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    num_items: fft_size
+    num_items: num_bins
     type: complex
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [731, 425]
+    coordinate: [802, 436]
     rotation: 180
     state: enabled
 - name: blocks_stream_to_vector_0_1
@@ -540,14 +639,14 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    num_items: fft_size
+    num_items: num_bins
     type: complex
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [731, 489]
+    coordinate: [802, 500]
     rotation: 180
     state: enabled
 - name: blocks_stream_to_vector_0_2
@@ -558,33 +657,15 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    num_items: fft_size
+    num_items: num_bins
     type: complex
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [731, 361]
+    coordinate: [802, 372]
     rotation: 180
-    state: enabled
-- name: blocks_stream_to_vector_0_2_0
-  id: blocks_stream_to_vector
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_items: pow(2, 16)
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1209, 39]
-    rotation: 0
     state: enabled
 - name: blocks_tags_strobe_0
   id: blocks_tags_strobe
@@ -595,7 +676,7 @@ blocks:
     key: pmt.intern("rx_freq")
     maxoutbuf: '0'
     minoutbuf: '0'
-    nsamps: fft_size*4
+    nsamps: min(num_bins*64, num_bins*num_integrations)
     type: complex
     value: pmt.to_pmt(float(freq))
     vlen: '1'
@@ -603,7 +684,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [578, 95]
+    coordinate: [594, 95]
     rotation: 0
     state: true
 - name: blocks_tags_strobe_0_0
@@ -615,16 +696,17 @@ blocks:
     key: pmt.intern("metadata")
     maxoutbuf: '0'
     minoutbuf: '0'
-    nsamps: fft_size*4
+    nsamps: min(num_bins*64, num_bins*num_integrations)
     type: complex
-    value: 'pmt.to_pmt({"fft_size": fft_size, "samp_rate": samp_rate, "num_integrations":
-      num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq})'
+    value: 'pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations":
+      num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq,
+      "tsys": tsys})'
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [531, 251]
+    coordinate: [547, 251]
     rotation: 0
     state: true
 - name: dc_blocker_xx_0
@@ -633,7 +715,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    length: fft_size
+    length: num_bins
     long_form: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -642,55 +724,20 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1152, 473]
+    coordinate: [1168, 473]
     rotation: 180
     state: enabled
-- name: epy_block_0_0
-  id: epy_block
-  parameters:
-    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
-      \ GRC will instantiate the first class it finds\nto get ports and parameters\
-      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
-      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
-      from gnuradio import gr\nimport time\nimport pmt\n\ndef make_time_pair(t):\n\
-      \    return pmt.make_tuple(pmt.to_pmt(int(np.trunc(t))), pmt.to_pmt(t - int(np.trunc(t))))\n\
-      \nclass clk(gr.sync_block):\n    def __init__(self, nsamps=8192):\n        gr.sync_block.__init__(\n\
-      \            self,\n            name='Add Clock Tags',\n            in_sig=[np.complex64],\n\
-      \            out_sig=[np.complex64]\n        )\n        self.pmt_key = pmt.intern(\"\
-      rx_time\")\n        self.d_offset = 0\n        self.d_nsamps = nsamps\n \n \
-      \   def work(self, input_items, output_items):\n        nitems = len(input_items[0])\
-      \ + self.nitems_written(0)\n        if self.nitems_written(0) == 0:\n      \
-      \      self.add_item_tag(0, 0, self.pmt_key, make_time_pair(time.time()))\n\
-      \        while ((nitems - self.d_offset) > self.d_nsamps):\n            self.d_offset\
-      \ += self.d_nsamps\n            self.add_item_tag(0, self.d_offset, self.pmt_key,\
-      \ make_time_pair(time.time()))\n        output_items[0][:] = input_items[0]\
-      \ # copy input to output\n        return len(output_items[0])\n"
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    nsamps: fft_size*4
-  states:
-    _io_cache: ('Add Clock Tags', 'clk', [('nsamps', '8192')], [('0', 'complex', 1)],
-      [('0', 'complex', 1)], '', [])
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [586, 187]
-    rotation: 0
-    state: true
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    fft_size: fft_size
+    fft_size: num_bins
     forward: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    nthreads: '1'
+    nthreads: '3'
     shift: 'True'
     type: complex
     window: fft_window
@@ -698,7 +745,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [179, 668]
+    coordinate: [294, 670]
     rotation: 0
     state: true
 - name: import_0
@@ -711,7 +758,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [698, 16]
+    coordinate: [716, 11]
     rotation: 0
     state: enabled
 - name: import_0_0
@@ -724,9 +771,43 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [777, 16]
+    coordinate: [795, 11]
     rotation: 0
     state: enabled
+- name: num_bins
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: num_bins
+    short_id: ''
+    type: intx
+    value: '4096'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [9, 106]
+    rotation: 0
+    state: true
+- name: num_integrations
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: num_integrations
+    short_id: ''
+    type: intx
+    value: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [115, 106]
+    rotation: 0
+    state: true
 - name: osmosdr_source_0
   id: osmosdr_source
   parameters:
@@ -1081,7 +1162,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [277, 99]
+    coordinate: [293, 99]
     rotation: 0
     state: true
 - name: single_pole_iir_filter_xx_0
@@ -1094,12 +1175,12 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [622, 692]
+    coordinate: [697, 694]
     rotation: 0
     state: true
 - name: xmlrpc_server_0
@@ -1113,7 +1194,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [229, 404]
+    coordinate: [935, 52]
     rotation: 0
     state: true
 - name: zeromq_pub_sink_0
@@ -1127,7 +1208,7 @@ blocks:
     pass_tags: 'True'
     timeout: '100'
     type: complex
-    vlen: pow(2, 16)
+    vlen: '1'
   states:
     bus_sink: false
     bus_source: false
@@ -1157,26 +1238,7 @@ blocks:
 - name: zeromq_pub_sink_1
   id: zeromq_pub_sink
   parameters:
-    address: tcp://127.0.0.1:5561
-    affinity: ''
-    alias: ''
-    comment: ''
-    hwm: '-1'
-    pass_tags: 'True'
-    timeout: '100'
-    type: float
-    vlen: fft_size
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1047, 794]
-    rotation: 0
-    state: enabled
-- name: zeromq_pub_sink_1_0
-  id: zeromq_pub_sink
-  parameters:
-    address: tcp://127.0.0.1:5560
+    address: tcp://127.0.0.1:5563
     affinity: ''
     alias: ''
     comment: ''
@@ -1184,50 +1246,107 @@ blocks:
     pass_tags: 'False'
     timeout: '100'
     type: float
-    vlen: fft_size
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1444, 676]
+    coordinate: [1391, 832]
     rotation: 0
     state: enabled
+- name: zeromq_pub_sink_1_0
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://127.0.0.1:5562
+    affinity: ''
+    alias: ''
+    comment: ''
+    hwm: '-1'
+    pass_tags: 'True'
+    timeout: '100'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1391, 731]
+    rotation: 0
+    state: enabled
+- name: zeromq_pub_sink_2
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://127.0.0.1:5560
+    affinity: ''
+    alias: ''
+    comment: ''
+    hwm: '-1'
+    pass_tags: 'True'
+    timeout: '100'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1392, 498]
+    rotation: 0
+    state: true
+- name: zeromq_pub_sink_2_0
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://127.0.0.1:5561
+    affinity: ''
+    alias: ''
+    comment: ''
+    hwm: '-1'
+    pass_tags: 'False'
+    timeout: '100'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1391, 595]
+    rotation: 0
+    state: true
 
 connections:
+- [add_clock_tags, '0', blocks_add_xx_0_0, '1']
 - [blocks_add_xx_0, '0', fft_vxx_0, '0']
 - [blocks_add_xx_0_0, '0', blocks_selector_0, '0']
 - [blocks_complex_to_mag_squared_0, '0', single_pole_iir_filter_xx_0, '0']
 - [blocks_delay_0, '0', blocks_stream_to_vector_0_2, '0']
 - [blocks_delay_0_0, '0', blocks_stream_to_vector_0_0, '0']
 - [blocks_delay_0_1, '0', blocks_stream_to_vector_0_1, '0']
-- [blocks_integrate_xx_0, '0', zeromq_pub_sink_1, '0']
-- [blocks_keep_one_in_n_0, '0', zeromq_pub_sink_1_0, '0']
+- [blocks_integrate_xx_0, '0', blocks_multiply_const_xx_0, '0']
 - [blocks_message_strobe_0, strobe, blocks_selector_0, en]
-- [blocks_moving_average_xx_0, '0', blocks_keep_one_in_n_0, '0']
 - [blocks_multiply_const_vxx_0, '0', blocks_add_xx_0, '0']
 - [blocks_multiply_const_vxx_0_0, '0', blocks_add_xx_0, '1']
 - [blocks_multiply_const_vxx_0_0_0, '0', blocks_add_xx_0, '2']
 - [blocks_multiply_const_vxx_0_0_0_0, '0', blocks_add_xx_0, '3']
-- [blocks_nlog10_ff_0, '0', blocks_moving_average_xx_0, '0']
-- [blocks_selector_0, '0', blocks_stream_to_vector_0_2_0, '0']
+- [blocks_multiply_const_vxx_1, '0', zeromq_pub_sink_1, '0']
+- [blocks_multiply_const_vxx_1, '0', zeromq_pub_sink_1_0, '0']
+- [blocks_multiply_const_xx_0, '0', blocks_multiply_const_vxx_1, '0']
+- [blocks_multiply_const_xx_0, '0', zeromq_pub_sink_2, '0']
+- [blocks_multiply_const_xx_0, '0', zeromq_pub_sink_2_0, '0']
 - [blocks_selector_0, '0', dc_blocker_xx_0, '0']
+- [blocks_selector_0, '0', zeromq_pub_sink_0, '0']
 - [blocks_selector_0, '0', zeromq_pub_sink_0_0, '0']
 - [blocks_stream_to_vector_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_stream_to_vector_0_0, '0', blocks_multiply_const_vxx_0_0_0, '0']
 - [blocks_stream_to_vector_0_1, '0', blocks_multiply_const_vxx_0_0, '0']
 - [blocks_stream_to_vector_0_2, '0', blocks_multiply_const_vxx_0_0_0_0, '0']
-- [blocks_stream_to_vector_0_2_0, '0', zeromq_pub_sink_0, '0']
 - [blocks_tags_strobe_0, '0', blocks_add_xx_0_0, '0']
 - [blocks_tags_strobe_0_0, '0', blocks_add_xx_0_0, '2']
 - [dc_blocker_xx_0, '0', blocks_delay_0, '0']
 - [dc_blocker_xx_0, '0', blocks_delay_0_0, '0']
 - [dc_blocker_xx_0, '0', blocks_delay_0_1, '0']
 - [dc_blocker_xx_0, '0', blocks_stream_to_vector_0, '0']
-- [epy_block_0_0, '0', blocks_add_xx_0_0, '1']
 - [fft_vxx_0, '0', blocks_complex_to_mag_squared_0, '0']
-- [osmosdr_source_0, '0', epy_block_0_0, '0']
+- [osmosdr_source_0, '0', add_clock_tags, '0']
 - [single_pole_iir_filter_xx_0, '0', blocks_integrate_xx_0, '0']
-- [single_pole_iir_filter_xx_0, '0', blocks_nlog10_ff_0, '0']
 
 metadata:
   file_format: 1
