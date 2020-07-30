@@ -150,7 +150,6 @@ def generate_layout():
                                 type="number",
                                 debounce=True,
                                 placeholder="Azimuth",
-                                style={"width": "100%"}
                             ),
                             dcc.Input(
                                 id="elevation",
@@ -191,6 +190,7 @@ def generate_layout():
                                 type="number",
                                 debounce=True,
                                 placeholder="Center Frequency (MHz)",
+                                style={"width": "100%"}
                             ),
                         ]
                     ),
@@ -225,6 +225,7 @@ def generate_layout():
                                 type="number",
                                 debounce=True,
                                 placeholder="Sample Frequency (MHz)",
+                                style={"width": "100%"}
                             ),
                         ]
                     ),
