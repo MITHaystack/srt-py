@@ -64,14 +64,14 @@ def generate_layout():
     return layout
 
 
-def register_callbacks(app, status_thread, spectrum_thread):
+def register_callbacks(app, status_thread, raw_spectrum_thread, cal_spectrum_thread):
     @app.callback(
         Output("spectrum-histogram", "figure"),
         [Input("interval-component", "n_intervals")],
     )
     def update_spectrum_histogram(n):
         max_precision = 2048
-        spectrum = spectrum_thread.get_spectrum()
+        spectrum = cal_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
             return
@@ -100,7 +100,7 @@ def register_callbacks(app, status_thread, spectrum_thread):
         tsys = float(status["temp_sys"])
         tcal = float(status["temp_cal"])
         cal_pwr = float(status["cal_power"])
-        power_history = spectrum_thread.get_power_history(tsys, tcal, cal_pwr)
+        power_history = raw_spectrum_thread.get_power_history(tsys, tcal, cal_pwr)
         power_time, power_vals = zip(*power_history)
         fig = go.Figure(
             data=go.Scatter(x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals),

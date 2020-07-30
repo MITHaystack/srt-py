@@ -28,8 +28,11 @@ statusThread.start()
 command_thread = CommandThread()
 command_thread.start()
 
-spectrum_thread = SpectrumThread()
-spectrum_thread.start()
+raw_spectrum_thread = SpectrumThread(port=5561)
+raw_spectrum_thread.start()
+
+cal_spectrum_thread = SpectrumThread(port=5563)
+cal_spectrum_thread.start()
 
 pages = {
     "Monitor Page": "monitor-page",
@@ -73,7 +76,7 @@ app.clientside_callback(
     Output("output-clientside", "children"),
     [Input("page-content", "children")],
 )
-monitor_page.register_callbacks(app, statusThread, spectrum_thread)
+monitor_page.register_callbacks(app, statusThread, raw_spectrum_thread, cal_spectrum_thread)
 control_page.register_callbacks(app, statusThread, command_thread)
 system_page.register_callbacks(app, statusThread, command_thread)
 

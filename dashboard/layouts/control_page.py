@@ -150,6 +150,7 @@ def generate_layout():
                                 type="number",
                                 debounce=True,
                                 placeholder="Azimuth",
+                                style={"width": "100%"}
                             ),
                             dcc.Input(
                                 id="elevation",

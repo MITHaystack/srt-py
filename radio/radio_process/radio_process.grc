@@ -164,31 +164,6 @@ blocks:
     coordinate: [100, 268]
     rotation: 0
     state: true
-- name: nlog_k
-  id: variable
-  parameters:
-    comment: ''
-    value: '-20*math.log10(num_bins) -10*math.log10(float(window_power) / num_bins)-20*math.log10(float(ref_scale)
-      / 2) '
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [225, 827]
-    rotation: 0
-    state: true
-- name: ref_scale
-  id: variable
-  parameters:
-    comment: ''
-    value: '2'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [137, 827]
-    rotation: 0
-    state: true
 - name: samp_rate
   id: variable
   parameters:
@@ -273,18 +248,6 @@ blocks:
     coordinate: [99, 464]
     rotation: 0
     state: true
-- name: window_power
-  id: variable
-  parameters:
-    comment: ''
-    value: sum([x*x for x in fft_window])
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [24, 826]
-    rotation: 0
-    state: enabled
 - name: add_clock_tags
   id: epy_block
   parameters:
@@ -700,7 +663,8 @@ blocks:
     type: complex
     value: 'pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations":
       num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq,
-      "tsys": tsys})'
+      "tsys": tsys, "tcal": tcal, "cal_pwr": cal_pwr, "vslr": vslr, "glat": glat,
+      "glon": glon})'
     vlen: '1'
   states:
     bus_sink: false
