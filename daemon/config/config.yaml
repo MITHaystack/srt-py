@@ -15,9 +15,9 @@ ELLIMITS:
 STOW_LOCATION:
   azimuth: 38.0
   elevation: 0.0
-MOTOR_OFFSETS:
-  azimuth: 0.0
-  elevation: 0.0
+CAL_LOCATION:
+  azimuth: 120.0
+  elevation: 7.0
 MOTOR_TYPE: NONE
 MOTOR_PORT: /dev/ttyUSB0
 RADIO_CF: 1420000000

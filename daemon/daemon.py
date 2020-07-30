@@ -40,9 +40,9 @@ class SmallRadioTelescopeDaemon:
             config_dict["STOW_LOCATION"]["azimuth"],
             config_dict["STOW_LOCATION"]["elevation"],
         )
-        self.motor_offsets = (
-            config_dict["MOTOR_OFFSETS"]["azimuth"],
-            config_dict["MOTOR_OFFSETS"]["elevation"],
+        self.cal_location = (
+            config_dict["CAL_LOCATION"]["azimuth"],
+            config_dict["CAL_LOCATION"]["elevation"],
         )
         self.motor_type = config_dict["MOTOR_TYPE"]
         self.motor_port = config_dict["MOTOR_PORT"]
@@ -55,14 +55,18 @@ class SmallRadioTelescopeDaemon:
         self.temp_cal = config_dict["TCAL"]
         self.save_dir = config_dict["SAVE_DIRECTORY"]
 
-        if Path(self.config_directory, "calibration.json").is_file():
-            with open(Path(self.config_directory, "calibration.json"), "r") as input_file:
-                cal_data = json.load(input_file)
-                self.cal_values = cal_data["cal_values"]
-                self.cal_power = cal_data["cal_pwr"]
-        else:
-            self.cal_values = [1 for _ in range(self.radio_num_bins)]
-            self.cal_power = 1
+        self.cal_values = [1.0 for _ in range(self.radio_num_bins)]
+        self.cal_power = 1.0 / (self.temp_sys + self.temp_cal)
+        calibration_path = Path(self.config_directory, "calibration.json")
+        if calibration_path.is_file():
+            with open(calibration_path, "r") as input_file:
+                try:
+                    cal_data = json.load(input_file)
+                    if len(cal_data["cal_values"]) == self.radio_num_bins:
+                        self.cal_values = cal_data["cal_values"]
+                        self.cal_power = cal_data["cal_pwr"]
+                except KeyError:
+                    pass
 
         self.ephemeris_tracker = EphemerisTracker(
             self.station["latitude"],
@@ -76,11 +80,13 @@ class SmallRadioTelescopeDaemon:
             self.motor_type, self.motor_port, self.az_limits, self.el_limits,
         )
         self.rotor_location = self.stow_location
+        self.rotor_destination = self.stow_location
+        self.rotor_offsets = (0.0, 0.0)
         self.rotor_cmd_location = tuple(
-            map(add, self.stow_location, self.motor_offsets)
+            map(add, self.rotor_destination, self.rotor_offsets)
         )
 
-        self.rpc_server = ServerProxy("http://localhost:5557/")
+        self.radio_queue = Queue()
         self.radio_process_task = RadioProcessTask(
             num_bins=self.radio_num_bins, num_integrations=self.radio_integ_cycles
         )
@@ -94,26 +100,159 @@ class SmallRadioTelescopeDaemon:
         self.command_error_logs.append((time(), message))
         print(message)
 
+    def n_point_scan(self, object_id):
+        self.ephemeris_cmd_location = None
+        for scan in range(25):
+            new_rotor_destination = self.ephemeris_locations[object_id]
+            i = (scan // 5) - 2
+            j = (scan % 5) - 2
+            el_dif = i * self.beamwidth * 0.5
+            az_dif_scalar = np.cos((new_rotor_destination[1] + el_dif) * np.pi / 180.0)
+            az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
+            new_rotor_offsets = (az_dif, el_dif)
+            if self.rotor.angles_within_bounds(*new_rotor_destination):
+                self.rotor_destination = new_rotor_destination
+                self.set_offsets(*new_rotor_offsets)
+            sleep(5)
+        self.rotor_offsets = (0.0, 0.0)
+        self.ephemeris_cmd_location = object_id
+
+    def beam_switch(self, object_id):
+        self.ephemeris_cmd_location = None
+        new_rotor_destination = self.ephemeris_locations[object_id]
+        for j in range(-1, 1 + 1):
+            az_dif_scalar = np.cos(new_rotor_destination[1] * np.pi / 180.0)
+            az_dif = j * self.beamwidth / az_dif_scalar
+            new_rotor_offsets = (az_dif, 0)
+            if self.rotor.angles_within_bounds(*new_rotor_destination):
+                self.rotor_destination = new_rotor_destination
+                self.set_offsets(*new_rotor_offsets)
+            sleep(5)
+        self.rotor_offsets = (0.0, 0.0)
+        self.ephemeris_cmd_location = object_id
+
+    def point_at_object(self, object_id):
+        self.rotor_offsets = (0.0, 0.0)
+        new_rotor_cmd_location = self.ephemeris_locations[object_id]
+        if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
+            self.ephemeris_cmd_location = object_id
+            self.rotor_destination = new_rotor_cmd_location
+            self.rotor_cmd_location = new_rotor_cmd_location
+            while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
+                sleep(0.1)
+        else:
+            self.log_message(f"Object {object_id} Not in Motor Bounds")
+            self.ephemeris_cmd_location = None
+
+    def point_at_azel(self, az, el):
+        self.ephemeris_cmd_location = None
+        self.rotor_offsets = (0.0, 0.0)
+        new_rotor_destination = (az, el)
+        new_rotor_cmd_location = new_rotor_destination
+        if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
+            self.rotor_destination = new_rotor_destination
+            self.rotor_cmd_location = new_rotor_cmd_location
+            while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
+                sleep(0.1)
+        else:
+            self.log_message(f"Object at {new_rotor_cmd_location} Not in Motor Bounds")
+
+    def stow(self):
+        self.ephemeris_cmd_location = None
+        self.rotor_offsets = (0.0, 0.0)
+        self.rotor_destination = self.stow_location
+        self.rotor_cmd_location = self.stow_location
+        while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
+            sleep(0.1)
+
+    def calibrate(self):
+        radio_cal_task = RadioCalibrateTask(
+            self.radio_num_bins, self.radio_integ_cycles, self.config_directory,
+        )
+        radio_cal_task.start()
+        radio_cal_task.join(30)
+        path = Path(self.config_directory, "calibration.json")
+        with open(path, "r") as input_file:
+            cal_data = json.load(input_file)
+            self.cal_values = cal_data["cal_values"]
+            self.cal_power = cal_data["cal_pwr"]
+        self.radio_queue.put(("cal_pwr", self.cal_power))
+        self.radio_queue.put(("cal_values", self.cal_values))
+        self.log_message("Calibration Done")
+
+    def start_recording(self):
+        if self.radio_save_raw_task is None:
+            self.radio_save_raw_task = RadioSaveRawTask(
+                self.radio_sample_frequency, self.save_dir
+            )
+            self.radio_save_raw_task.start()
+        else:
+            self.log_message("Cannot Start Recording - Already Recording")
+
+    def stop_recording(self):
+        if self.radio_save_raw_task is not None:
+            self.radio_save_raw_task.terminate()
+            self.radio_save_raw_task = None
+
+    def set_freq(self, frequency):
+        self.radio_center_frequency = frequency
+        self.radio_queue.put(("freq", self.radio_center_frequency))
+
+    def set_samp_rate(self, samp_rate):
+        if self.radio_save_raw_task is not None:
+            self.radio_save_raw_task.terminate()
+        self.radio_sample_frequency = samp_rate
+        self.radio_queue.put(("samp_rate", self.radio_sample_frequency))
+        if self.radio_save_raw_task is not None:
+            self.radio_save_raw_task = RadioSaveRawTask(
+                self.radio_sample_frequency, self.save_dir
+            )
+            self.radio_save_raw_task.start()
+
+    def set_offsets(self, az_off, el_off):
+        new_rotor_offsets = (az_off, el_off)
+        new_rotor_cmd_location = tuple(
+            map(add, self.rotor_destination, new_rotor_offsets)
+        )
+        if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
+            self.rotor_offsets = new_rotor_offsets
+            self.rotor_cmd_location = new_rotor_cmd_location
+            while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
+                sleep(0.1)
+        else:
+            self.log_message(f"Offset {new_rotor_offsets} Out of Bounds")
+
+    def quit(self):
+        keep_running = False
+        self.radio_queue.put(("is_running", keep_running))
+
     def update_ephemeris_location(self):
+        last_updated_time = None
         while True:
-            self.ephemeris_tracker.update_all_az_el()
+            if last_updated_time is None or time() - last_updated_time > 10:
+                last_updated_time = time()
+                self.ephemeris_tracker.update_all_az_el()
             self.ephemeris_locations = (
                 self.ephemeris_tracker.get_all_azimuth_elevation()
             )
             if self.ephemeris_cmd_location is not None:
-                new_rotor_cmd_location = self.ephemeris_locations[
+                new_rotor_destination = self.ephemeris_locations[
                     self.ephemeris_cmd_location
                 ]
-                if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
-                    self.rotor_cmd_location = tuple(
-                        map(add, new_rotor_cmd_location, self.motor_offsets)
-                    )
+                new_rotor_cmd_location = tuple(
+                    map(add, new_rotor_destination, self.rotor_offsets)
+                )
+                if self.rotor.angles_within_bounds(
+                    *new_rotor_destination
+                ) and self.rotor.angles_within_bounds(*new_rotor_cmd_location):
+                    self.rotor_destination = new_rotor_destination
+                    self.rotor_cmd_location = new_rotor_cmd_location
                 else:
                     self.log_message(
                         f"Object {self.ephemeris_cmd_location} moved out of motor bounds"
                     )
                     self.ephemeris_cmd_location = None
-            sleep(5)
+            sleep(1)
 
     def update_rotor_status(self):
         while True:
@@ -127,14 +266,19 @@ class SmallRadioTelescopeDaemon:
                         )
                         and (time() - start_time) < 10
                     ):
-                        self.rotor_location = self.rotor.get_azimuth_elevation()
-                        self.rpc_server.set_motor_az(float(self.rotor_location[0]))
-                        self.rpc_server.set_motor_el(float(self.rotor_location[1]))
                         sleep(1)
+                        self.rotor_location = self.rotor.get_azimuth_elevation()
+                        self.radio_queue.put(
+                            ("motor_az", float(self.rotor_location[0]))
+                        )
+                        self.radio_queue.put(
+                            ("motor_el", float(self.rotor_location[1]))
+                        )
+                        sleep(0.1)
                 else:
                     self.rotor_location = self.rotor.get_azimuth_elevation()
-                    self.rpc_server.set_motor_az(float(self.rotor_location[0]))
-                    self.rpc_server.set_motor_el(float(self.rotor_location[1]))
+                    self.radio_queue.put(("motor_az", float(self.rotor_location[0])))
+                    self.radio_queue.put(("motor_el", float(self.rotor_location[1])))
                     sleep(1)
             except AssertionError as e:
                 self.log_message(str(e))
@@ -165,7 +309,7 @@ class SmallRadioTelescopeDaemon:
                 "el_limits": self.el_limits,
                 "center_frequency": self.radio_center_frequency,
                 "bandwidth": self.radio_sample_frequency,
-                "motor_offsets": self.motor_offsets,
+                "motor_offsets": self.rotor_offsets,
                 "queued_item": self.current_queue_item,
                 "queue_size": self.command_queue.qsize(),
                 "emergency_contact": self.contact,
@@ -177,6 +321,14 @@ class SmallRadioTelescopeDaemon:
             status_socket.send_json(status)
             sleep(0.5)
 
+    def update_radio_settings(self):
+        rpc_server = ServerProxy("http://localhost:5557/")
+        while True:
+            method, value = self.radio_queue.get()
+            call = getattr(rpc_server, f"set_{method}")
+            call(value)
+            sleep(0.1)
+
     def srt_daemon_main(self):
         ephemeris_tracker_thread = Thread(
             target=self.update_ephemeris_location, daemon=True
@@ -184,6 +336,7 @@ class SmallRadioTelescopeDaemon:
         rotor_pointing_thread = Thread(target=self.update_rotor_status, daemon=True)
         command_queueing_thread = Thread(target=self.update_command_queue, daemon=True)
         status_thread = Thread(target=self.update_status, daemon=True)
+        radio_thread = Thread(target=self.update_radio_settings, daemon=True)
 
         try:
             self.radio_process_task.start()
@@ -192,26 +345,25 @@ class SmallRadioTelescopeDaemon:
         sleep(5)
 
         radio_params = {
-            "Frequency": (self.rpc_server.set_freq, self.radio_center_frequency),
-            "Sample Rate": (self.rpc_server.set_samp_rate, self.radio_sample_frequency),
-            "Motor Azimuth": (self.rpc_server.set_motor_az, self.rotor_location[0]),
-            "Motor Elevation": (self.rpc_server.set_motor_el, self.rotor_location[1]),
-            "System Temp": (self.rpc_server.set_tsys, self.temp_sys),
-            "Calibration Temp": (self.rpc_server.set_tcal, self.temp_cal),
-            "Calibration Power": (self.rpc_server.set_cal_pwr, self.cal_power),
-            "Calibration Values": (self.rpc_server.set_cal_values, self.cal_values),
-            "Is Running": (self.rpc_server.set_is_running, True),
+            "Frequency": ("freq", self.radio_center_frequency),
+            "Sample Rate": ("samp_rate", self.radio_sample_frequency),
+            "Motor Azimuth": ("motor_az", self.rotor_location[0]),
+            "Motor Elevation": ("motor_el", self.rotor_location[1]),
+            "System Temp": ("tsys", self.temp_sys),
+            "Calibration Temp": ("tcal", self.temp_cal),
+            "Calibration Power": ("cal_pwr", self.cal_power),
+            "Calibration Values": ("cal_values", self.cal_values),
+            "Is Running": ("is_running", True),
         }
         for name in radio_params:
-            method, value = radio_params[name]
             self.log_message(f"Setting {name}")
-            method(value)
-            sleep(0.1)
+            self.radio_queue.put(radio_params[name])
 
         ephemeris_tracker_thread.start()
         rotor_pointing_thread.start()
         command_queueing_thread.start()
         status_thread.start()
+        radio_thread.start()
 
         keep_running = True
 
@@ -227,155 +379,39 @@ class SmallRadioTelescopeDaemon:
                     command = command[1:].strip()
                 command_parts = command.split(" ")
                 command_name = command_parts[0].lower()
+
+                # If Command Starts With a Valid Object Name
                 if command_parts[0] in self.ephemeris_locations:
-                    if (
-                        len(command_parts) > 1 and command_parts[1] == "n"
-                    ):  # N-Point Scan About Object
-                        self.ephemeris_cmd_location = None
-                        for scan in range(25):
-                            new_rotor_cmd_location = self.ephemeris_locations[
-                                command_parts[0]
-                            ]
-                            el_dif = ((scan // 5) - 2) * self.beamwidth * 0.5
-                            az_dif = (
-                                (scan % 5 - 2)
-                                * self.beamwidth
-                                * 0.5
-                                / np.cos(
-                                    (new_rotor_cmd_location[1] + el_dif) * np.pi / 180.0
-                                )
-                            )
-                            self.motor_offsets = (az_dif, el_dif)
-                            self.rotor_cmd_location = tuple(
-                                map(add, new_rotor_cmd_location, self.motor_offsets)
-                            )
-                            while not azel_within_range(
-                                self.rotor_location, self.rotor_cmd_location
-                            ):
-                                sleep(0.1)
-                            sleep(5)
-                        self.motor_offsets = (0, 0)
-                        self.ephemeris_cmd_location = command_parts[0]
-                    elif (
-                        len(command_parts) > 1 and command_parts[1] == "b"
-                    ):  # Beam-Switch Away From Object
-                        self.ephemeris_cmd_location = None
-                        new_rotor_cmd_location = self.ephemeris_locations[
-                            command_parts[0]
-                        ]
-                        for j in range(-1, 1 + 1):
-                            az_dif = (
-                                j
-                                * self.beamwidth
-                                / np.cos(new_rotor_cmd_location[1] * np.pi / 180.0)
-                            )
-                            self.motor_offsets = (az_dif, 0)
-                            self.rotor_cmd_location = tuple(
-                                map(add, new_rotor_cmd_location, self.motor_offsets)
-                            )
-                            while not azel_within_range(
-                                self.rotor_location, self.rotor_cmd_location
-                            ):
-                                sleep(0.1)
-                            sleep(5)
-                        self.motor_offsets = (0, 0)
-                        self.ephemeris_cmd_location = command_parts[0]
-                    else:
-                        new_rotor_cmd_location = self.ephemeris_locations[
-                            command_parts[0]
-                        ]
-                        if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
-                            self.ephemeris_cmd_location = command_parts[0]
-                            self.rotor_cmd_location = tuple(
-                                map(add, new_rotor_cmd_location, self.motor_offsets)
-                            )
-                            while not azel_within_range(
-                                self.rotor_location, self.rotor_cmd_location
-                            ):
-                                sleep(0.1)
-                        else:
-                            self.log_message(
-                                f"Object {command_parts[0]} Not in Motor Bounds"
-                            )
-                            self.ephemeris_cmd_location = None
+                    if command_parts[-1] == "n":  # N-Point Scan About Object
+                        self.n_point_scan(object_id=command_parts[0])
+                    elif command_parts[-1] == "b":  # Beam-Switch Away From Object
+                        self.beam_switch(object_id=command_parts[0])
+                    else:  # Point Directly At Object
+                        self.point_at_object(object_id=command_parts[0])
+                elif command_name == "stow":
+                    self.stow()
+                elif command_name == "calibrate":
+                    self.calibrate()
+                elif command_name == "quit":
+                    self.quit()
+                elif command_name == "record":
+                    self.start_recording()
+                elif command_name == "roff":
+                    self.stop_recording()
+                elif command_name == "freq":
+                    self.set_freq(frequency=float(command_parts[1]) * pow(10, 6))
+                elif command_name == "samp":
+                    self.set_samp_rate(samp_rate=float(command_parts[1]) * pow(10, 6))
+                elif command_name == "azel":
+                    self.point_at_azel(
+                        float(command_parts[1]), float(command_parts[2]),
+                    )
+                elif command_name == "offset":
+                    self.set_offsets(float(command_parts[1]), float(command_parts[2]))
                 elif command_name.isnumeric():
                     sleep(float(command_name))
                 elif command_name == "wait":
                     sleep(float(command_parts[1]))
-                elif command_name == "stow":
-                    self.ephemeris_cmd_location = None
-                    self.rotor_cmd_location = self.stow_location
-                    while not azel_within_range(
-                        self.rotor_location, self.rotor_cmd_location
-                    ):
-                        sleep(0.1)
-                elif command_name == "calibrate":
-                    radio_cal_task = RadioCalibrateTask(
-                        self.radio_num_bins,
-                        self.radio_integ_cycles,
-                        self.config_directory,
-                    )
-                    radio_cal_task.start()
-                    radio_cal_task.join(30)
-                    path = Path(self.config_directory, "calibration.json")
-                    with open(path, "r") as input_file:
-                        cal_data = json.load(input_file)
-                        self.cal_values = cal_data["cal_values"]
-                        self.cal_power = cal_data["cal_pwr"]
-                    self.rpc_server.set_cal_pwr(self.cal_power)
-                    self.rpc_server.set_cal_values(self.cal_values)
-                    self.log_message("Calibration Done")
-                elif command_name == "quit":
-                    keep_running = False
-                    self.rpc_server.set_is_running(False)
-                elif command_name == "record":
-                    if self.radio_save_raw_task is None:
-                        self.radio_save_raw_task = RadioSaveRawTask(
-                            self.radio_sample_frequency, self.save_dir
-                        )
-                        self.radio_save_raw_task.start()
-                    else:
-                        self.log_message("Cannot Start Recording - Already Recording")
-                elif command_name == "roff":
-                    if self.radio_save_raw_task is not None:
-                        self.radio_save_raw_task.terminate()
-                        self.radio_save_raw_task = None
-                elif command_name == "freq":
-                    self.rpc_server.set_freq(float(command_parts[1]) * pow(10, 6))
-                    self.radio_center_frequency = float(command_parts[1]) * pow(10, 6)
-                elif command_name == "samp":
-                    if self.radio_save_raw_task is not None:
-                        self.radio_save_raw_task.terminate()
-                    self.radio_sample_frequency = float(command_parts[1]) * pow(10, 6)
-                    self.rpc_server.set_samp_rate(self.radio_sample_frequency)
-                    if self.radio_save_raw_task is not None:
-                        self.radio_save_raw_task = RadioSaveRawTask(
-                            self.radio_sample_frequency, self.save_dir
-                        )
-                        self.radio_save_raw_task.start()
-                elif command_name == "azel":
-                    self.ephemeris_cmd_location = None
-                    new_rotor_cmd_location = (
-                        float(command_parts[1]),
-                        float(command_parts[2]),
-                    )
-                    if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
-                        self.rotor_cmd_location = tuple(
-                            map(add, new_rotor_cmd_location, self.motor_offsets)
-                        )
-                        while not azel_within_range(
-                            self.rotor_location, self.rotor_cmd_location
-                        ):
-                            sleep(0.1)
-                    else:
-                        self.log_message(
-                            f"Object at {new_rotor_cmd_location} Not in Motor Bounds"
-                        )
-                elif command_name == "offset":
-                    self.motor_offsets = (
-                        float(command_parts[1]),
-                        float(command_parts[2]),
-                    )
                 else:
                     self.log_message(f"Command Not Identified '{command}'")
 
@@ -386,12 +422,8 @@ class SmallRadioTelescopeDaemon:
             except ConnectionRefusedError as e:
                 self.log_message(str(e))
 
-        self.rotor_cmd_location = self.stow_location
-        while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
-            sleep(0.1)
-        if self.radio_save_raw_task is not None:
-            self.radio_save_raw_task.terminate()
-            self.radio_save_raw_task = None
+        self.stow()
+        self.stop_recording()
         self.radio_process_task.terminate()
 
 
