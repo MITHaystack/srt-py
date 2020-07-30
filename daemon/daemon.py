@@ -1,4 +1,6 @@
 from time import sleep, time
+from datetime import timedelta, datetime
+from dateutil import parser
 from threading import Thread
 from queue import Queue
 from xmlrpc.client import ServerProxy
@@ -102,6 +104,7 @@ class SmallRadioTelescopeDaemon:
 
     def n_point_scan(self, object_id):
         self.ephemeris_cmd_location = None
+        self.radio_queue.put(("soutrack", object_id))
         for scan in range(25):
             new_rotor_destination = self.ephemeris_locations[object_id]
             i = (scan // 5) - 2
@@ -112,27 +115,31 @@ class SmallRadioTelescopeDaemon:
             new_rotor_offsets = (az_dif, el_dif)
             if self.rotor.angles_within_bounds(*new_rotor_destination):
                 self.rotor_destination = new_rotor_destination
-                self.set_offsets(*new_rotor_offsets)
+                self.point_at_offset(*new_rotor_offsets)
             sleep(5)
         self.rotor_offsets = (0.0, 0.0)
         self.ephemeris_cmd_location = object_id
 
     def beam_switch(self, object_id):
         self.ephemeris_cmd_location = None
+        self.radio_queue.put(("soutrack", object_id))
         new_rotor_destination = self.ephemeris_locations[object_id]
-        for j in range(-1, 1 + 1):
+        for j in range(0, 3):
+            self.radio_queue.put(("beam_switch", j + 1))
             az_dif_scalar = np.cos(new_rotor_destination[1] * np.pi / 180.0)
-            az_dif = j * self.beamwidth / az_dif_scalar
+            az_dif = (j % 3 - 1) * self.beamwidth / az_dif_scalar
             new_rotor_offsets = (az_dif, 0)
             if self.rotor.angles_within_bounds(*new_rotor_destination):
                 self.rotor_destination = new_rotor_destination
-                self.set_offsets(*new_rotor_offsets)
+                self.point_at_offset(*new_rotor_offsets)
             sleep(5)
         self.rotor_offsets = (0.0, 0.0)
+        self.radio_queue.put(("beam_switch", 0))
         self.ephemeris_cmd_location = object_id
 
     def point_at_object(self, object_id):
         self.rotor_offsets = (0.0, 0.0)
+        self.radio_queue.put(("soutrack", object_id))
         new_rotor_cmd_location = self.ephemeris_locations[object_id]
         if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
             self.ephemeris_cmd_location = object_id
@@ -147,6 +154,7 @@ class SmallRadioTelescopeDaemon:
     def point_at_azel(self, az, el):
         self.ephemeris_cmd_location = None
         self.rotor_offsets = (0.0, 0.0)
+        self.radio_queue.put(("soutrack", f"azel_{az}_{el}"))
         new_rotor_destination = (az, el)
         new_rotor_cmd_location = new_rotor_destination
         if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
@@ -157,8 +165,22 @@ class SmallRadioTelescopeDaemon:
         else:
             self.log_message(f"Object at {new_rotor_cmd_location} Not in Motor Bounds")
 
+    def point_at_offset(self, az_off, el_off):
+        new_rotor_offsets = (az_off, el_off)
+        new_rotor_cmd_location = tuple(
+            map(add, self.rotor_destination, new_rotor_offsets)
+        )
+        if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
+            self.rotor_offsets = new_rotor_offsets
+            self.rotor_cmd_location = new_rotor_cmd_location
+            while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
+                sleep(0.1)
+        else:
+            self.log_message(f"Offset {new_rotor_offsets} Out of Bounds")
+
     def stow(self):
         self.ephemeris_cmd_location = None
+        self.radio_queue.put(("soutrack", "at_stow"))
         self.rotor_offsets = (0.0, 0.0)
         self.rotor_destination = self.stow_location
         self.rotor_cmd_location = self.stow_location
@@ -209,19 +231,6 @@ class SmallRadioTelescopeDaemon:
             )
             self.radio_save_raw_task.start()
 
-    def set_offsets(self, az_off, el_off):
-        new_rotor_offsets = (az_off, el_off)
-        new_rotor_cmd_location = tuple(
-            map(add, self.rotor_destination, new_rotor_offsets)
-        )
-        if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
-            self.rotor_offsets = new_rotor_offsets
-            self.rotor_cmd_location = new_rotor_cmd_location
-            while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
-                sleep(0.1)
-        else:
-            self.log_message(f"Offset {new_rotor_offsets} Out of Bounds")
-
     def quit(self):
         keep_running = False
         self.radio_queue.put(("is_running", keep_running))
@@ -257,16 +266,16 @@ class SmallRadioTelescopeDaemon:
     def update_rotor_status(self):
         while True:
             try:
-                if not azel_within_range(self.rotor_location, self.rotor_cmd_location):
-                    self.rotor.set_azimuth_elevation(*self.rotor_cmd_location)
+                current_rotor_cmd_location = self.rotor_cmd_location
+                if not azel_within_range(self.rotor_location, current_rotor_cmd_location):
+                    self.rotor.set_azimuth_elevation(*current_rotor_cmd_location)
+                    sleep(1)
                     start_time = time()
                     while (
                         not azel_within_range(
-                            self.rotor_location, self.rotor_cmd_location
+                            self.rotor_location, current_rotor_cmd_location
                         )
-                        and (time() - start_time) < 10
-                    ):
-                        sleep(1)
+                    ) and (time() - start_time) < 10:
                         self.rotor_location = self.rotor.get_azimuth_elevation()
                         self.radio_queue.put(
                             ("motor_az", float(self.rotor_location[0]))
@@ -274,7 +283,7 @@ class SmallRadioTelescopeDaemon:
                         self.radio_queue.put(
                             ("motor_el", float(self.rotor_location[1]))
                         )
-                        sleep(0.1)
+                        sleep(0.5)
                 else:
                     self.rotor_location = self.rotor.get_azimuth_elevation()
                     self.radio_queue.put(("motor_az", float(self.rotor_location[0])))
@@ -349,6 +358,7 @@ class SmallRadioTelescopeDaemon:
             "Sample Rate": ("samp_rate", self.radio_sample_frequency),
             "Motor Azimuth": ("motor_az", self.rotor_location[0]),
             "Motor Elevation": ("motor_el", self.rotor_location[1]),
+            "Object Tracking": ("soutrack", "at_stow"),
             "System Temp": ("tsys", self.temp_sys),
             "Calibration Temp": ("tcal", self.temp_cal),
             "Calibration Power": ("cal_pwr", self.cal_power),
@@ -390,6 +400,8 @@ class SmallRadioTelescopeDaemon:
                         self.point_at_object(object_id=command_parts[0])
                 elif command_name == "stow":
                     self.stow()
+                elif command_name == "cal":
+                    self.point_at_azel(*self.cal_location)
                 elif command_name == "calibrate":
                     self.calibrate()
                 elif command_name == "quit":
@@ -407,11 +419,28 @@ class SmallRadioTelescopeDaemon:
                         float(command_parts[1]), float(command_parts[2]),
                     )
                 elif command_name == "offset":
-                    self.set_offsets(float(command_parts[1]), float(command_parts[2]))
+                    self.point_at_offset(
+                        float(command_parts[1]), float(command_parts[2])
+                    )
                 elif command_name.isnumeric():
                     sleep(float(command_name))
                 elif command_name == "wait":
                     sleep(float(command_parts[1]))
+                elif command_name.split(":")[0] == "lst":
+                    time_string = command_name.replace("LST:", "")
+                    time_val = parser.parse(time_string)
+                    while time_val < datetime.utcfromtimestamp(time()):
+                        time_val += timedelta(days=1)
+                    time_delta = (
+                        time_val - datetime.utcfromtimestamp(time())
+                    ).total_seconds()
+                    sleep(time_delta)
+                elif len(command_name.split(":")) == 5:
+                    time_val = datetime.strptime(command_name, "%Y:%j:%H:%M:%S")
+                    time_delta = (
+                        time_val - datetime.utcfromtimestamp(time())
+                    ).total_seconds()
+                    sleep(time_delta)
                 else:
                     self.log_message(f"Command Not Identified '{command}'")
 
