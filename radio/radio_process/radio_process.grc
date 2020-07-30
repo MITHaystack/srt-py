@@ -664,7 +664,7 @@ blocks:
     value: 'pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations":
       num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq,
       "tsys": tsys, "tcal": tcal, "cal_pwr": cal_pwr, "vslr": vslr, "glat": glat,
-      "glon": glon})'
+      "glon": glon, "soutrack": soutrack, "bsw": beam_switch})'
     vlen: '1'
   states:
     bus_sink: false

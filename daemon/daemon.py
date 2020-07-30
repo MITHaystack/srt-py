@@ -16,6 +16,7 @@ from radio_control.radio_task_starter import (
     RadioProcessTask,
     RadioSaveRawTask,
     RadioCalibrateTask,
+    RadioSaveSpecRadTask,
 )
 from utilities.object_tracker import EphemerisTracker
 from utilities.yaml_tools import validate_yaml_schema, load_yaml
@@ -93,6 +94,7 @@ class SmallRadioTelescopeDaemon:
             num_bins=self.radio_num_bins, num_integrations=self.radio_integ_cycles
         )
         self.radio_save_raw_task = None
+        self.radio_save_spec_task = None
 
         self.current_queue_item = "None"
         self.command_queue = Queue()
@@ -202,12 +204,21 @@ class SmallRadioTelescopeDaemon:
         self.radio_queue.put(("cal_values", self.cal_values))
         self.log_message("Calibration Done")
 
-    def start_recording(self):
-        if self.radio_save_raw_task is None:
-            self.radio_save_raw_task = RadioSaveRawTask(
-                self.radio_sample_frequency, self.save_dir
-            )
-            self.radio_save_raw_task.start()
+    def start_recording(self, name):
+        if self.radio_save_raw_task is None and self.radio_save_spec_task is None:
+            if name is None or not name.endswith(".rad"):
+                self.radio_save_raw_task = RadioSaveRawTask(
+                    self.radio_sample_frequency, self.save_dir, name
+                )
+                self.radio_save_raw_task.start()
+            else:
+                name = None if name == "*.rad" else name
+                self.radio_save_spec_task = RadioSaveSpecRadTask(
+                    self.radio_sample_frequency,
+                    self.radio_num_bins,
+                    self.save_dir,
+                    name,
+                )
         else:
             self.log_message("Cannot Start Recording - Already Recording")
 
@@ -267,7 +278,9 @@ class SmallRadioTelescopeDaemon:
         while True:
             try:
                 current_rotor_cmd_location = self.rotor_cmd_location
-                if not azel_within_range(self.rotor_location, current_rotor_cmd_location):
+                if not azel_within_range(
+                    self.rotor_location, current_rotor_cmd_location
+                ):
                     self.rotor.set_azimuth_elevation(*current_rotor_cmd_location)
                     sleep(1)
                     start_time = time()
@@ -407,7 +420,9 @@ class SmallRadioTelescopeDaemon:
                 elif command_name == "quit":
                     self.quit()
                 elif command_name == "record":
-                    self.start_recording()
+                    self.start_recording(
+                        name=(None if len(command_parts) <= 1 else command_parts[1])
+                    )
                 elif command_name == "roff":
                     self.stop_recording()
                 elif command_name == "freq":

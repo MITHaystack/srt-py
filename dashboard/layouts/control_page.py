@@ -190,7 +190,7 @@ def generate_layout():
                                 type="number",
                                 debounce=True,
                                 placeholder="Center Frequency (MHz)",
-                                style={"width": "100%"}
+                                style={"width": "100%"},
                             ),
                         ]
                     ),
@@ -225,7 +225,7 @@ def generate_layout():
                                 type="number",
                                 debounce=True,
                                 placeholder="Sample Frequency (MHz)",
-                                style={"width": "100%"}
+                                style={"width": "100%"},
                             ),
                         ]
                     ),
@@ -289,6 +289,46 @@ def generate_layout():
                     ),
                 ],
                 id="offset-modal",
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Start Recording"),
+                    dbc.ModalBody(
+                        [
+                            html.H5("Select a File Type"),
+                            dcc.RadioItems(
+                                options=[
+                                    {"label": "Digital RF (Raw Data)", "value": ""},
+                                    {
+                                        "label": ".rad Format (Spectrum)",
+                                        "value": " *.rad",
+                                    },
+                                ],
+                                id="record-options",
+                                value="",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="record-btn-yes",
+                                className="ml-auto",
+                                block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="record-btn-no",
+                                className="ml-auto",
+                                block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="record-modal",
             ),
             html.Div(id="signal", style={"display": "none"}),
         ]
@@ -463,7 +503,7 @@ def register_callbacks(app, status_thread, command_thread):
             State("offset-elevation", "value"),
         ],
     )
-    def freq_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, az, el):
+    def offset_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, az, el):
         ctx = dash.callback_context
         if not ctx.triggered:
             return is_open
@@ -476,21 +516,39 @@ def register_callbacks(app, status_thread, command_thread):
             return is_open
 
     @app.callback(
+        Output("record-modal", "is_open"),
+        [
+            Input("btn-start-record", "n_clicks"),
+            Input("record-btn-yes", "n_clicks"),
+            Input("record-btn-no", "n_clicks"),
+        ],
+        [State("record-modal", "is_open"), State("record-options", "value")],
+    )
+    def record_click_func(
+        n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, record_option
+    ):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            if button_id == "record-btn-yes":
+                command_thread.add_to_queue(f"record {record_option}")
+            if n_clicks_yes or n_clicks_no or n_clicks_btn:
+                return not is_open
+            return is_open
+
+    @app.callback(
         Output("signal", "children"),
         [
             Input("btn-stow", "n_clicks"),
-            Input("btn-start-record", "n_clicks"),
             Input("btn-stop-record", "n_clicks"),
             Input("btn-quit", "n_clicks"),
             Input("btn-calibrate", "n_clicks"),
         ],
     )
     def cmd_button_pressed(
-        n_clicks_stow,
-        n_clicks_start_record,
-        n_clicks_stop_record,
-        n_clicks_shutdown,
-        n_clicks_calibrate,
+        n_clicks_stow, n_clicks_stop_record, n_clicks_shutdown, n_clicks_calibrate,
     ):
         ctx = dash.callback_context
         if not ctx.triggered:
@@ -499,8 +557,6 @@ def register_callbacks(app, status_thread, command_thread):
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "btn-stow":
                 command_thread.add_to_queue("stow")
-            elif button_id == "btn-start-record":
-                command_thread.add_to_queue("record")
             elif button_id == "btn-stop-record":
                 command_thread.add_to_queue("roff")
             elif button_id == "btn-quit":

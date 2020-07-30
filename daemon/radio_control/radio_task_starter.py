@@ -7,6 +7,7 @@ import time
 from radio_control import radio_process
 from radio_control import radio_save_raw
 from radio_control import radio_calibrate
+from radio_control import radio_save_spec
 
 
 class RadioTask(multiprocessing.Process):
@@ -24,10 +25,25 @@ class RadioProcessTask(RadioTask):
 
 
 class RadioSaveRawTask(RadioTask):
-    def __init__(self, samp_rate, root_save_directory):
-        directory = time.strftime("SRT_RAW_SAVE-%Y:%m:%d:%H:%M:%S")
+    def __init__(self, samp_rate, root_save_directory, directory):
+        if directory is None:
+            directory = time.strftime("SRT_RAW_SAVE-%Y:%m:%d:%H:%M:%S")
         path = str(Path(expanduser(root_save_directory), directory).absolute())
         super().__init__(radio_save_raw.main, directory_name=path, samp_rate=samp_rate)
+
+
+class RadioSaveSpecRadTask(RadioTask):
+    def __init__(self, samp_rate, num_bins, root_save_directory, file_name):
+        if file_name is None:
+            file_name = time.strftime("%y:%j:%H")
+        path = str(Path(expanduser(root_save_directory)).absolute())
+        super().__init__(
+            radio_save_spec.main,
+            directory_name=path,
+            samp_rate=samp_rate,
+            num_bins=num_bins,
+            file_name=file_name,
+        )
 
 
 class RadioCalibrateTask(RadioTask):

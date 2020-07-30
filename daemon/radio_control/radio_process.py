@@ -92,7 +92,7 @@ class radio_process(gr.top_block):
         self.osmosdr_source_0.set_bandwidth(0, 0)
         self.fft_vxx_0 = fft.fft_vcc(num_bins, True, fft_window, True, 3)
         self.dc_blocker_xx_0 = filter.dc_blocker_cc(num_bins, True)
-        self.blocks_tags_strobe_0_0 = blocks.tags_strobe(gr.sizeof_gr_complex*1, pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations": num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq, "tsys": tsys, "tcal": tcal, "cal_pwr": cal_pwr, "vslr": vslr, "glat": glat, "glon": glon}), min(num_bins*64, num_bins*num_integrations), pmt.intern("metadata"))
+        self.blocks_tags_strobe_0_0 = blocks.tags_strobe(gr.sizeof_gr_complex*1, pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations": num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq, "tsys": tsys, "tcal": tcal, "cal_pwr": cal_pwr, "vslr": vslr, "glat": glat, "glon": glon, "soutrack": soutrack, "bsw": beam_switch}), min(num_bins*64, num_bins*num_integrations), pmt.intern("metadata"))
         self.blocks_tags_strobe_0 = blocks.tags_strobe(gr.sizeof_gr_complex*1, pmt.to_pmt(float(freq)), min(num_bins*64, num_bins*num_integrations), pmt.intern("rx_freq"))
         self.blocks_stream_to_vector_0_2 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, num_bins)
         self.blocks_stream_to_vector_0_1 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, num_bins)
@@ -175,7 +175,7 @@ class radio_process(gr.top_block):
         self.blocks_multiply_const_vxx_0_0_0.set_k(self.custom_window[self.num_bins:2*self.num_bins])
         self.blocks_multiply_const_vxx_0_0_0_0.set_k(self.custom_window[0:self.num_bins])
         self.blocks_tags_strobe_0.set_nsamps(min(self.num_bins*64, self.num_bins*self.num_integrations))
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
         self.blocks_tags_strobe_0_0.set_nsamps(min(self.num_bins*64, self.num_bins*self.num_integrations))
 
     def get_num_integrations(self):
@@ -185,7 +185,7 @@ class radio_process(gr.top_block):
         self.num_integrations = num_integrations
         self.blocks_multiply_const_xx_0.set_k(1.0/float(self.num_integrations))
         self.blocks_tags_strobe_0.set_nsamps(min(self.num_bins*64, self.num_bins*self.num_integrations))
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
         self.blocks_tags_strobe_0_0.set_nsamps(min(self.num_bins*64, self.num_bins*self.num_integrations))
 
     def get_sinc_sample_locations(self):
@@ -207,7 +207,7 @@ class radio_process(gr.top_block):
 
     def set_vslr(self, vslr):
         self.vslr = vslr
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_tsys(self):
         return self.tsys
@@ -215,7 +215,7 @@ class radio_process(gr.top_block):
     def set_tsys(self, tsys):
         self.tsys = tsys
         self.blocks_multiply_const_vxx_1.set_k([(self.tsys + self.tcal)/(value * self.cal_pwr) for value in self.cal_values])
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_tcal(self):
         return self.tcal
@@ -223,20 +223,21 @@ class radio_process(gr.top_block):
     def set_tcal(self, tcal):
         self.tcal = tcal
         self.blocks_multiply_const_vxx_1.set_k([(self.tsys + self.tcal)/(value * self.cal_pwr) for value in self.cal_values])
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_soutrack(self):
         return self.soutrack
 
     def set_soutrack(self, soutrack):
         self.soutrack = soutrack
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
         self.osmosdr_source_0.set_sample_rate(self.samp_rate)
 
     def get_motor_el(self):
@@ -244,14 +245,14 @@ class radio_process(gr.top_block):
 
     def set_motor_el(self, motor_el):
         self.motor_el = motor_el
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_motor_az(self):
         return self.motor_az
 
     def set_motor_az(self, motor_az):
         self.motor_az = motor_az
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_is_running(self):
         return self.is_running
@@ -265,14 +266,14 @@ class radio_process(gr.top_block):
 
     def set_glon(self, glon):
         self.glon = glon
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_glat(self):
         return self.glat
 
     def set_glat(self, glat):
         self.glat = glat
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_freq(self):
         return self.freq
@@ -280,7 +281,7 @@ class radio_process(gr.top_block):
     def set_freq(self, freq):
         self.freq = freq
         self.blocks_tags_strobe_0.set_value(pmt.to_pmt(float(self.freq)))
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
         self.osmosdr_source_0.set_center_freq(self.freq, 0)
 
     def get_fft_window(self):
@@ -312,13 +313,14 @@ class radio_process(gr.top_block):
     def set_cal_pwr(self, cal_pwr):
         self.cal_pwr = cal_pwr
         self.blocks_multiply_const_vxx_1.set_k([(self.tsys + self.tcal)/(value * self.cal_pwr) for value in self.cal_values])
-        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon}))
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
     def get_beam_switch(self):
         return self.beam_switch
 
     def set_beam_switch(self, beam_switch):
         self.beam_switch = beam_switch
+        self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))
 
 
 
