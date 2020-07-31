@@ -25,7 +25,7 @@ from . import save_calibration
 
 class radio_calibrate(gr.top_block):
 
-    def __init__(self, directory_name=".", num_bins=4096, num_integrations=1000):
+    def __init__(self, directory_name=".", num_bins=4096, num_integrations=10000):
         gr.top_block.__init__(self, "radio_calibrate")
 
         ##################################################
@@ -39,7 +39,7 @@ class radio_calibrate(gr.top_block):
         # Blocks
         ##################################################
         self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:5558', 100, True, -1)
-        self.save_calibration = save_calibration.blk(directory=directory_name, filename='calibration.json', vec_length=num_bins)
+        self.save_calibration = save_calibration.blk(directory=directory_name, filename='calibration.json', vec_length=num_bins, poly_smoothing_order=25)
         self.fft_vxx_0 = fft.fft_vcc(num_bins, True, window.blackmanharris(num_bins), True, 3)
         self.dc_blocker_xx_0 = filter.dc_blocker_cc(num_bins, True)
         self.blocks_stream_to_vector_0_2 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, num_bins)
@@ -98,7 +98,7 @@ def argument_parser():
         "--num-bins", dest="num_bins", type=intx, default=4096,
         help="Set num_bins [default=%(default)r]")
     parser.add_argument(
-        "--num-integrations", dest="num_integrations", type=intx, default=1000,
+        "--num-integrations", dest="num_integrations", type=intx, default=10000,
         help="Set num_integrations [default=%(default)r]")
     return parser
 

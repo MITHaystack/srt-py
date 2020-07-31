@@ -202,7 +202,7 @@ blocks:
     label: num_integrations
     short_id: ''
     type: intx
-    value: '1000'
+    value: '10000'
   states:
     bus_sink: false
     bus_source: false
@@ -217,26 +217,33 @@ blocks:
       \ GRC will instantiate the first class it finds\nto get ports and parameters\
       \ of your block. The arguments to __init__  will\nbe the parameters. All of\
       \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
-      import json\n\nfrom gnuradio import gr\nimport pmt\n\nimport pathlib\n\n\nclass\
-      \ blk(gr.basic_block):  # other base classes are basic_block, decim_block, interp_block\n\
-      \    \"\"\"Embedded Python Block - Calculate Calibration Values\"\"\"\n\n  \
-      \  def __init__(self, directory=\".\", filename=\"test.rad\", vec_length=4096):\
-      \  # only default arguments here\n        \"\"\"arguments to this function show\
-      \ up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n         \
-      \   self,\n            name='Embedded Python Block',   # will show up in GRC\n\
-      \            in_sig=[(np.float32, vec_length)],\n            out_sig=None\n\
-      \        )\n        # if an attribute with the same name as a parameter is found,\n\
+      import numpy.polynomial.polynomial as poly\nimport json\n\nfrom gnuradio import\
+      \ gr\nimport pmt\n\nimport pathlib\n\n\nclass blk(gr.sync_block):\n    \"\"\"\
+      Embedded Python Block - Calculate Calibration Values\"\"\"\n\n    def __init__(\n\
+      \        self,\n        directory=\".\",\n        filename=\"calibration.json\"\
+      ,\n        vec_length=4096,\n        poly_smoothing_order=25,\n    ):  # only\
+      \ default arguments here\n        \"\"\"arguments to this function show up as\
+      \ parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n            self,\n\
+      \            name=\"Embedded Python Block\",  # will show up in GRC\n      \
+      \      in_sig=[(np.float32, vec_length)],\n            out_sig=None,\n     \
+      \   )\n        # if an attribute with the same name as a parameter is found,\n\
       \        # a callback is registered (properties work, too).\n        self.directory\
       \ = directory\n        self.filename = filename\n        self.vec_length = vec_length\n\
-      \n    def work(self, input_items, output_items):\n        \"\"\"Divide Input\
-      \ by Average, Determine Calibration Power, and Save\"\"\"\n        averaged_input\
-      \ = np.zeros(len(input_items[0][0]))\n        for input_array in input_items[0]:\n\
-      \            averaged_input += input_array\n        averaged_input /= len(input_items[0])\n\
-      \        average_value = np.average(averaged_input)\n        averaged_input\
-      \ /= average_value\n        file_output = {\"cal_pwr\": average_value, \"cal_values\"\
-      : averaged_input.tolist()}\n        with open(pathlib.Path(self.directory, self.filename),\"\
-      w\") as outfile:\n            json.dump(file_output, outfile)\n        return\
-      \ len(input_items[0])\n"
+      \        self.poly_smoothing_order = poly_smoothing_order\n        self.past_input\
+      \ = np.zeros(vec_length)\n        self.num_past_input = 0\n\n    def work(self,\
+      \ input_items, output_items):\n        \"\"\"Divide Input by Average, Determine\
+      \ Calibration Power, and Save\"\"\"\n        for input_array in input_items[0]:\n\
+      \            self.past_input += input_array\n            self.num_past_input\
+      \ += 1\n            averaged_input = self.past_input / self.num_past_input\n\
+      \            relative_freq_values = np.linspace(-1, 1, self.vec_length)\n  \
+      \          poly_fit = poly.Polynomial.fit(\n                relative_freq_values,\
+      \ averaged_input, self.poly_smoothing_order,\n            )\n            smoothed_input\
+      \ = poly_fit(relative_freq_values)\n            average_value = np.average(smoothed_input)\n\
+      \            rescaled_input = smoothed_input / average_value\n            file_output\
+      \ = {\n                \"cal_pwr\": average_value,\n                \"cal_values\"\
+      : rescaled_input.tolist(),\n            }\n            with open(pathlib.Path(self.directory,\
+      \ self.filename), \"w\") as outfile:\n                json.dump(file_output,\
+      \ outfile)\n        return len(input_items[0])\n"
     affinity: ''
     alias: ''
     comment: ''
@@ -244,15 +251,17 @@ blocks:
     filename: '''calibration.json'''
     maxoutbuf: '0'
     minoutbuf: '0'
+    poly_smoothing_order: '25'
     vec_length: num_bins
   states:
     _io_cache: ('Embedded Python Block', 'blk', [('directory', "'.'"), ('filename',
-      "'test.rad'"), ('vec_length', '4096')], [('0', 'float', 4096)], [], 'Embedded
-      Python Block - Calculate Calibration Values', ['directory', 'filename', 'vec_length'])
+      "'calibration.json'"), ('vec_length', '4096'), ('poly_smoothing_order', '25')],
+      [('0', 'float', 4096)], [], 'Embedded Python Block - Calculate Calibration Values',
+      ['directory', 'filename', 'poly_smoothing_order', 'vec_length'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [816, 274]
+    coordinate: [813, 266]
     rotation: 0
     state: true
 - name: zeromq_sub_source_0
