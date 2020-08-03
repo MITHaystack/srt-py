@@ -20,7 +20,6 @@ requirements:
     - rtl-sdr
     - soapysdr
     - soapysdr-module-rtlsdr
-#    - gnuradio
     - gnuradio-core
     - gnuradio-zeromq
     - gnuradio-osmosdr
