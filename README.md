@@ -51,12 +51,21 @@ Build and install the pip package
 
   Before using the software, you must create a "config" directory, which should follow the convention set by the example config directory in this repository.  Be sure to change the settings to best match your hardware, celestial objects of interest, and use case.  Please refer to the docs for more information.
 
-  Once installed, you can start the SRT Daemon and SRT Dashboard by running, respectively by executing (for the default runtime options):
+  Once installed, you can start the SRT Daemon and SRT Dashboard by running, respectively, by executing (for the default runtime options):
 
   ```
   run_srt_daemon.py --config_dir=PATH_TO_CONFIG_DIR
   run_srt_dashboard.py
   ```
+
+  If instead running without installing, you can start the SRT Daemon and SRT Dashboard by running, respectively, by executing while in the srt-py directory:
+
+  ```
+  python srt/daemon/daemon.py
+  python srt/dashboard/app.py
+  ```
+
+  Note: This requires manually making sure you have all the dependencies listed in Dependencies
 
 ## Example Usage
 

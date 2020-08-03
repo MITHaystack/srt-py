@@ -16,12 +16,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     scripts=[str(path) for path in Path('./bin/').glob('**/*.py')],
     package_data={'': ['*.js', '*.css']},
-    # include_package_data=True,
-    #install_requires=[
-    #    "numpy",
-    #    "scipy",
-    #    "digital_rf",
-    #],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
