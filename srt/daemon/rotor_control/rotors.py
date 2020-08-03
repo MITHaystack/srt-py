@@ -5,7 +5,7 @@ Module for Managing Different Motor Objects
 """
 from enum import Enum
 
-from rotor_control.motors import NoMotor, Rot2Motor, H180Motor, PushRodMotor
+from .motors import NoMotor, Rot2Motor, H180Motor, PushRodMotor
 
 
 def angle_within_range(angle, limits):

@@ -7,11 +7,11 @@ from dash.dependencies import Input, Output, State, ClientsideFunction
 import flask
 import plotly.io as pio
 
-from layouts import control_page, monitor_page, system_page
-from layouts.sidebar import generate_sidebar
-from messaging.status_fetcher import StatusThread
-from messaging.command_dispatcher import CommandThread
-from messaging.spectrum_fetcher import SpectrumThread
+from srt.dashboard.layouts import control_page, monitor_page, system_page
+from srt.dashboard.layouts.sidebar import generate_sidebar
+from srt.dashboard.messaging.status_fetcher import StatusThread
+from srt.dashboard.messaging.command_dispatcher import CommandThread
+from srt.dashboard.messaging.spectrum_fetcher import SpectrumThread
 
 
 server = flask.Flask(__name__)

@@ -4,10 +4,7 @@ from os.path import expanduser
 from argparse import Namespace
 import time
 
-from radio_control import radio_process
-from radio_control import radio_save_raw
-from radio_control import radio_calibrate
-from radio_control import radio_save_spec
+from . import radio_process, radio_save_raw, radio_calibrate, radio_save_spec
 
 
 class RadioTask(multiprocessing.Process):

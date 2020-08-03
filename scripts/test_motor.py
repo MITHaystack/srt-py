@@ -6,7 +6,7 @@ Moves a Motor Through 10 Random Points and Back to Stow
 from random import uniform
 from time import sleep
 
-from rotor_control.rotors import Rotor, RotorType
+from srt.daemon.rotor_control.rotors import Rotor, RotorType
 
 stow_position = (38, 0)  # Taken from Starting Position of Haystack SRT
 az_limit = (38, 355)  # Taken From Haystack srt.cat

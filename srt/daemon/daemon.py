@@ -1,6 +1,5 @@
 from time import sleep, time
 from datetime import timedelta, datetime
-from dateutil import parser
 from threading import Thread
 from queue import Queue
 from xmlrpc.client import ServerProxy
@@ -11,16 +10,16 @@ import zmq
 import json
 import numpy as np
 
-from rotor_control.rotors import Rotor
-from radio_control.radio_task_starter import (
+from .rotor_control.rotors import Rotor
+from .radio_control.radio_task_starter import (
     RadioProcessTask,
     RadioSaveRawTask,
     RadioCalibrateTask,
     RadioSaveSpecRadTask,
 )
-from utilities.object_tracker import EphemerisTracker
-from utilities.yaml_tools import validate_yaml_schema, load_yaml
-from utilities.functions import azel_within_range
+from .utilities.object_tracker import EphemerisTracker
+from .utilities.yaml_tools import validate_yaml_schema, load_yaml
+from .utilities.functions import azel_within_range
 
 
 class SmallRadioTelescopeDaemon:
@@ -443,7 +442,7 @@ class SmallRadioTelescopeDaemon:
                     sleep(float(command_parts[1]))
                 elif command_name.split(":")[0] == "lst":
                     time_string = command_name.replace("LST:", "")
-                    time_val = parser.parse(time_string)
+                    time_val = datetime.strptime(time_string, "%H:%M:%S")
                     while time_val < datetime.utcfromtimestamp(time()):
                         time_val += timedelta(days=1)
                     time_delta = (

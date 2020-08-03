@@ -1,0 +1,42 @@
+{% set name = "srt-py" %}
+{% set version = "0.0.0" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  path: ../
+
+requirements:
+  host:
+    - pip
+    - setuptools
+    - python >=3.6
+  run:
+    - python >=3.6
+    - numpy
+    - scipy
+    - rtl-sdr
+    - soapysdr
+    - soapysdr-module-rtlsdr
+#    - gnuradio
+    - gnuradio-core
+    - gnuradio-zeromq
+    - gnuradio-osmosdr
+    - digital_rf
+    - pyzmq
+    - pyserial
+    - astropy
+    - yamale
+    - dash
+    - dash-bootstrap-components
+    - plotly
+    - pandas
+
+test:
+  requires:
+    - pytest
+  imports:
+    - srt
+
