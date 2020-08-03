@@ -101,6 +101,8 @@ def register_callbacks(app, status_thread, raw_spectrum_thread, cal_spectrum_thr
         tcal = float(status["temp_cal"])
         cal_pwr = float(status["cal_power"])
         power_history = raw_spectrum_thread.get_power_history(tsys, tcal, cal_pwr)
+        if power_history is None or len(power_history) == 0:
+            return
         power_time, power_vals = zip(*power_history)
         fig = go.Figure(
             data=go.Scatter(x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals),
