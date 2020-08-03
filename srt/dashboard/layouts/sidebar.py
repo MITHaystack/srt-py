@@ -1,10 +1,30 @@
+"""sidebar.py
+
+Functions to Generate Sidebar
+
+"""
+
 import dash_html_components as html
-import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 
 
-# https://github.com/facultyai/dash-bootstrap-components
 def generate_sidebar(pages):
+    """Generates the Sidebar for the SRT Dashboard
+
+    Parameters
+    ----------
+    pages : dict
+        Different Pages to List on Sidebar with Their Names As Keys
+
+
+    See Also
+    --------
+    <https://github.com/facultyai/dash-bootstrap-components>
+
+    Returns
+    -------
+    Sidebar
+    """
     # we use the Row and Col components to construct the sidebar header
     # it consists of a title, and a toggle, the latter is hidden on large screens
     sidebar_header = dbc.Row(
@@ -43,7 +63,6 @@ def generate_sidebar(pages):
             ),
         ]
     )
-
     sidebar = html.Div(
         [
             sidebar_header,

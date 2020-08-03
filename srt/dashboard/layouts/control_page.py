@@ -1,3 +1,9 @@
+"""control_page.py
+
+Function for Generating Control Page and Creating Callback
+
+"""
+
 import dash
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
@@ -12,6 +18,12 @@ from .graphs import generate_az_el_graph
 
 
 def generate_layout():
+    """Generates the Basic Layout for the Control Page
+
+    Returns
+    -------
+    Control Page Layout
+    """
     drop_down_buttons = {
         "Antenna": [
             dbc.DropdownMenuItem("Stow", id="btn-stow"),
@@ -72,7 +84,7 @@ def generate_layout():
                                 ),
                                 style={
                                     "width": "95%",
-                                    "height": "60px",
+                                    "hSystemeight": "60px",
                                     "lineHeight": "60px",
                                     "borderWidth": "1px",
                                     "borderStyle": "dashed",
@@ -337,6 +349,21 @@ def generate_layout():
 
 
 def register_callbacks(app, status_thread, command_thread):
+    """Registers the Callbacks for the Control Page
+
+    Parameters
+    ----------
+    app : Dash Object
+        Dash Object to Set Up Callbacks to
+    status_thread : Thread
+        Thread for Getting Status from Daemon
+    command_thread : Thread
+        Thread for Sending Commands to Daemon
+
+    Returns
+    -------
+    None
+    """
     @app.callback(
         Output("output-data-upload", "children"),
         [Input("upload-data", "contents")],

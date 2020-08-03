@@ -1,6 +1,10 @@
-import dash
+"""system_page.py
+
+Function for Generating System Page and Creating Callback
+
+"""
+
 import dash_core_components as dcc
-import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
@@ -8,6 +12,12 @@ from datetime import datetime
 
 
 def generate_layout():
+    """Generates the Basic Layout for the System Page
+    
+    Returns
+    -------
+    System Page Layout
+    """
     layout = html.Div(
         [
             html.Div(
@@ -51,7 +61,7 @@ def generate_layout():
                             ),
                         ],
                         className="pretty_container eight columns",
-                    )
+                    ),
                 ],
                 className="row flex-display",
             ),
@@ -61,6 +71,21 @@ def generate_layout():
 
 
 def register_callbacks(app, status_thread, command_thread):
+    """Registers the Callbacks for the System Page
+
+    Parameters
+    ----------
+    app : Dash Object
+        Dash Object to Set Up Callbacks to
+    status_thread : Thread
+        Thread for Getting Status from Daemon
+    command_thread : Thread
+        Thread for Sending Commands to Daemon
+
+    Returns
+    -------
+    None
+    """
     @app.callback(
         Output("emergency-contact-info", "children"),
         [Input("interval-component", "n_intervals")],

@@ -1,8 +1,12 @@
-import dash
+"""monitor_page.py
+
+Function for Generating Monitor Page and Creating Callback
+
+"""
+
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
-import plotly.express as px
 from dash.dependencies import Input, Output, State
 
 import numpy as np
@@ -12,6 +16,12 @@ from datetime import datetime
 
 
 def generate_layout():
+    """Generates the Basic Layout for the Monitor Page
+
+    Returns
+    -------
+    Monitor Page Layout
+    """
     layout = html.Div(
         [
             html.Div(
@@ -65,6 +75,23 @@ def generate_layout():
 
 
 def register_callbacks(app, status_thread, raw_spectrum_thread, cal_spectrum_thread):
+    """Registers the Callbacks for the Monitor Page
+
+    Parameters
+    ----------
+    app : Dash Object
+        Dash Object to Set Up Callbacks to
+    status_thread : Thread
+        Thread for Getting Status from Daemon
+    raw_spectrum_thread : Thread
+        Thread for Getting Raw Spectrum Data from Daemon
+    cal_spectrum_thread : Thread
+        Thread for Getting Calibrated Spectrum Data from Daemon
+
+    Returns
+    -------
+    None
+    """
     @app.callback(
         Output("spectrum-histogram", "figure"),
         [Input("interval-component", "n_intervals")],

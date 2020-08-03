@@ -1,7 +1,26 @@
+"""navbar.py
+
+Contains Functions for Interacting with a Navbar
+
+"""
+
 import dash_bootstrap_components as dbc
 
 
 def generate_navbar(dropdowns, title="Commands"):
+    """Generates the Navbar
+
+    Parameters
+    ----------
+    dropdowns : dict
+        Dictionary of Buttons for Each Dropdown Menu
+    title : str
+        Title of the Navbar
+
+    Returns
+    -------
+    NavbarSimple
+    """
     navbar = dbc.NavbarSimple(
         [
             dbc.DropdownMenu(

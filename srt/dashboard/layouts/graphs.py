@@ -1,10 +1,30 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+"""graphs.py
+
+Contains the Code for Generating Complicated Graph
+
+"""
+
 import plotly.graph_objects as go
 
 
 def generate_az_el_graph(az_limits, el_limits, points_dict, current_location):
+    """Generates Figure for Displaying AzEl Locations
+
+    Parameters
+    ----------
+    az_limits : (float, float)
+        Minimum and Maximum Azimuth Limits
+    el_limits : (float, float)
+        Minimum and Maximum Elevation Limits
+    points_dict : dict
+        Dictionary of All Points Azimuth and Elevation
+    current_location : (float, float)
+        Current Antenna Azimuth and Elevation
+
+    Returns
+    -------
+    Plotly Figure of Azimuth and Elevation Graph
+    """
     fig = go.Figure()
 
     az_lower_display_lim = 0
@@ -54,6 +74,3 @@ def generate_az_el_graph(az_limits, el_limits, points_dict, current_location):
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
 
     return fig
-
-
-    # def generate_spectrum_graph():
