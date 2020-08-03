@@ -5,7 +5,7 @@ from time import sleep
 
 if __name__ == "__main__":
     # Create the parser
-    my_parser = argparse.ArgumentParser(description="Runs the SRT Daemon Application")
+    my_parser = argparse.ArgumentParser(description="Sends an SRT Command")
 
     # Add the arguments
     my_parser.add_argument(

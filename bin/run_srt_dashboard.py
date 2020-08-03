@@ -5,7 +5,7 @@ from srt.dashboard import app as srt_app
 
 if __name__ == "__main__":
     # Create the parser
-    my_parser = argparse.ArgumentParser(description="Runs the SRT Daemon Application")
+    my_parser = argparse.ArgumentParser(description="Runs the SRT Dashboard Application")
 
     # Add the arguments
     my_parser.add_argument(
