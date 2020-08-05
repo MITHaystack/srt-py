@@ -32,6 +32,7 @@ requirements:
     - dash-bootstrap-components
     - plotly
     - pandas
+    - waitress
 
 test:
   requires:
