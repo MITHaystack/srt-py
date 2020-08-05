@@ -110,6 +110,8 @@ def register_callbacks(app, status_thread, raw_spectrum_thread, cal_spectrum_thr
         fig = go.Figure(
             layout={
                 "title": "Spectrum",
+                "xaxis_title": "Frequency (Hz)",
+                "yaxis_title": "Temperature (K)",
                 "height": 150,
                 "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
             },
@@ -135,6 +137,8 @@ def register_callbacks(app, status_thread, raw_spectrum_thread, cal_spectrum_thr
             data=go.Scatter(x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals),
             layout={
                 "title": "Power vs Time",
+                "xaxis_title": "Timestamp",
+                "yaxis_title": "Calibrated Power",
                 "height": 300,
                 "margin": dict(l=20, r=20, b=20, t=30, pad=4,),
             },

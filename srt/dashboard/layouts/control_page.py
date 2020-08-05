@@ -403,6 +403,7 @@ def register_callbacks(app, status_thread, command_thread):
                 status["el_limits"],
                 status["object_locs"],
                 status["motor_azel"],
+                status["stow_loc"],
             )
 
     @app.callback(
@@ -451,7 +452,14 @@ def register_callbacks(app, status_thread, command_thread):
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "az-el-graph-btn-yes":
                 command_thread.add_to_queue(f"{clickData['points'][0]['text']}{mode}")
-            if n_clicks_yes or n_clicks_no or clickData:
+            if (
+                n_clicks_yes
+                or n_clicks_no
+                or (
+                    clickData
+                    and not clickData["points"][0]["text"] == "Antenna Location"
+                )
+            ):
                 return not is_open
             return is_open
 

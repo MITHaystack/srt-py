@@ -22,7 +22,7 @@ from .radio_control.radio_task_starter import (
     RadioSaveRawTask,
     RadioCalibrateTask,
     RadioSaveSpecRadTask,
-    RadioSaveSpecFitsTask
+    RadioSaveSpecFitsTask,
 )
 from .utilities.object_tracker import EphemerisTracker
 from .utilities.yaml_tools import validate_yaml_schema, load_yaml
@@ -528,6 +528,7 @@ class SmallRadioTelescopeDaemon:
                 "object_locs": self.ephemeris_locations,
                 "az_limits": self.az_limits,
                 "el_limits": self.el_limits,
+                "stow_loc": self.stow_location,
                 "center_frequency": self.radio_center_frequency,
                 "bandwidth": self.radio_sample_frequency,
                 "motor_offsets": self.rotor_offsets,
@@ -655,7 +656,9 @@ class SmallRadioTelescopeDaemon:
                     self.point_at_offset(
                         float(command_parts[1]), float(command_parts[2])
                     )
-                elif command_name.isnumeric():  # If Command is a Number, Sleep that Long
+                elif (
+                    command_name.isnumeric()
+                ):  # If Command is a Number, Sleep that Long
                     sleep(float(command_name))
                 elif command_name == "wait":
                     sleep(float(command_parts[1]))
