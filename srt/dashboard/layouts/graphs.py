@@ -164,8 +164,8 @@ def generate_az_el_graph(
     fig.update_layout(
         title={
             "text": "Click to Track an Object",
-            "y": 1.0,
-            "x": 0.1,
+            "y": 0.97,
+            "x": 0.25,
             "xanchor": "center",
             "yanchor": "top",
         },
