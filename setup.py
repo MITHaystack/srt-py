@@ -12,10 +12,10 @@ setuptools.setup(
     description="A small example package",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.mit.edu/SmallRadioTelescope/srt-py",
     packages=setuptools.find_packages(),
-    scripts=[str(path) for path in Path('./bin/').glob('**/*.py')],
-    package_data={'': ['*.js', '*.css']},
+    scripts=[str(path) for path in Path("./bin/").glob("**/*.py")],
+    package_data={"": ["*.js", "*.css", "*.ico", "*.png"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
