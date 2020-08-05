@@ -273,7 +273,7 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    nsamps: num_bins*4
+    nsamps: num_bins*8
   states:
     _io_cache: ('Add Clock Tags', 'clk', [('nsamps', '8192')], [('0', 'complex', 1)],
       [('0', 'complex', 1)], '', ['nsamps'])

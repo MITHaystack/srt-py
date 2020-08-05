@@ -22,6 +22,7 @@ from .radio_control.radio_task_starter import (
     RadioSaveRawTask,
     RadioCalibrateTask,
     RadioSaveSpecRadTask,
+    RadioSaveSpecFitsTask
 )
 from .utilities.object_tracker import EphemerisTracker
 from .utilities.yaml_tools import validate_yaml_schema, load_yaml
@@ -120,8 +121,7 @@ class SmallRadioTelescopeDaemon:
             num_bins=self.radio_num_bins, num_integrations=self.radio_integ_cycles
         )
         self.radio_queue = Queue()
-        self.radio_save_raw_task = None
-        self.radio_save_spec_task = None
+        self.radio_save_task = None
 
         # Create Object for Keeping Track of What Commands Are Running or Have Failed
         self.current_queue_item = "None"
@@ -182,7 +182,7 @@ class SmallRadioTelescopeDaemon:
 
         Returns
         -------
-
+        None
         """
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
@@ -326,20 +326,33 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        if self.radio_save_raw_task is None and self.radio_save_spec_task is None:
-            if name is None or not name.endswith(".rad"):
-                self.radio_save_raw_task = RadioSaveRawTask(
+        print(name)
+        if self.radio_save_task is None:
+            if name is None:
+                self.radio_save_task = RadioSaveRawTask(
                     self.radio_sample_frequency, self.save_dir, name
                 )
-                self.radio_save_raw_task.start()
-            else:
+            elif name.endswith(".rad"):
                 name = None if name == "*.rad" else name
-                self.radio_save_spec_task = RadioSaveSpecRadTask(
+                self.radio_save_task = RadioSaveSpecRadTask(
                     self.radio_sample_frequency,
                     self.radio_num_bins,
                     self.save_dir,
                     name,
                 )
+            elif name.endswith(".fits"):
+                name = None if name == "*.fits" else name
+                self.radio_save_task = RadioSaveSpecFitsTask(
+                    self.radio_sample_frequency,
+                    self.radio_num_bins,
+                    self.save_dir,
+                    name,
+                )
+            else:
+                self.radio_save_task = RadioSaveRawTask(
+                    self.radio_sample_frequency, self.save_dir, name
+                )
+            self.radio_save_task.start()
         else:
             self.log_message("Cannot Start Recording - Already Recording")
 
@@ -350,12 +363,9 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        if self.radio_save_raw_task is not None:
-            self.radio_save_raw_task.terminate()
-            self.radio_save_raw_task = None
-        if self.radio_save_spec_task is not None:
-            self.radio_save_spec_task.terminate()
-            self.radio_save_spec_task = None
+        if self.radio_save_task is not None:
+            self.radio_save_task.terminate()
+            self.radio_save_task = None
 
     def set_freq(self, frequency):
         """Set the Frequency of the Processing Script
@@ -388,8 +398,8 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        if self.radio_save_raw_task is not None:
-            self.radio_save_raw_task.terminate()
+        if self.radio_save_task is not None:
+            self.radio_save_task.terminate()
         self.radio_sample_frequency = samp_rate
         self.radio_queue.put(("samp_rate", self.radio_sample_frequency))
 

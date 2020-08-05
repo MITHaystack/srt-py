@@ -315,6 +315,10 @@ def generate_layout():
                                         "label": ".rad Format (Spectrum)",
                                         "value": " *.rad",
                                     },
+                                    {
+                                        "label": ".fits Format (Spectrum)",
+                                        "value": "*.fits",
+                                    },
                                 ],
                                 id="record-options",
                                 value="",
@@ -364,6 +368,7 @@ def register_callbacks(app, status_thread, command_thread):
     -------
     None
     """
+
     @app.callback(
         Output("output-data-upload", "children"),
         [Input("upload-data", "contents")],

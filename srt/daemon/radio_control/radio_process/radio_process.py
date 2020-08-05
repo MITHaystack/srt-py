@@ -114,7 +114,7 @@ class radio_process(gr.top_block):
         self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(num_bins)
         self.blocks_add_xx_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(num_bins)
-        self.add_clock_tags = add_clock_tags.clk(nsamps=num_bins*4)
+        self.add_clock_tags = add_clock_tags.clk(nsamps=num_bins*8)
 
 
 
@@ -166,7 +166,7 @@ class radio_process(gr.top_block):
         self.set_custom_window(self.sinc_samples*np.hamming(4*self.num_bins))
         self.set_fft_window(window.blackmanharris(self.num_bins))
         self.set_sinc_sample_locations(np.arange(-np.pi*4/2.0, np.pi*4/2.0, np.pi/self.num_bins))
-        self.add_clock_tags.nsamps = self.num_bins*4
+        self.add_clock_tags.nsamps = self.num_bins*8
         self.blocks_delay_0.set_dly(self.num_bins*3)
         self.blocks_delay_0_0.set_dly(self.num_bins*2)
         self.blocks_delay_0_1.set_dly(self.num_bins)
