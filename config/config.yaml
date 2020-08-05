@@ -18,6 +18,15 @@ STOW_LOCATION:
 CAL_LOCATION:
   azimuth: 120.0
   elevation: 7.0
+HORIZON_POINTS:
+  - azimuth: 0
+    elevation: 0
+  - azimuth: 120
+    elevation: 5
+  - azimuth: 240
+    elevation: 5
+  - azimuth: 360
+    elevation: 0
 MOTOR_TYPE: NONE
 MOTOR_PORT: /dev/ttyUSB0
 RADIO_CF: 1420000000

@@ -67,6 +67,10 @@ class SmallRadioTelescopeDaemon:
             config_dict["CAL_LOCATION"]["azimuth"],
             config_dict["CAL_LOCATION"]["elevation"],
         )
+        self.horizon_points = [
+            (point["azimuth"], point["elevation"])
+            for point in config_dict["HORIZON_POINTS"]
+        ]
         self.motor_type = config_dict["MOTOR_TYPE"]
         self.motor_port = config_dict["MOTOR_PORT"]
         self.radio_center_frequency = config_dict["RADIO_CF"]
@@ -529,6 +533,7 @@ class SmallRadioTelescopeDaemon:
                 "az_limits": self.az_limits,
                 "el_limits": self.el_limits,
                 "stow_loc": self.stow_location,
+                "horizon_points": self.horizon_points,
                 "center_frequency": self.radio_center_frequency,
                 "bandwidth": self.radio_sample_frequency,
                 "motor_offsets": self.rotor_offsets,

@@ -1,6 +1,6 @@
 """graphs.py
 
-Contains the Code for Generating Complicated Graph
+Contains the Code for Generating Complicated Graphs
 
 """
 
@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 
 
 def generate_az_el_graph(
-    az_limits, el_limits, points_dict, current_location, stow_position
+    az_limits, el_limits, points_dict, current_location, stow_position, horizon_points
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -24,6 +24,8 @@ def generate_az_el_graph(
         Current Antenna Azimuth and Elevation
     stow_position : (float, float)
         Location of the Antenna in Stow
+    horizon_points : list((float, float))
+        Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
 
     Returns
     -------
@@ -71,6 +73,18 @@ def generate_az_el_graph(
             marker_color=["rgba(0, 152, 0, .8)"],
         )
     )
+
+    if horizon_points is not None and len(horizon_points) > 0:
+        fig.add_trace(
+            go.Scatter(
+                x=[point[0] for point in horizon_points],
+                y=[point[1] for point in horizon_points],
+                name="Horizon",
+                mode="lines",
+                textposition="top center",
+                marker_color=["rgba(0, 152, 0, .8)"],
+            )
+        )
 
     if az_limits[0] < az_limits[1]:
         fig.add_shape(

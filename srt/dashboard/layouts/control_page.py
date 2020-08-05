@@ -404,6 +404,7 @@ def register_callbacks(app, status_thread, command_thread):
                 status["object_locs"],
                 status["motor_azel"],
                 status["stow_loc"],
+                status["horizon_points"],
             )
 
     @app.callback(
