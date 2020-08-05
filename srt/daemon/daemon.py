@@ -127,6 +127,7 @@ class SmallRadioTelescopeDaemon:
         self.current_queue_item = "None"
         self.command_queue = Queue()
         self.command_error_logs = []
+        self.keep_running = True
 
     def log_message(self, message):
         """Writes Contents to a Logging List and Prints
@@ -326,7 +327,6 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        print(name)
         if self.radio_save_task is None:
             if name is None:
                 self.radio_save_task = RadioSaveRawTask(
@@ -410,8 +410,8 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        keep_running = False
-        self.radio_queue.put(("is_running", keep_running))
+        self.keep_running = False
+        self.radio_queue.put(("is_running", self.keep_running))
 
     def update_ephemeris_location(self):
         """Periodically Updates Object Locations for Tracking Sky Objects
@@ -607,9 +607,7 @@ class SmallRadioTelescopeDaemon:
         status_thread.start()
         radio_thread.start()
 
-        keep_running = True
-
-        while keep_running:
+        while self.keep_running:
             try:
                 # Await Command for the SRT
                 self.current_queue_item = "None"
