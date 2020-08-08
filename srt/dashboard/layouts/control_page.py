@@ -406,6 +406,7 @@ def register_callbacks(app, status_thread, command_thread):
                 status["stow_loc"],
                 status["horizon_points"],
             )
+        return ""
 
     @app.callback(
         Output("text-queue-status", "children"),
@@ -593,7 +594,7 @@ def register_callbacks(app, status_thread, command_thread):
     ):
         ctx = dash.callback_context
         if not ctx.triggered:
-            return
+            return ""
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "btn-stow":

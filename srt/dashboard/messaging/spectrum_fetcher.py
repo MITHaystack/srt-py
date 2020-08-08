@@ -68,32 +68,6 @@ class SpectrumThread(Thread):
         """
         return self.spectrum
 
-    def get_power_history(self, tsys, tcal, calpwr):
-        """Return Power of the Spectrum for Each Sample
-
-        Parameters
-        ----------
-        tsys : float
-            System Temperature
-        tcal : float
-            Calibration Temperature
-        calpwr : float
-            Calibration Power
-
-        Returns
-        -------
-        [(int, float)]
-            Time and Power Pairs History
-        """
-        spectrum_history = self.history.copy()
-        power_history = []
-        for t, spectrum in spectrum_history:
-            p = np.sum(spectrum)
-            a = len(spectrum)
-            pwr = (tsys + tcal) * p / (a * calpwr)
-            power_history.insert(0, (t, pwr))
-        return power_history
-
     def get_history(self):
         """Return Entire History List
 

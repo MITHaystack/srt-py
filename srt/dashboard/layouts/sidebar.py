@@ -8,14 +8,15 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 
-def generate_sidebar(pages):
+def generate_sidebar(title, sections):
     """Generates the Sidebar for the SRT Dashboard
 
     Parameters
     ----------
-    pages : dict
-        Different Pages to List on Sidebar with Their Names As Keys
-
+    title : str
+        Title String for the Sidebar
+    sections : dict
+        Dictionary of Children to Put In Sidebar
 
     See Also
     --------
@@ -29,7 +30,7 @@ def generate_sidebar(pages):
     # it consists of a title, and a toggle, the latter is hidden on large screens
     sidebar_header = dbc.Row(
         [
-            dbc.Col(html.H3("Small Radio Telescope", className="display-7")),
+            dbc.Col(html.H3(title, className="display-7"),),
             dbc.Col(
                 [
                     html.Button(
@@ -63,32 +64,13 @@ def generate_sidebar(pages):
             ),
         ]
     )
+    contents_list = []
+    for section in sections:
+        contents_list.append(html.Div([html.Hr()]))
+        contents_list.append(sections[section])
+    # use the Collapse component to animate hiding / revealing links
     sidebar = html.Div(
-        [
-            sidebar_header,
-            # we wrap the horizontal rule and short blurb in a div that can be
-            # hidden on a small screen
-            html.Div(
-                [html.Hr(), html.P("Select the view dashboard ", className="lead",),],
-                id="blurb",
-            ),
-            # use the Collapse component to animate hiding / revealing links
-            dbc.Collapse(
-                dbc.Nav(
-                    [
-                        dbc.NavLink(
-                            page_name,
-                            href=f"/{pages[page_name]}",
-                            id=f"{pages[page_name]}-link",
-                        )
-                        for page_name in pages
-                    ],
-                    vertical=True,
-                    pills=True,
-                ),
-                id="collapse",
-            ),
-        ],
+        [sidebar_header, dbc.Collapse(contents_list, id="collapse",)],
         id="sidebar",
     )
     return sidebar

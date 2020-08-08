@@ -12,6 +12,8 @@ from dash.dependencies import Input, Output, State, ClientsideFunction
 
 import flask
 import plotly.io as pio
+import numpy as np
+from time import time
 
 from .layouts import control_page, monitor_page, system_page
 from .layouts.sidebar import generate_sidebar
@@ -28,8 +30,8 @@ app = dash.Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
 
-statusThread = StatusThread()
-statusThread.start()
+status_thread = StatusThread()
+status_thread.start()
 
 command_thread = CommandThread()
 command_thread.start()
@@ -48,7 +50,29 @@ pages = {
 refresh_time = 3000  # ms
 
 pio.templates.default = "seaborn"
-sidebar = generate_sidebar(pages)
+side_title = "Small Radio Telescope"
+side_content = {
+    "Status": dcc.Markdown(id="sidebar-status"),
+    "Pages": html.Div(
+        [
+            html.H4("Pages"),
+            dbc.Nav(
+                [
+                    dbc.NavLink(
+                        page_name,
+                        href=f"/{pages[page_name]}",
+                        id=f"{pages[page_name]}-link",
+                    )
+                    for page_name in pages
+                ],
+                vertical=True,
+                pills=True,
+            ),
+        ]
+    ),
+}
+sidebar = generate_sidebar(side_title, side_content)
+
 content = html.Div(id="page-content")
 layout = html.Div(
     [
@@ -82,9 +106,11 @@ app.clientside_callback(
     Output("output-clientside", "children"),
     [Input("page-content", "children")],
 )
-monitor_page.register_callbacks(app, statusThread, raw_spectrum_thread, cal_spectrum_thread)
-control_page.register_callbacks(app, statusThread, command_thread)
-system_page.register_callbacks(app, statusThread, command_thread)
+monitor_page.register_callbacks(
+    app, status_thread, raw_spectrum_thread, cal_spectrum_thread
+)
+control_page.register_callbacks(app, status_thread, command_thread)
+system_page.register_callbacks(app, status_thread, command_thread)
 
 
 @app.callback(
@@ -107,6 +133,44 @@ def toggle_classname(n, classname):
     if n and classname == "":
         return "collapsed"
     return ""
+
+
+@app.callback(
+    Output("sidebar-status", "children"), [Input("interval-component", "n_intervals")]
+)
+def update_status_display(n):
+    status = status_thread.get_status()
+    if status is None:
+        name = "Unknown"
+        lat = lon = np.nan
+        az = el = np.nan
+        az_offset = el_offset = np.nan
+        cf = np.nan
+        bandwidth = np.nan
+        status_string = "SRT Not Connected"
+    else:
+        az = status["motor_azel"][0]
+        el = status["motor_azel"][1]
+        az_offset = status["motor_offsets"][0]
+        el_offset = status["motor_offsets"][1]
+        cf = status["center_frequency"]
+        bandwidth = status["bandwidth"]
+        time_dif = time() - status["time"]
+        if time_dif > 5:
+            status_string = "SRT Daemon Not Available"
+        elif status["queue_size"] == 0 and status["queued_item"] == "None":
+            status_string = "SRT Inactive"
+        else:
+            status_string = "SRT In Use!"
+
+    status_string = f"""
+     #### {status_string}
+     - Motor Azimuth, Elevation: {az:.1f}, {el:.1f} deg
+     - Motor Offsets: {az_offset}, {el_offset} deg
+     - Center Frequency: {cf / pow(10, 6)} MHz
+     - Bandwidth: {bandwidth / pow(10, 6)} MHz
+    """
+    return status_string
 
 
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])

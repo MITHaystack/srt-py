@@ -544,6 +544,7 @@ class SmallRadioTelescopeDaemon:
                 "temp_cal": self.temp_cal,
                 "temp_sys": self.temp_sys,
                 "cal_power": self.cal_power,
+                "time": time()
             }
             status_socket.send_json(status)
             sleep(0.5)
