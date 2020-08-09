@@ -63,8 +63,8 @@ def generate_first_row():
                         className="pretty_container five columns",
                     ),
                 ],
-                # className="row flex-display",
-                style={"display": "flex", "justify-content": "center"},
+                className="flex-display",
+                style={"justify-content": "center"},
             ),
         ]
     )
@@ -378,7 +378,8 @@ def generate_layout():
                         className="pretty_container twelve columns",
                     ),
                 ],
-                # className="row flex-display",
+                className="flex-display",
+                style={"margin": "5px"},
             ),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
