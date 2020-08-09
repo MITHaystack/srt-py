@@ -476,39 +476,42 @@ class SmallRadioTelescopeDaemon:
                             self.rotor_location, current_rotor_cmd_location
                         )
                     ) and (time() - start_time) < 10:
+                        past_rotor_location = self.rotor_location
                         self.rotor_location = self.rotor.get_azimuth_elevation()
+                        if not self.rotor_location == past_rotor_location:
+                            g_lat, g_lon = self.ephemeris_tracker.convert_to_gal_coord(
+                                self.rotor_location
+                            )
+                            self.radio_queue.put(
+                                ("motor_az", float(self.rotor_location[0]))
+                            )
+                            self.radio_queue.put(
+                                ("motor_el", float(self.rotor_location[1]))
+                            )
+                            self.radio_queue.put(("glat", g_lat))
+                            self.radio_queue.put(("glon", g_lon))
+                        sleep(0.5)
+                else:
+                    past_rotor_location = self.rotor_location
+                    self.rotor_location = self.rotor.get_azimuth_elevation()
+                    if not self.rotor_location == past_rotor_location:
+                        g_lat, g_lon = self.ephemeris_tracker.convert_to_gal_coord(
+                            self.rotor_location
+                        )
                         self.radio_queue.put(
                             ("motor_az", float(self.rotor_location[0]))
                         )
                         self.radio_queue.put(
                             ("motor_el", float(self.rotor_location[1]))
                         )
-                        sleep(0.5)
-                else:
-                    self.rotor_location = self.rotor.get_azimuth_elevation()
-                    self.radio_queue.put(("motor_az", float(self.rotor_location[0])))
-                    self.radio_queue.put(("motor_el", float(self.rotor_location[1])))
+                        self.radio_queue.put(("glat", g_lat))
+                        self.radio_queue.put(("glon", g_lon))
+
                     sleep(1)
             except AssertionError as e:
                 self.log_message(str(e))
             except ValueError as e:
                 self.log_message(str(e))
-
-    def update_command_queue(self):
-        """Waits for New Commands Coming in Over ZMQ PUSH/PULL
-
-        Is Operated as an Infinite Looping Thread Function
-
-        Returns
-        -------
-        None
-        """
-        context = zmq.Context()
-        command_port = 5556
-        command_socket = context.socket(zmq.PULL)
-        command_socket.bind("tcp://*:%s" % command_port)
-        while True:
-            self.command_queue.put(command_socket.recv_string())
 
     def update_status(self):
         """Periodically Publishes Daemon Status for Dashboard (or any other subscriber)
@@ -545,7 +548,7 @@ class SmallRadioTelescopeDaemon:
                 "temp_cal": self.temp_cal,
                 "temp_sys": self.temp_sys,
                 "cal_power": self.cal_power,
-                "time": time()
+                "time": time(),
             }
             status_socket.send_json(status)
             sleep(0.5)
@@ -565,6 +568,23 @@ class SmallRadioTelescopeDaemon:
             call = getattr(rpc_server, f"set_{method}")
             call(value)
             sleep(0.1)
+
+    def update_command_queue(self):
+        """Waits for New Commands Coming in Over ZMQ PUSH/PULL
+
+        Is Operated as an Infinite Looping Thread Function
+
+        Returns
+        -------
+        None
+        """
+        context = zmq.Context()
+        command_port = 5556
+        command_socket = context.socket(zmq.PULL)
+        command_socket.bind("tcp://*:%s" % command_port)
+        while True:
+            cmd = command_socket.recv_string()
+            self.command_queue.put(cmd)
 
     def srt_daemon_main(self):
         """Starts and Processes Commands for the SRT
@@ -597,6 +617,14 @@ class SmallRadioTelescopeDaemon:
             "Sample Rate": ("samp_rate", self.radio_sample_frequency),
             "Motor Azimuth": ("motor_az", self.rotor_location[0]),
             "Motor Elevation": ("motor_el", self.rotor_location[1]),
+            "Motor GalLat": (
+                "glat",
+                self.ephemeris_tracker.convert_to_gal_coord(self.rotor_location)[0],
+            ),
+            "Motor GalLon": (
+                "glon",
+                self.ephemeris_tracker.convert_to_gal_coord(self.rotor_location)[1],
+            ),
             "Object Tracking": ("soutrack", "at_stow"),
             "System Temp": ("tsys", self.temp_sys),
             "Calibration Temp": ("tcal", self.temp_cal),
@@ -686,7 +714,7 @@ class SmallRadioTelescopeDaemon:
                     sleep(time_delta)
                 else:
                     self.log_message(f"Command Not Identified '{command}'")
-
+                self.command_queue.task_done()
             except IndexError as e:
                 self.log_message(str(e))
             except ValueError as e:
@@ -695,8 +723,8 @@ class SmallRadioTelescopeDaemon:
                 self.log_message(str(e))
 
         # On End, Return to Stow and End Recordings
-        self.stow()
         self.stop_recording()
+        self.stow()
         if self.radio_autostart:
             self.radio_process_task.terminate()
 

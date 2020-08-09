@@ -118,6 +118,31 @@ class EphemerisTracker:
             )
         return alt_az.az.degree, alt_az.alt.degree
 
+    def convert_to_gal_coord(self, az_el, time=None):
+        """Converts an AzEl Tuple into a Galactic Tuple from Location
+
+        Parameters
+        ----------
+        az_el : (float, float)
+            Azimuth and Elevation to Convert
+        time : AstroPy Time Obj
+            Time of Conversion
+
+        Returns
+        -------
+        (float, float)
+            Galactic Latitude and Longitude
+        """
+        if time is None:
+            time = Time.now()
+        az, el = az_el
+        start_frame = AltAz(obstime=time, location=self.location, alt=el, az=az)
+        end_frame = Galactic()
+        result = start_frame.transform_to(end_frame)
+        g_lat = result.b
+        g_lng = result.l
+        return g_lat, g_lng
+
     def update_all_az_el(self):
         """Updates Every Entry in the AzEl Dictionary Cache, if the Cache is Outdated
 
