@@ -15,7 +15,7 @@ import plotly.io as pio
 import numpy as np
 from time import time
 
-from .layouts import control_page, monitor_page, system_page
+from .layouts import monitor_page, system_page
 from .layouts.sidebar import generate_sidebar
 from .messaging.status_fetcher import StatusThread
 from .messaging.command_dispatcher import CommandThread
@@ -29,6 +29,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
+app.title = "SRT Dashboard"
 
 status_thread = StatusThread()
 status_thread.start()
@@ -44,7 +45,6 @@ cal_spectrum_thread.start()
 
 pages = {
     "Monitor Page": "monitor-page",
-    "Control Page": "control-page",
     "System Page": "system-page",
 }
 refresh_time = 3000  # ms
@@ -95,7 +95,6 @@ app.layout = layout
 app.validation_layout = html.Div(
     [
         layout,
-        control_page.generate_layout(),
         monitor_page.generate_layout(),
         system_page.generate_layout(),
     ]
@@ -107,9 +106,8 @@ app.clientside_callback(
     [Input("page-content", "children")],
 )
 monitor_page.register_callbacks(
-    app, status_thread, raw_spectrum_thread, cal_spectrum_thread
+    app, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread
 )
-control_page.register_callbacks(app, status_thread, command_thread)
 system_page.register_callbacks(app, status_thread, command_thread)
 
 
@@ -120,7 +118,7 @@ system_page.register_callbacks(app, status_thread, command_thread)
 def toggle_active_links(pathname):
     if pathname == "/":
         # Treat page 1 as the homepage / index
-        return tuple([i == 0 for i in enumerate(pages)])
+        return tuple([i == 0 for i, _ in enumerate(pages)])
     return [pathname == f"/{pages[page_name]}" for page_name in pages]
 
 
@@ -141,8 +139,8 @@ def toggle_classname(n, classname):
 def update_status_display(n):
     status = status_thread.get_status()
     if status is None:
-        name = "Unknown"
-        lat = lon = np.nan
+        # name = "Unknown"
+        # lat = lon = np.nan
         az = el = np.nan
         az_offset = el_offset = np.nan
         cf = np.nan
@@ -165,7 +163,7 @@ def update_status_display(n):
 
     status_string = f"""
      #### {status_string}
-     - Motor Azimuth, Elevation: {az:.1f}, {el:.1f} deg
+     - Motor Az, El: {az:.1f}, {el:.1f} deg
      - Motor Offsets: {az_offset}, {el_offset} deg
      - Center Frequency: {cf / pow(10, 6)} MHz
      - Bandwidth: {bandwidth / pow(10, 6)} MHz
@@ -177,8 +175,6 @@ def update_status_display(n):
 def render_page_content(pathname):
     if pathname in ["/", f"/{pages['Monitor Page']}"]:
         return monitor_page.generate_layout()
-    elif pathname == f"/{pages['Control Page']}":
-        return control_page.generate_layout()
     elif pathname == f"/{pages['System Page']}":
         return system_page.generate_layout()
     # If the user tries to reach a different page, return a 404 message

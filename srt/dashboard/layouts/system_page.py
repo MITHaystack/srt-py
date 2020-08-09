@@ -48,6 +48,20 @@ def generate_layout():
                     html.Div(
                         [
                             html.H4(
+                                id="text-queue-status", style={"text-align": "center"}
+                            ),
+                            dcc.Markdown(id="command-display"),
+                        ],
+                        className="pretty_container five columns",
+                    ),
+                ],
+                className="row flex-display",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.H4(
                                 "Message Logs",
                                 style={"margin-bottom": "0px", "text-align": "center"},
                             ),
@@ -64,7 +78,7 @@ def generate_layout():
                     ),
                 ],
                 className="row flex-display",
-            ),
+            )
         ]
     )
     return layout
@@ -119,3 +133,32 @@ def register_callbacks(app, status_thread, command_thread):
             for log_time, log_txt in status
         ]
         return html.Div(children=children)
+
+    @app.callback(
+        Output("text-queue-status", "children"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_command_queue_display(n):
+        status = status_thread.get_status()
+        if status is None or (
+            status["queue_size"] == 0 and status["queued_item"] == "None"
+        ):
+            return "SRT Inactive"
+        return "SRT in Use!"
+
+    @app.callback(
+        Output("command-display", "children"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_command_display(n):
+        status = status_thread.get_status()
+        if status is None:
+            return ""
+        current_cmd = status["queued_item"]
+        queue_size = status["queue_size"]
+        status_string = f"""
+        ##### Command Queue Status
+         - Running Command: {current_cmd}
+         - {queue_size} More Commands Waiting in the Queue
+        """
+        return status_string

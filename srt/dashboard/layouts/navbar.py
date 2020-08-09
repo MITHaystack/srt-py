@@ -34,7 +34,7 @@ def generate_navbar(dropdowns, title="Commands"):
         ],
         brand=title,
         brand_style={"font-size": "large"},
-        color="primary",
+        color="secondary",
         dark=True,
     )
     return navbar

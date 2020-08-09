@@ -533,6 +533,7 @@ class SmallRadioTelescopeDaemon:
                 "az_limits": self.az_limits,
                 "el_limits": self.el_limits,
                 "stow_loc": self.stow_location,
+                "cal_loc": self.cal_location,
                 "horizon_points": self.horizon_points,
                 "center_frequency": self.radio_center_frequency,
                 "bandwidth": self.radio_sample_frequency,

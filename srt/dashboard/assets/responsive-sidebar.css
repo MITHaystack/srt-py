@@ -2,6 +2,8 @@
   text-align: center;
   padding: 2rem 1rem;
   background-color: #f8f9fa;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #sidebar h2 {
@@ -28,7 +30,7 @@
 }
 
 #page-content {
-  padding: 2rem 1rem;
+  padding: 0rem 0rem;
 }
 
 @media (min-width: 48em) {
@@ -37,7 +39,7 @@
     top: 0;
     left: 0;
     bottom: 0;
-    width: 20rem;
+    width: 30rem;
     text-align: left;
     transition: margin 0.3s ease-in-out, padding 0.3s ease-in-out;
   }
@@ -51,8 +53,9 @@
 
   /* add negative margin to sidebar to achieve the collapse */
   #sidebar.collapsed {
-    margin-left: -15.5rem;
+    margin-left: -25.5rem;
     padding-right: 0.5rem;
+    overflow: hidden;
   }
 
   /* move the sidebar toggle up to the top left corner */
@@ -88,8 +91,8 @@
 
   /* set margins of the main content so that it doesn't overlap the sidebar */
   #page-content {
-    margin-left: 22rem;
-    margin-right: 2rem;
+    margin-left: 30rem;
+    margin-right: 0rem;
     transition: margin-left 0.3s ease-in-out;
   }
 }
