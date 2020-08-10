@@ -32,112 +32,6 @@ options:
     state: enabled
 
 blocks:
-- name: blocks_complex_to_mag_squared_0
-  id: blocks_complex_to_mag_squared
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: num_bins
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [384, 174]
-    rotation: 180
-    state: true
-- name: blocks_head_0
-  id: blocks_head
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_items: num_bins*num_integrations
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [613, 65]
-    rotation: 0
-    state: true
-- name: blocks_integrate_xx_0
-  id: blocks_integrate_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    decim: num_integrations
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: float
-    vlen: num_bins
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [391, 282]
-    rotation: 0
-    state: enabled
-- name: blocks_multiply_const_xx_0
-  id: blocks_multiply_const_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: 1.0/float(num_integrations)
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: float
-    vlen: num_bins
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [605, 282]
-    rotation: 0
-    state: true
-- name: blocks_stream_to_vector_0_2
-  id: blocks_stream_to_vector
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_items: num_bins
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [826, 178]
-    rotation: 180
-    state: enabled
-- name: dc_blocker_xx_0
-  id: dc_blocker_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    length: num_bins
-    long_form: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: cc
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [814, 57]
-    rotation: 0
-    state: enabled
 - name: directory_name
   id: parameter
   parameters:
@@ -155,27 +49,6 @@ blocks:
     coordinate: [8, 205]
     rotation: 0
     state: true
-- name: fft_vxx_0
-  id: fft_vxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    fft_size: num_bins
-    forward: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    nthreads: '3'
-    shift: 'True'
-    type: complex
-    window: window.blackmanharris(num_bins)
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [589, 142]
-    rotation: 180
-    state: true
 - name: num_bins
   id: parameter
   parameters:
@@ -191,23 +64,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [9, 106]
-    rotation: 0
-    state: true
-- name: num_integrations
-  id: parameter
-  parameters:
-    alias: ''
-    comment: ''
-    hide: none
-    label: num_integrations
-    short_id: ''
-    type: intx
-    value: '10000'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [115, 106]
     rotation: 0
     state: true
 - name: save_calibration
@@ -261,13 +117,13 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [813, 266]
+    coordinate: [492, 134]
     rotation: 0
     state: true
 - name: zeromq_sub_source_0
   id: zeromq_sub_source
   parameters:
-    address: tcp://127.0.0.1:5558
+    address: tcp://127.0.0.1:5560
     affinity: ''
     alias: ''
     comment: ''
@@ -276,25 +132,18 @@ blocks:
     minoutbuf: '0'
     pass_tags: 'True'
     timeout: '100'
-    type: complex
-    vlen: '1'
+    type: float
+    vlen: num_bins
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [367, 49]
+    coordinate: [238, 134]
     rotation: 0
     state: true
 
 connections:
-- [blocks_complex_to_mag_squared_0, '0', blocks_integrate_xx_0, '0']
-- [blocks_head_0, '0', dc_blocker_xx_0, '0']
-- [blocks_integrate_xx_0, '0', blocks_multiply_const_xx_0, '0']
-- [blocks_multiply_const_xx_0, '0', save_calibration, '0']
-- [blocks_stream_to_vector_0_2, '0', fft_vxx_0, '0']
-- [dc_blocker_xx_0, '0', blocks_stream_to_vector_0_2, '0']
-- [fft_vxx_0, '0', blocks_complex_to_mag_squared_0, '0']
-- [zeromq_sub_source_0, '0', blocks_head_0, '0']
+- [zeromq_sub_source_0, '0', save_calibration, '0']
 
 metadata:
   file_format: 1

@@ -80,11 +80,10 @@ class RadioCalibrateTask(RadioTask):
     """
     Multiprocessing Wrapper Process for Generating a New calibration.json
     """
-    def __init__(self, num_bins, num_integrations, config_directory):
+    def __init__(self, num_bins, config_directory):
         path = str(Path(expanduser(config_directory)).absolute())
         super().__init__(
             radio_calibrate.main,
             directory_name=path,
             num_bins=num_bins,
-            num_integrations=num_integrations,
         )

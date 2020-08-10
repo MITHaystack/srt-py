@@ -45,6 +45,7 @@ class SmallRadioTelescopeDaemon:
         """
 
         # Store Individual Settings In Object
+        self.config_directory = config_directory
         self.station = config_dict["STATION"]
         self.contact = config_dict["EMERGENCY_CONTACT"]
         self.az_limits = (
@@ -302,9 +303,10 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        radio_cal_task = RadioCalibrateTask(
-            self.radio_num_bins, self.radio_integ_cycles, self.config_directory,
+        sleep(
+            self.radio_num_bins * self.radio_integ_cycles / self.radio_sample_frequency
         )
+        radio_cal_task = RadioCalibrateTask(self.radio_num_bins, self.config_directory,)
         radio_cal_task.start()
         radio_cal_task.join(30)
         path = Path(self.config_directory, "calibration.json")
