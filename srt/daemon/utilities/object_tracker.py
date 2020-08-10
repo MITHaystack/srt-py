@@ -136,11 +136,11 @@ class EphemerisTracker:
         if time is None:
             time = Time.now()
         az, el = az_el
-        start_frame = AltAz(obstime=time, location=self.location, alt=el, az=az)
+        start_frame = AltAz(obstime=time, location=self.location, alt=el*u.deg, az=az*u.deg)
         end_frame = Galactic()
         result = start_frame.transform_to(end_frame)
-        g_lat = result.b
-        g_lng = result.l
+        g_lat = float(result.b.degree)
+        g_lng = float(result.l.degree)
         return g_lat, g_lng
 
     def update_all_az_el(self):
