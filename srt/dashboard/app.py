@@ -108,7 +108,7 @@ def generate_app(config_dir, config_dict):
     monitor_page.register_callbacks(
         app, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread
     )
-    system_page.register_callbacks(app, config_dict, status_thread, command_thread)
+    system_page.register_callbacks(app, config_dict, status_thread)
 
     if config_dict["DASHBOARD_DOWNLOADS"]:
         @server.route("/download/<path:path>")
