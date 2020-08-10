@@ -32,7 +32,7 @@ import time
 
 class radio_process(gr.top_block):
 
-    def __init__(self, num_bins=4096, num_integrations=1000):
+    def __init__(self, num_bins=256, num_integrations=100000):
         gr.top_block.__init__(self, "radio_process")
 
         ##################################################
@@ -77,7 +77,6 @@ class radio_process(gr.top_block):
         self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
         self.xmlrpc_server_0_thread.daemon = True
         self.xmlrpc_server_0_thread.start()
-        self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(1.0, num_bins)
         self.osmosdr_source_0 = osmosdr.source(
             args="numchan=" + str(1) + " " + "soapy=0"
         )
@@ -85,19 +84,20 @@ class radio_process(gr.top_block):
         self.osmosdr_source_0.set_sample_rate(samp_rate)
         self.osmosdr_source_0.set_center_freq(freq, 0)
         self.osmosdr_source_0.set_freq_corr(0, 0)
-        self.osmosdr_source_0.set_gain(10, 0)
-        self.osmosdr_source_0.set_if_gain(20, 0)
-        self.osmosdr_source_0.set_bb_gain(20, 0)
+        self.osmosdr_source_0.set_gain(49.6, 0)
+        self.osmosdr_source_0.set_if_gain(0, 0)
+        self.osmosdr_source_0.set_bb_gain(0, 0)
         self.osmosdr_source_0.set_antenna('', 0)
         self.osmosdr_source_0.set_bandwidth(0, 0)
         self.fft_vxx_0 = fft.fft_vcc(num_bins, True, fft_window, True, 3)
-        self.dc_blocker_xx_0 = filter.dc_blocker_cc(num_bins, True)
+        self.dc_blocker_xx_0 = filter.dc_blocker_cc(num_bins*num_integrations, False)
         self.blocks_tags_strobe_0_0 = blocks.tags_strobe(gr.sizeof_gr_complex*1, pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations": num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq, "tsys": tsys, "tcal": tcal, "cal_pwr": cal_pwr, "vslr": vslr, "glat": glat, "glon": glon, "soutrack": soutrack, "bsw": beam_switch}), min(num_bins*64, num_bins*num_integrations), pmt.intern("metadata"))
         self.blocks_tags_strobe_0 = blocks.tags_strobe(gr.sizeof_gr_complex*1, pmt.to_pmt(float(freq)), min(num_bins*64, num_bins*num_integrations), pmt.intern("rx_freq"))
         self.blocks_stream_to_vector_0_2 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, num_bins)
         self.blocks_stream_to_vector_0_1 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, num_bins)
         self.blocks_stream_to_vector_0_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, num_bins)
         self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, num_bins)
+        self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, num_bins*num_integrations)
         self.blocks_selector_0 = blocks.selector(gr.sizeof_gr_complex*1,0,0)
         self.blocks_selector_0.set_enabled(True)
         self.blocks_multiply_const_xx_0 = blocks.multiply_const_ff(1.0/float(num_integrations), num_bins)
@@ -125,7 +125,7 @@ class radio_process(gr.top_block):
         self.connect((self.add_clock_tags, 0), (self.blocks_add_xx_0_0, 1))
         self.connect((self.blocks_add_xx_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.blocks_add_xx_0_0, 0), (self.blocks_selector_0, 0))
-        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.single_pole_iir_filter_xx_0, 0))
+        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.blocks_integrate_xx_0, 0))
         self.connect((self.blocks_delay_0, 0), (self.blocks_stream_to_vector_0_2, 0))
         self.connect((self.blocks_delay_0_0, 0), (self.blocks_stream_to_vector_0_0, 0))
         self.connect((self.blocks_delay_0_1, 0), (self.blocks_stream_to_vector_0_1, 0))
@@ -142,19 +142,19 @@ class radio_process(gr.top_block):
         self.connect((self.blocks_selector_0, 0), (self.dc_blocker_xx_0, 0))
         self.connect((self.blocks_selector_0, 0), (self.zeromq_pub_sink_0, 0))
         self.connect((self.blocks_selector_0, 0), (self.zeromq_pub_sink_0_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_delay_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_delay_0_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_delay_0_1, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_stream_to_vector_0, 0))
         self.connect((self.blocks_stream_to_vector_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.blocks_stream_to_vector_0_0, 0), (self.blocks_multiply_const_vxx_0_0_0, 0))
         self.connect((self.blocks_stream_to_vector_0_1, 0), (self.blocks_multiply_const_vxx_0_0, 0))
         self.connect((self.blocks_stream_to_vector_0_2, 0), (self.blocks_multiply_const_vxx_0_0_0_0, 0))
         self.connect((self.blocks_tags_strobe_0, 0), (self.blocks_add_xx_0_0, 0))
         self.connect((self.blocks_tags_strobe_0_0, 0), (self.blocks_add_xx_0_0, 2))
-        self.connect((self.dc_blocker_xx_0, 0), (self.blocks_delay_0, 0))
-        self.connect((self.dc_blocker_xx_0, 0), (self.blocks_delay_0_0, 0))
-        self.connect((self.dc_blocker_xx_0, 0), (self.blocks_delay_0_1, 0))
-        self.connect((self.dc_blocker_xx_0, 0), (self.blocks_stream_to_vector_0, 0))
+        self.connect((self.dc_blocker_xx_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.fft_vxx_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
         self.connect((self.osmosdr_source_0, 0), (self.add_clock_tags, 0))
-        self.connect((self.single_pole_iir_filter_xx_0, 0), (self.blocks_integrate_xx_0, 0))
 
 
     def get_num_bins(self):
@@ -328,10 +328,10 @@ class radio_process(gr.top_block):
 def argument_parser():
     parser = ArgumentParser()
     parser.add_argument(
-        "--num-bins", dest="num_bins", type=intx, default=4096,
+        "--num-bins", dest="num_bins", type=intx, default=256,
         help="Set num_bins [default=%(default)r]")
     parser.add_argument(
-        "--num-integrations", dest="num_integrations", type=intx, default=1000,
+        "--num-integrations", dest="num_integrations", type=intx, default=100000,
         help="Set num_integrations [default=%(default)r]")
     return parser
 

@@ -407,7 +407,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [884, 694]
+    coordinate: [710, 694]
     rotation: 0
     state: enabled
 - name: blocks_message_strobe_0
@@ -514,7 +514,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1149, 792]
+    coordinate: [1120, 795]
     rotation: 0
     state: true
 - name: blocks_multiply_const_xx_0
@@ -532,7 +532,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1055, 694]
+    coordinate: [889, 695]
     rotation: 0
     state: true
 - name: blocks_selector_0
@@ -557,6 +557,24 @@ blocks:
     bus_structure: null
     coordinate: [1015, 171]
     rotation: 0
+    state: true
+- name: blocks_skiphead_0
+  id: blocks_skiphead
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: num_bins*num_integrations
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1111, 539]
+    rotation: 180
     state: true
 - name: blocks_stream_to_vector_0
   id: blocks_stream_to_vector
@@ -679,8 +697,8 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    length: num_bins
-    long_form: 'True'
+    length: num_bins*num_integrations
+    long_form: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: cc
@@ -688,9 +706,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1168, 473]
-    rotation: 180
-    state: enabled
+    coordinate: [1247, 348]
+    rotation: 270
+    state: true
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -747,7 +765,7 @@ blocks:
     label: num_bins
     short_id: ''
     type: intx
-    value: '4096'
+    value: '256'
   states:
     bus_sink: false
     bus_source: false
@@ -764,7 +782,7 @@ blocks:
     label: num_integrations
     short_id: ''
     type: intx
-    value: '1000'
+    value: '100000'
   states:
     bus_sink: false
     bus_source: false
@@ -810,7 +828,7 @@ blocks:
     ant8: ''
     ant9: ''
     args: '"soapy=0"'
-    bb_gain0: '20'
+    bb_gain0: '0'
     bb_gain1: '20'
     bb_gain10: '20'
     bb_gain11: '20'
@@ -979,7 +997,7 @@ blocks:
     freq7: 100e6
     freq8: 100e6
     freq9: 100e6
-    gain0: '10'
+    gain0: '49'
     gain1: '10'
     gain10: '10'
     gain11: '10'
@@ -1043,7 +1061,7 @@ blocks:
     gain_mode7: 'False'
     gain_mode8: 'False'
     gain_mode9: 'False'
-    if_gain0: '20'
+    if_gain0: '0'
     if_gain1: '20'
     if_gain10: '20'
     if_gain11: '20'
@@ -1075,7 +1093,7 @@ blocks:
     if_gain7: '20'
     if_gain8: '20'
     if_gain9: '20'
-    iq_balance_mode0: '0'
+    iq_balance_mode0: '2'
     iq_balance_mode1: '0'
     iq_balance_mode10: '0'
     iq_balance_mode11: '0'
@@ -1127,24 +1145,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [293, 99]
-    rotation: 0
-    state: true
-- name: single_pole_iir_filter_xx_0
-  id: single_pole_iir_filter_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha: '1.0'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: float
-    vlen: num_bins
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [697, 694]
     rotation: 0
     state: true
 - name: xmlrpc_server_0
@@ -1280,7 +1280,7 @@ connections:
 - [add_clock_tags, '0', blocks_add_xx_0_0, '1']
 - [blocks_add_xx_0, '0', fft_vxx_0, '0']
 - [blocks_add_xx_0_0, '0', blocks_selector_0, '0']
-- [blocks_complex_to_mag_squared_0, '0', single_pole_iir_filter_xx_0, '0']
+- [blocks_complex_to_mag_squared_0, '0', blocks_integrate_xx_0, '0']
 - [blocks_delay_0, '0', blocks_stream_to_vector_0_2, '0']
 - [blocks_delay_0_0, '0', blocks_stream_to_vector_0_0, '0']
 - [blocks_delay_0_1, '0', blocks_stream_to_vector_0_1, '0']
@@ -1298,19 +1298,19 @@ connections:
 - [blocks_selector_0, '0', dc_blocker_xx_0, '0']
 - [blocks_selector_0, '0', zeromq_pub_sink_0, '0']
 - [blocks_selector_0, '0', zeromq_pub_sink_0_0, '0']
+- [blocks_skiphead_0, '0', blocks_delay_0, '0']
+- [blocks_skiphead_0, '0', blocks_delay_0_0, '0']
+- [blocks_skiphead_0, '0', blocks_delay_0_1, '0']
+- [blocks_skiphead_0, '0', blocks_stream_to_vector_0, '0']
 - [blocks_stream_to_vector_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_stream_to_vector_0_0, '0', blocks_multiply_const_vxx_0_0_0, '0']
 - [blocks_stream_to_vector_0_1, '0', blocks_multiply_const_vxx_0_0, '0']
 - [blocks_stream_to_vector_0_2, '0', blocks_multiply_const_vxx_0_0_0_0, '0']
 - [blocks_tags_strobe_0, '0', blocks_add_xx_0_0, '0']
 - [blocks_tags_strobe_0_0, '0', blocks_add_xx_0_0, '2']
-- [dc_blocker_xx_0, '0', blocks_delay_0, '0']
-- [dc_blocker_xx_0, '0', blocks_delay_0_0, '0']
-- [dc_blocker_xx_0, '0', blocks_delay_0_1, '0']
-- [dc_blocker_xx_0, '0', blocks_stream_to_vector_0, '0']
+- [dc_blocker_xx_0, '0', blocks_skiphead_0, '0']
 - [fft_vxx_0, '0', blocks_complex_to_mag_squared_0, '0']
 - [osmosdr_source_0, '0', add_clock_tags, '0']
-- [single_pole_iir_filter_xx_0, '0', blocks_integrate_xx_0, '0']
 
 metadata:
   file_format: 1
