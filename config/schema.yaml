@@ -20,6 +20,7 @@ SAVE_DIRECTORY: str()
 RUN_HEADLESS: bool()
 DASHBOARD_PORT: int()
 DASHBOARD_HOST: ip()
+DASHBOARD_DOWNLOADS: bool()
 ---
 location:
     latitude: num()

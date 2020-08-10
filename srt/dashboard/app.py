@@ -14,6 +14,7 @@ import flask
 import plotly.io as pio
 import numpy as np
 from time import time
+from pathlib import Path
 
 from .layouts import monitor_page, system_page
 from .layouts.sidebar import generate_sidebar
@@ -28,7 +29,9 @@ def generate_app(config_dir, config_dict):
         __name__,
         server=server,
         external_stylesheets=[dbc.themes.BOOTSTRAP],
-        meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
+        meta_tags=[
+            {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+        ],
     )
     app.title = "SRT Dashboard"
 
@@ -94,11 +97,7 @@ def generate_app(config_dir, config_dict):
 
     app.layout = layout
     app.validation_layout = html.Div(
-        [
-            layout,
-            monitor_page.generate_layout(),
-            system_page.generate_layout(),
-        ]
+        [layout, monitor_page.generate_layout(), system_page.generate_layout(),]
     )
     # Create callbacks
     app.clientside_callback(
@@ -109,7 +108,15 @@ def generate_app(config_dir, config_dict):
     monitor_page.register_callbacks(
         app, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread
     )
-    system_page.register_callbacks(app, status_thread, command_thread)
+    system_page.register_callbacks(app, config_dict, status_thread, command_thread)
+
+    if config_dict["DASHBOARD_DOWNLOADS"]:
+        @server.route("/download/<path:path>")
+        def download(path):
+            """Serve a file from the upload directory."""
+            return flask.send_from_directory(
+                Path(config_dict["SAVE_DIRECTORY"]).expanduser(), path, as_attachment=True
+            )
 
     @app.callback(
         [Output(f"{pages[page_name]}-link", "active") for page_name in pages],
@@ -132,7 +139,8 @@ def generate_app(config_dir, config_dict):
         return ""
 
     @app.callback(
-        Output("sidebar-status", "children"), [Input("interval-component", "n_intervals")]
+        Output("sidebar-status", "children"),
+        [Input("interval-component", "n_intervals")],
     )
     def update_status_display(n):
         status = status_thread.get_status()
@@ -182,4 +190,5 @@ def generate_app(config_dir, config_dict):
                 html.P(f"The pathname {pathname} was not recognised..."),
             ]
         )
+
     return server, app

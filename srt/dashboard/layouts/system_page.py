@@ -8,7 +8,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
+from urllib.parse import quote as urlquote
 from datetime import datetime
+from pathlib import Path
 
 
 def generate_layout():
@@ -25,7 +27,7 @@ def generate_layout():
                     html.Div([], className="one-third column",),
                     html.Div(
                         [
-                            html.H3(
+                            html.H4(
                                 "SRT System Page",
                                 style={"margin-bottom": "0px", "text-align": "center"},
                             ),
@@ -42,8 +44,15 @@ def generate_layout():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Markdown(id="emergency-contact-info")],
-                        className="pretty_container three columns",
+                        [
+                            html.H4(
+                                "Emergency Contact Info",
+                                id="text-contact",
+                                style={"text-align": "center"},
+                            ),
+                            dcc.Markdown(id="emergency-contact-info"),
+                        ],
+                        className="pretty_container four columns",
                     ),
                     html.Div(
                         [
@@ -52,7 +61,25 @@ def generate_layout():
                             ),
                             dcc.Markdown(id="command-display"),
                         ],
-                        className="pretty_container five columns",
+                        className="pretty_container four columns",
+                    ),
+                    html.Div(
+                        [
+                            html.H4(
+                                "Recordings",
+                                id="text-recordings",
+                                style={"text-align": "center"},
+                            ),
+                            html.Div(
+                                id="recordings-list",
+                                style={
+                                    "height": 150,
+                                    "overflow": "hidden",
+                                    "overflow-y": "scroll",
+                                },
+                            ),
+                        ],
+                        className="pretty_container four columns",
                     ),
                 ],
                 className="flex-display",
@@ -62,10 +89,7 @@ def generate_layout():
                 [
                     html.Div(
                         [
-                            html.H4(
-                                "Message Logs",
-                                style={"margin-bottom": "0px", "text-align": "center"},
-                            ),
+                            html.H4("Message Logs", style={"text-align": "center"},),
                             html.Div(
                                 id="message-logs",
                                 style={
@@ -80,28 +104,29 @@ def generate_layout():
                 ],
                 className="flex-display",
                 style={"justify-content": "center", "margin": "5px"},
-            )
+            ),
         ]
     )
     return layout
 
 
-def register_callbacks(app, status_thread, command_thread):
+def register_callbacks(app, config, status_thread):
     """Registers the Callbacks for the System Page
 
     Parameters
     ----------
     app : Dash Object
         Dash Object to Set Up Callbacks to
+    config : dict
+        Contains All Settings for Dashboard / Daemon
     status_thread : Thread
         Thread for Getting Status from Daemon
-    command_thread : Thread
-        Thread for Sending Commands to Daemon
 
     Returns
     -------
     None
     """
+
     @app.callback(
         Output("emergency-contact-info", "children"),
         [Input("interval-component", "n_intervals")],
@@ -112,7 +137,6 @@ def register_callbacks(app, status_thread, command_thread):
             return ""
         status = status["emergency_contact"]
         status_string = f"""
-        ##### Emergency Contact Info
          - Name: {status["name"]}
          - Email: {status["email"]}
          - Phone Number: {status["phone_number"]}
@@ -164,3 +188,31 @@ def register_callbacks(app, status_thread, command_thread):
          - {queue_size} More Commands Waiting in the Queue
         """
         return status_string
+
+    @app.callback(
+        Output("recordings-list", "children"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_output(n):
+        """Save uploaded files and regenerate the file list."""
+
+        files = [
+            file.name
+            for file in Path(config["SAVE_DIRECTORY"]).expanduser().glob("*")
+            if file.is_file()
+        ]
+        folders = [
+            file.name
+            for file in Path(config["SAVE_DIRECTORY"]).expanduser().glob("*")
+            if file.is_dir()
+        ]
+        if len(files) == 0:
+            return [html.Li("No files yet!")]
+        else:
+            if config["DASHBOARD_DOWNLOADS"]:
+                return [
+                    html.Li(html.A(filename, href=f"/download/{urlquote(filename)}"))
+                    for filename in files
+                ] + [html.Li(html.A(foldername)) for foldername in folders]
+            else:
+                return [html.Li(html.A(filename)) for filename in (files + folders)]
