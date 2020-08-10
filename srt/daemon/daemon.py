@@ -726,6 +726,7 @@ class SmallRadioTelescopeDaemon:
         self.stop_recording()
         self.stow()
         if self.radio_autostart:
+            sleep(1)
             self.radio_process_task.terminate()
 
 
