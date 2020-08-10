@@ -24,6 +24,8 @@ from .messaging.spectrum_fetcher import SpectrumThread
 
 
 def generate_app(config_dir, config_dict):
+    config_dict["CONFIG_DIR"] = config_dir
+
     server = flask.Flask(__name__)
     app = dash.Dash(
         __name__,
@@ -99,6 +101,7 @@ def generate_app(config_dir, config_dict):
     app.validation_layout = html.Div(
         [layout, monitor_page.generate_layout(), system_page.generate_layout(),]
     )
+
     # Create callbacks
     app.clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="resize"),
@@ -106,16 +109,24 @@ def generate_app(config_dir, config_dict):
         [Input("page-content", "children")],
     )
     monitor_page.register_callbacks(
-        app, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread
+        app,
+        config_dict,
+        status_thread,
+        command_thread,
+        raw_spectrum_thread,
+        cal_spectrum_thread,
     )
     system_page.register_callbacks(app, config_dict, status_thread)
 
     if config_dict["DASHBOARD_DOWNLOADS"]:
+
         @server.route("/download/<path:path>")
         def download(path):
             """Serve a file from the upload directory."""
             return flask.send_from_directory(
-                Path(config_dict["SAVE_DIRECTORY"]).expanduser(), path, as_attachment=True
+                Path(config_dict["SAVE_DIRECTORY"]).expanduser(),
+                path,
+                as_attachment=True,
             )
 
     @app.callback(

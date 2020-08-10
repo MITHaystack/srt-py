@@ -8,11 +8,10 @@ import dash
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 
-import numpy as np
-from datetime import datetime
+from pathlib import Path
+from time import time
 import base64
 import io
 
@@ -22,28 +21,6 @@ from .graphs import (
     generate_power_history_graph,
     generate_spectrum_graph,
 )
-
-
-def generate_title():
-    return html.Div(
-        [
-            html.Div([], className="one-third column",),
-            html.Div(
-                [
-                    html.H3(
-                        "SRT Monitoring Page",
-                        style={"margin-bottom": "0px", "text-align": "center"},
-                    ),
-                ],
-                className="one-third column",
-                id="title",
-            ),
-            html.Div([], className="one-third column", id="button"),
-        ],
-        id="header",
-        # className="row flex-display",
-        style={"margin-bottom": "25px"},
-    )
 
 
 def generate_first_row():
@@ -60,11 +37,11 @@ def generate_first_row():
                             dcc.Graph(id="cal-spectrum-histogram"),
                             dcc.Graph(id="raw-spectrum-histogram"),
                         ],
-                        className="pretty_container five columns",
+                        className="pretty_container six columns",
                     ),
                 ],
                 className="flex-display",
-                style={"justify-content": "center"},
+                style={"justify-content": "center", "margin": "5px",},
             ),
         ]
     )
@@ -307,7 +284,7 @@ def generate_popups():
             ),
             dbc.Modal(
                 [
-                    dbc.ModalHeader("Start Recording"),
+                    dbc.ModalHeader("Command File"),
                     dbc.ModalBody(
                         [
                             html.H4("Upload Command File"),
@@ -337,6 +314,48 @@ def generate_popups():
                 ],
                 id="cmd-file-modal",
             ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Start Daemon"),
+                    dbc.ModalBody(
+                        [
+                            html.H6(
+                                "Are you sure you want to try to start the background SRT Process?"
+                            ),
+                            html.H6("If the process is already running, this may fail"),
+                            html.H5(
+                                "Process is Already Running",
+                                id="start-warning",
+                                style={"text-align": "center"},
+                            ),
+                            dcc.Dropdown(
+                                options=[],
+                                placeholder="Select a Config File",
+                                id="start-config-file",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="start-btn-yes",
+                                className="ml-auto",
+                                block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="start-btn-no",
+                                className="ml-auto",
+                                block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="start-modal",
+            ),
         ]
     )
 
@@ -364,7 +383,10 @@ def generate_layout():
             dbc.DropdownMenuItem("Calibrate", id="btn-calibrate"),
             dbc.DropdownMenuItem("Upload CMD File", id="btn-cmd-file"),
         ],
-        "Power": [dbc.DropdownMenuItem("Shutdown", id="btn-quit")],
+        "Power": [
+            dbc.DropdownMenuItem("Start Daemon", id="btn-start"),
+            dbc.DropdownMenuItem("Shutdown", id="btn-quit"),
+        ],
     }
     layout = html.Div(
         [
@@ -379,7 +401,7 @@ def generate_layout():
                     ),
                 ],
                 className="flex-display",
-                style={"margin": "5px"},
+                style={"margin": dict(l=10, r=5, t=5, b=5)},
             ),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
@@ -389,7 +411,7 @@ def generate_layout():
 
 
 def register_callbacks(
-    app, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread
+    app, config, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread
 ):
     """Registers the Callbacks for the Monitor Page
 
@@ -397,6 +419,8 @@ def register_callbacks(
     ----------
     app : Dash Object
         Dash Object to Set Up Callbacks to
+    config : dict
+        Contains All Settings for Dashboard / Daemon
     status_thread : Thread
         Thread for Getting Status from Daemon
     command_thread : Thread
@@ -452,6 +476,32 @@ def register_callbacks(
         if spectrum_history is None:
             return ""
         return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history)
+
+    @app.callback(
+        Output("start-warning", "children"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_start_daemon_warning(n):
+        status = status_thread.get_status()
+        if status is None:
+            return "SRT Daemon Not Detected"
+        latest_time = status["time"]
+        if time() - latest_time < 10:
+            return "SRT Daemon Already On!"
+        else:
+            return "SRT Daemon Disconnected"
+
+    @app.callback(
+        Output("start-config-file", "options"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_start_daemon_options(n):
+        files = [
+            {"label": file.name, "value": file.name}
+            for file in Path(config["CONFIG_DIR"]).glob("*")
+            if file.is_file() and file.name.endswith(".yaml")
+        ]
+        return files
 
     @app.callback(
         Output("output-data-upload", "children"),
@@ -650,6 +700,52 @@ def register_callbacks(
             # if button_id == "record-btn-yes":
             #     command_thread.add_to_queue(f"record {record_option}")
             if n_clicks_btn:
+                return not is_open
+            return is_open
+
+    @app.callback(
+        Output("start-modal", "is_open"),
+        [
+            Input("btn-start", "n_clicks"),
+            Input("start-btn-yes", "n_clicks"),
+            Input("start-btn-no", "n_clicks"),
+        ],
+        [State("start-modal", "is_open"), State("start-config-file", "value")],
+    )
+    def start_click_func(
+        n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, config_file_name
+    ):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            if button_id == "start-btn-yes":
+                try:
+
+                    def run_srt_daemon(configuration_dir, configuration_dict):
+                        from srt.daemon import daemon as srt_d
+
+                        daemon = srt_d.SmallRadioTelescopeDaemon(
+                            configuration_dir, configuration_dict
+                        )
+                        daemon.srt_daemon_main()
+
+                    from srt import config_loader
+                    from multiprocessing import Process
+                    from pathlib import Path
+
+                    config_path = Path(config["CONFIG_DIR"], config_file_name)
+                    config_dict = config_loader.load_yaml(config_path)
+                    daemon_process = Process(
+                        target=run_srt_daemon,
+                        args=(config["CONFIG_DIR"], config_dict),
+                        name="SRT-Daemon",
+                    )
+                    daemon_process.start()
+                except Exception as e:
+                    print(str(e))
+            if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
             return is_open
 

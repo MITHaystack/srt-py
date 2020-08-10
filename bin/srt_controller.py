@@ -5,10 +5,6 @@ from pathlib import Path
 from time import sleep
 
 
-def start(args):
-    pass
-
-
 def status(args):
     """
 
@@ -84,9 +80,6 @@ def command_file(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="SRT Control Utility")
     sp = parser.add_subparsers()
-
-    sp_start = sp.add_parser("start", help="")
-    sp_start.set_defaults(func=start)
 
     # Add the Status Parser
     sp_status = sp.add_parser("status", help="Gets the Current Status of the SRT")
