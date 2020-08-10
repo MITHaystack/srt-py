@@ -74,6 +74,7 @@ class SmallRadioTelescopeDaemon:
         self.radio_num_bins = config_dict["RADIO_NUM_BINS"]
         self.radio_integ_cycles = config_dict["RADIO_INTEG_CYCLES"]
         self.radio_autostart = config_dict["RADIO_AUTOSTART"]
+        self.num_beamswitches = config_dict["NUM_BEAMSWITCHES"]
         self.beamwidth = config_dict["BEAMWIDTH"]
         self.temp_sys = config_dict["TSYS"]
         self.temp_cal = config_dict["TCAL"]
@@ -188,7 +189,7 @@ class SmallRadioTelescopeDaemon:
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
         new_rotor_destination = self.ephemeris_locations[object_id]
-        for j in range(0, 3):
+        for j in range(0, 3 * self.num_beamswitches):
             self.radio_queue.put(("beam_switch", j + 1))
             az_dif_scalar = np.cos(new_rotor_destination[1] * np.pi / 180.0)
             az_dif = (j % 3 - 1) * self.beamwidth / az_dif_scalar
