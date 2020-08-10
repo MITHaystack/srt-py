@@ -1,4 +1,4 @@
-"""yaml_tools.py
+"""config_loader.py
 
 Module Containing Brief Functions for Validating and Parsing YAML
 
@@ -6,45 +6,41 @@ Module Containing Brief Functions for Validating and Parsing YAML
 import yamale
 import yaml
 
-from pathlib import Path
 
-schema_file_name = "schema.yaml"
-config_file_name = "config.yaml"
-root_folder = Path(__file__).parent.parent
-
-
-def validate_yaml_schema(path=Path(root_folder, "config")):
+def validate_yaml_schema(config_path, schema_path):
     """Validates YAML Config File Against Schema
 
     Parameters
     ----------
-    path : str
-        Name / Path of the Folder from Root Directory
+    config_path : str
+        Name / Path to the config.yaml File
+    schema_path : str
+        Name / Path to the schema.yaml File
 
     Returns
     -------
     bool
         If the Yamale Validates Properly
     """
-    schema = yamale.make_schema(Path(path, schema_file_name))
-    data = yamale.make_data(Path(path, config_file_name))
+    schema = yamale.make_schema(schema_path)
+    data = yamale.make_data(config_path)
     return yamale.validate(schema, data)
 
 
-def load_yaml(path=Path(root_folder, "config")):
+def load_yaml(config_path):
     """Parses
 
     Parameters
     ----------
-    path : str
-        Name / Path of the Folder from Root Directory
+    config_path : str
+        Name / Path to the config.yaml File
 
     Returns
     -------
     config : dict
         Dictionary containing configuration info
     """
-    with open(Path(path, config_file_name)) as file:
+    with open(config_path) as file:
         # The FullLoader parameter handles the conversion from YAML
         # scalar values to Python the dictionary format
         config = yaml.load(file, Loader=yaml.FullLoader)

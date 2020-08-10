@@ -25,7 +25,6 @@ from .radio_control.radio_task_starter import (
     RadioSaveSpecFitsTask,
 )
 from .utilities.object_tracker import EphemerisTracker
-from .utilities.yaml_tools import validate_yaml_schema, load_yaml
 from .utilities.functions import azel_within_range
 
 
@@ -34,19 +33,16 @@ class SmallRadioTelescopeDaemon:
     Controller Class for the Small Radio Telescope
     """
 
-    def __init__(self, config_directory):
+    def __init__(self, config_directory, config_dict):
         """Initializer for the Small Radio Telescope Daemon
 
         Parameters
         ----------
         config_directory : str
-            Path to the Folder Containing the Configuration for the SRT
+            Path to the Directory Containing Configuration Files
+        config_dict : dict
+            Dictionary Containing SRT Settings
         """
-
-        # Validate and Parse YAML Settings
-        self.config_directory = config_directory
-        validate_yaml_schema(path=config_directory)
-        config_dict = load_yaml(path=config_directory)
 
         # Store Individual Settings In Object
         self.station = config_dict["STATION"]
@@ -88,7 +84,7 @@ class SmallRadioTelescopeDaemon:
         # Unless there is a pre-exisiting calibration from a previous run
         self.cal_values = [1.0 for _ in range(self.radio_num_bins)]
         self.cal_power = 1.0 / (self.temp_sys + self.temp_cal)
-        calibration_path = Path(self.config_directory, "calibration.json")
+        calibration_path = Path(config_directory, "calibration.json")
         if calibration_path.is_file():
             with open(calibration_path, "r") as input_file:
                 try:
@@ -728,8 +724,3 @@ class SmallRadioTelescopeDaemon:
         if self.radio_autostart:
             sleep(1)
             self.radio_process_task.terminate()
-
-
-if __name__ == "__main__":
-    daemon = SmallRadioTelescopeDaemon(config_directory="./config/")
-    daemon.srt_daemon_main()

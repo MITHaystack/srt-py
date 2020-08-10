@@ -16,6 +16,9 @@ BEAMWIDTH: num()
 TSYS: num()
 TCAL: num()
 SAVE_DIRECTORY: str()
+RUN_HEADLESS: bool()
+DASHBOARD_PORT: int()
+DASHBOARD_HOST: ip()
 ---
 location:
     latitude: num()
