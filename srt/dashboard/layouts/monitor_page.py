@@ -733,7 +733,6 @@ def register_callbacks(
 
                     from srt import config_loader
                     from multiprocessing import Process
-                    from pathlib import Path
 
                     config_path = Path(config["CONFIG_DIR"], config_file_name)
                     config_dict = config_loader.load_yaml(config_path)
