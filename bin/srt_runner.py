@@ -1,3 +1,9 @@
+"""srt_runner.py
+
+Starts the SRT Daemon and/or Dashboard
+
+"""
+
 import argparse
 from pathlib import Path
 from multiprocessing import Process

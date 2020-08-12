@@ -1,3 +1,9 @@
+"""srt_controller.py
+
+Sends Instructions to the SRT via the Command Line
+
+"""
+
 import zmq
 import argparse
 import json
@@ -6,15 +12,16 @@ from time import sleep
 
 
 def status(args):
-    """
+    """Displays the Status of All or A Specific Part of the SRT Status JSON
 
     Parameters
     ----------
     args
+        argparse Arguments to Function
 
     Returns
     -------
-
+    None
     """
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
@@ -26,6 +33,8 @@ def status(args):
     if socket in socks and socks[socket] == zmq.POLLIN:
         rec = socket.recv()
         dump = json.loads(rec)
+        if args.status_parameter in dump:
+            dump = dump[args.status_parameter]
         print(json.dumps(dump, sort_keys=True, indent=4))
     else:
         print("SRT Daemon Not Online")
@@ -33,15 +42,16 @@ def status(args):
 
 
 def command(args):
-    """
+    """Sends a Command to the SRT
 
     Parameters
     ----------
     args
+        argparse Arguments to Function
 
     Returns
     -------
-
+    None
     """
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)
@@ -56,15 +66,16 @@ def command(args):
 
 
 def command_file(args):
-    """
+    """Sends All Commands in a Command File to the SRT
     
     Parameters
     ----------
     args
+        argparse Arguments to Function
 
     Returns
     -------
-
+    None
     """
     context = zmq.Context()
     socket = context.socket(zmq.PUSH)
@@ -83,6 +94,13 @@ if __name__ == "__main__":
 
     # Add the Status Parser
     sp_status = sp.add_parser("status", help="Gets the Current Status of the SRT")
+    sp_status.add_argument(
+        "--status_parameter",
+        metavar="status_parameter",
+        type=str,
+        help="The Key for a Piece of the SRT JSON Status",
+        default="",
+    )
     sp_status.add_argument(
         "--host",
         metavar="host",
