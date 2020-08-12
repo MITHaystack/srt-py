@@ -72,6 +72,7 @@ class SmallRadioTelescopeDaemon:
         self.motor_port = config_dict["MOTOR_PORT"]
         self.radio_center_frequency = config_dict["RADIO_CF"]
         self.radio_sample_frequency = config_dict["RADIO_SF"]
+        self.radio_frequency_correction = config_dict["RADIO_FREQ_CORR"]
         self.radio_num_bins = config_dict["RADIO_NUM_BINS"]
         self.radio_integ_cycles = config_dict["RADIO_INTEG_CYCLES"]
         self.radio_autostart = config_dict["RADIO_AUTOSTART"]
@@ -384,7 +385,7 @@ class SmallRadioTelescopeDaemon:
         """
         self.radio_center_frequency = frequency  # Set Local Value
         self.radio_queue.put(
-            ("freq", self.radio_center_frequency)
+            ("freq", self.radio_center_frequency + self.radio_frequency_correction)
         )  # Push Update to GNU Radio
 
     def set_samp_rate(self, samp_rate):
@@ -538,6 +539,7 @@ class SmallRadioTelescopeDaemon:
                 "cal_loc": self.cal_location,
                 "horizon_points": self.horizon_points,
                 "center_frequency": self.radio_center_frequency,
+                "frequency_correction": self.radio_frequency_correction,
                 "bandwidth": self.radio_sample_frequency,
                 "motor_offsets": self.rotor_offsets,
                 "queued_item": self.current_queue_item,
@@ -612,7 +614,10 @@ class SmallRadioTelescopeDaemon:
 
         # Send Settings to the GNU Radio Script
         radio_params = {
-            "Frequency": ("freq", self.radio_center_frequency),
+            "Frequency": (
+                "freq",
+                self.radio_center_frequency + self.radio_frequency_correction,
+            ),
             "Sample Rate": ("samp_rate", self.radio_sample_frequency),
             "Motor Azimuth": ("motor_az", self.rotor_location[0]),
             "Motor Elevation": ("motor_el", self.rotor_location[1]),
