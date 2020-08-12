@@ -37,7 +37,7 @@ class RadioSaveRawTask(RadioTask):
     """
     def __init__(self, samp_rate, root_save_directory, directory):
         if directory is None:
-            directory = time.strftime("SRT_RAW_SAVE-%Y:%m:%d:%H:%M:%S")
+            directory = time.strftime("SRT_RAW_SAVE-%Y_%m_%d_%H_%M_%S")
         path = str(Path(expanduser(root_save_directory), directory).absolute())
         super().__init__(radio_save_raw.main, directory_name=path, samp_rate=samp_rate)
 
@@ -48,7 +48,7 @@ class RadioSaveSpecRadTask(RadioTask):
     """
     def __init__(self, samp_rate, num_bins, root_save_directory, file_name):
         if file_name is None:
-            file_name = time.strftime("%y:%j:%H.rad")
+            file_name = time.strftime("%y-%j-%H_%M_%S.rad")
         path = str(Path(expanduser(root_save_directory)).absolute())
         super().__init__(
             radio_save_spec.main,
@@ -65,7 +65,7 @@ class RadioSaveSpecFitsTask(RadioTask):
     """
     def __init__(self, samp_rate, num_bins, root_save_directory, file_name):
         if file_name is None:
-            file_name = time.strftime("SRT_SPEC_SAVE-%Y:%m:%d:%H:%M:%S.fits")
+            file_name = time.strftime("SRT_SPEC_SAVE-%Y_%m_%d_%H_%M_%S.fits")
         path = str(Path(expanduser(root_save_directory)).absolute())
         super().__init__(
             radio_save_spec_fits.main,
