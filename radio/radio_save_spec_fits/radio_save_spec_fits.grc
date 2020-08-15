@@ -1,0 +1,189 @@
+options:
+  parameters:
+    author: ''
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: radio_save_spec_fits
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: run
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: radio_save_spec_fits
+    window_size: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: directory_name
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: directory_name
+    short_id: ''
+    type: str
+    value: '"."'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [123, 106]
+    rotation: 0
+    state: true
+- name: file_name
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: file_name
+    short_id: ''
+    type: str
+    value: '"test.fits"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [116, 203]
+    rotation: 0
+    state: true
+- name: num_bins
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: num_bins
+    short_id: ''
+    type: intx
+    value: '4096'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [9, 204]
+    rotation: 0
+    state: true
+- name: samp_rate
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: samp_rate
+    short_id: ''
+    type: intx
+    value: '2400000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [10, 107]
+    rotation: 0
+    state: true
+- name: save_fits_file
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\nimport pmt\nimport json\n\nimport pathlib\nfrom datetime\
+      \ import datetime, timezone\nfrom astropy.io import fits\n\n\nclass blk(gr.sync_block):\n\
+      \    \"\"\"Embedded Python Block - Saving \"\"\"\n\n    def __init__(\n    \
+      \    self, directory=\".\", filename=\"test.fits\", vec_length=4096\n    ):\
+      \  # only default arguments here\n        \"\"\"arguments to this function show\
+      \ up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n         \
+      \   self,\n            name=\"Embedded Python Block\",  # will show up in GRC\n\
+      \            in_sig=[(np.float32, vec_length)],\n            out_sig=None,\n\
+      \        )\n        # if an attribute with the same name as a parameter is found,\n\
+      \        # a callback is registered (properties work, too).\n        self.directory\
+      \ = directory\n        self.filename = filename\n        self.vec_length = vec_length\n\
+      \n    def work(self, input_items, output_items):\n        \"\"\"Saving Spectrum\
+      \ Data to a FITS File\"\"\"\n        file_path = pathlib.Path(self.directory,\
+      \ self.filename)\n        for i, input_array in enumerate(input_items[0]):\n\
+      \            file = open(file_path, \"ab+\")\n            tags = self.get_tags_in_window(0,\
+      \ 0, len(input_items[0]))\n            tags_dict = {\n                pmt.to_python(tag.key):\
+      \ pmt.to_python(tag.value) for tag in tags\n            }\n            time_since_epoch\
+      \ = tags_dict[\"rx_time\"][0] + tags_dict[\"rx_time\"][1]\n            date\
+      \ = datetime.fromtimestamp(time_since_epoch, timezone.utc)\n            metadata\
+      \ = tags_dict[\"metadata\"]\n            samp_rate = metadata[\"samp_rate\"\
+      ]\n            num_integrations = metadata[\"num_integrations\"]\n         \
+      \   freq = metadata[\"freq\"]\n            num_bins = metadata[\"num_bins\"\
+      ]\n            soutrack = metadata[\"soutrack\"]\n\n            hdr = fits.Header()\n\
+      \            hdr[\"BUNIT\"] = \"K\"\n            hdr[\"CTYPE1\"] = \"Freq\"\n\
+      \            hdr[\"CRPIX1\"] = num_bins / float(2)  # Reference pixel (center)\n\
+      \            hdr[\"CRVAL1\"] = freq  # Center, USRP, frequency\n           \
+      \ hdr[\"CDELT1\"] = samp_rate / (1 * num_bins)  # Channel width\n          \
+      \  hdr[\"CUNIT1\"] = \"Hz\"\n\n            hdr[\"TELESCOP\"] = \"SmallRadioTelescope\"\
+      \n            hdr[\"OBJECT\"] = soutrack\n            hdr[\"OBSTIME\"] = (num_bins\
+      \ * num_integrations) / samp_rate\n\n            hdr[\"DATE-OBS\"] = date.strftime(\"\
+      %Y-%m-%d\")\n            hdr[\"UTC\"] = date.strftime(\"%H:%M:00%s\")\n    \
+      \        hdr[\"METADATA\"] = json.dumps(metadata)\n\n            fits.append(file,\
+      \ input_array, hdr)\n            file.close()\n            # p = np.sum(input_array)\n\
+      \            # a = len(input_array)\n            # pwr = (tsys + tcal) * p /\
+      \ (a * calpwr)\n            # ppwr = pwr - tsys\n        return len(input_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    directory: directory_name
+    filename: file_name
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vec_length: num_bins
+  states:
+    _io_cache: ('Embedded Python Block', 'blk', [('directory', "'.'"), ('filename',
+      "'test.fits'"), ('vec_length', '4096')], [('0', 'float', 4096)], [], 'Embedded
+      Python Block - Saving ', ['directory', 'filename', 'vec_length'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [636, 127]
+    rotation: 0
+    state: true
+- name: zeromq_sub_source_0
+  id: zeromq_sub_source
+  parameters:
+    address: tcp://127.0.0.1:5562
+    affinity: ''
+    alias: ''
+    comment: ''
+    hwm: '-1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'True'
+    timeout: '100'
+    type: float
+    vlen: num_bins
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 119]
+    rotation: 0
+    state: true
+
+connections:
+- [zeromq_sub_source_0, '0', save_fits_file, '0']
+
+metadata:
+  file_format: 1
