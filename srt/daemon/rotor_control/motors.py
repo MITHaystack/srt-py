@@ -7,6 +7,7 @@ import serial
 
 from abc import ABC, abstractmethod
 from time import sleep
+from math import cos, acos, pi, sqrt, floor
 
 
 class Motor(ABC):
@@ -313,20 +314,30 @@ class Rot2Motor(Motor):
         # return (az_relative + self.az_limits[0], el_relative + self.el_limits[0])
 
 
-class H180Motor(Motor):
+class H180Motor(Motor):  # TODO: Test!
     """
     Class for Controlling any ROT2 Protocol-Supporting Motor (e.g. SPID Motors)
+    Based on the h180 function from the C SRT code
+
+    ftp://gemini.haystack.mit.edu/pub/web/src/source_srt_newsrtsource_ver9.tar.gz
     """
 
     AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
     ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
     def __init__(self, port, az_limits, el_limits, counts_per_step=100):
-        """
+        """Initializer for the H180 Motor
 
         Parameters
         ----------
-        port
+        port : str
+            Serial Port Identifier String for Communicating with the Motor
+        az_limits : (float, float)
+            Tuple of Lower and Upper Azimuth Limits
+        el_limits : (float, float)
+            Tuple of Lower and Upper Elevation Limits
+        counts_per_step : int
+            Maximum number of counts to move per call to function
         """
         Motor.__init__(self, port, az_limits, el_limits)
         self.serial = serial.Serial(
@@ -344,15 +355,20 @@ class H180Motor(Motor):
         self.el_count = 0.0
 
     def send_h180_cmd(self, az, el, stow):
-        """
+        """Sends a Command to the H180 Motor
 
         Parameters
         ----------
-
+        az : float
+            Azimuth Coordinate to Point At
+        el : float
+            Elevation Coordinate to Point At
+        stow : bool
+            Whether or Not to Stow Antenna (makes az,el irrelevant)
 
         Returns
         -------
-
+        None
         """
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
@@ -440,26 +456,29 @@ class H180Motor(Motor):
             self.el_count = 0
 
     def point(self, az, el):
-        """
+        """Points an H180 Motor at a Certain Az, El
 
         Parameters
         ----------
-        az
-        el
+        az : float
+            Azimuth Coordinate to Point At
+        el : float
+            Elevation Coordinate to Point At
 
         Returns
         -------
-
+        None
         """
         self.send_h180_cmd(az, el, False)
         return self.status()
 
     def status(self):
-        """
+        """Requests the Current Location of the H180 Motor
 
         Returns
         -------
-
+        (float, float)
+            Current Azimuth and Elevation Coordinate as a Tuple of Floats
         """
         azz = self.az_count / H180Motor.AZCOUNTS_PER_DEG
         ell = self.el_count / H180Motor.ELCOUNTS_PER_DEG
@@ -468,49 +487,296 @@ class H180Motor(Motor):
         return az, el
 
 
-class PushRodMotor(Motor):  # TODO: Ask About the Necessary Pushrod Parameters
+class PushRodMotor(Motor):  # TODO: Test!
+    """
+    Controls old SRT PushRod Style Motors
+
+    WARNING: This is currently a hard port of the azel function in sport.java, so expect some errors
     """
 
-    """
+    AZCOUNTS_PER_DEG = (
+        8.0 * 32.0 * 60.0 / (360.0 * 9.0)
+    )  # Should this be 52.0 * 27.0 / 120.0?
+    ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
-    AZCOUNTS_PER_DEG = 8.0 * 32.0 * 60.0 / (360.0 * 9.0)
-
-    def __init__(self, port, az_limits, el_limits):
+    def __init__(
+        self,
+        port,
+        az_limits,
+        el_limits,
+        rod=(),
+        counts_per_step=100,
+        count_tol=1,
+        count_corr=(0, 0),
+    ):
         """
 
         Parameters
         ----------
-        port
+        port : str
+            Serial Port Identifier String for Communicating with the Motor
+        az_limits : (float, float)
+            Tuple of Lower and Upper Azimuth Limits
+        el_limits : (float, float)
+            Tuple of Lower and Upper Elevation Limits
         """
         Motor.__init__(self, port, az_limits, el_limits)
         self.serial = serial.Serial(
             port=port,
-            baudrate=2400,
+            baudrate=2000,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=None,
+            timeout=0.1,
         )
+        self.rod = rod
+        self.az_count = 0.0
+        self.el_count = 0.0
+        self.count_per_step = counts_per_step
+        self.count_tol = count_tol
+        self.count_corrections = count_corr
+        self.az = az_limits[0]
+        self.el = el_limits[0]
+        self.azatstow = 0
+        self.elatstow = 0
 
-    def point(self, az, el):
-        """
+    def send_pushrod_cmd(self, az, el, stow):
+        """Sends a Command to the Pushrod Motor
 
         Parameters
         ----------
-        az
-        el
+        az : float
+            Azimuth Coordinate to Point At
+        el : float
+            Elevation Coordinate to Point At
+        stow : bool
+            Whether or Not to Stow Antenna (makes az, el irrelevant)
 
         Returns
         -------
-
+        None
         """
-        pass
+        mm = count = 0
+        lenzero = 0.0
+
+        az = az % 360  # put az into reasonable range
+        az = az + 360.0  # put az in range 180 to 540
+        if az > 540.0:
+            az -= 360.0
+        if az < 180.0:
+            az += 360.0
+
+        region1 = region2 = region3 = 0
+        if (
+            self.az_limits[0] <= az < self.az_limits[1]
+            and self.el_limits[0] <= el <= self.el_limits[1]
+        ):
+            region1 = 1
+        if az > self.az_limits[0] + 180.0 and el > (180.0 - self.el_limits[1]):
+            region2 = 1
+        if az < self.az_limits[1] - 180.0 and el > (180.0 - self.el_limits[1]):
+            region3 = 1
+        if region1 == 0 and region2 == 0 and region3 == 0:
+            raise ValueError("The Azimuth and Elevation Provided are Not Valid")
+
+        flip = 0
+        azz = az - self.az_limits[0]
+        ell = el - self.el_limits[0]
+        azscale = self.AZCOUNTS_PER_DEG
+        elscale = self.ELCOUNTS_PER_DEG
+        # g.set_slew(0);
+
+        lenzero = (
+            self.rod[0] * self.rod[0]
+            + self.rod[1] * self.rod[1]
+            - 2.0
+            * self.rod[0]
+            * self.rod[1]
+            * cos((self.rod[3] - self.el_limits[0]) * pi / 180.0)
+            - self.rod[2] * self.rod[2]
+        )
+        if lenzero >= 0.0:
+            lenzero = sqrt(lenzero)
+        else:
+            lenzero = 0
+
+        ellcount = (
+            self.rod[0] * self.rod[0]
+            + self.rod[1] * self.rod[1]
+            - 2.0 * self.rod[0] * self.rod[1] * cos((self.rod[3] - el) * pi / 180.0)
+            - self.rod[2] * self.rod[2]
+        )
+        if ellcount >= 0.0:
+            ellcount = (-sqrt(ellcount) + lenzero) * self.rod[4]
+        else:
+            ellcount = 0
+
+        if ellcount > self.el_count * 0.5:
+            axis = 1
+        else:
+            axis = 0
+
+        for ax in range(0, 2):
+            if axis == 0:
+                if azz * azscale > self.az_count * 0.5 - 0.5:
+                    mm = 1
+                    count = int(floor(azz * azscale - self.az_count * 0.5 + 0.5))
+                if azz * azscale <= self.az_count * 0.5 + 0.5:
+                    mm = 0
+                    count = int(floor(self.az_count * 0.5 - azz * azscale + 0.5))
+            else:
+                if ellcount > self.el_count * 0.5 - 0.5:
+                    mm = 3
+                    count = int(floor(ellcount - self.el_count * 0.5 + 0.5))
+                if ellcount <= self.el_count * 0.5 + 0.5:
+                    mm = 2
+                    count = int(floor(self.el_count * 0.5 - ellcount + 0.5))
+            ccount = count
+            if stow == 1:  # drive to stow
+                count = 5000
+                if axis == 0:
+                    mm = 0
+                    if self.azatstow == 1:
+                        count = 0
+                if axis == 1:
+                    mm = 2  # complete azimuth motion to stow before completely drop in elevation
+                    if self.elatstow == 1 or (
+                        ccount <= 2.0 * self.count_per_step and self.azatstow == 0
+                    ):
+                        count = 0
+                flip = 0
+            if count > self.count_per_step and ccount > self.count_per_step:
+                count = self.count_per_step
+            if count >= self.count_tol:
+                cmd_str = (
+                    "  move " + str(mm) + " " + str(count) + "\n"
+                )  # need space at start and end
+                n = 0
+                if count < 5000:
+                    str2 = "M " + str(count) + "\n"
+                else:
+                    str2 = "T " + str(count) + "\n"
+                recv = str2
+                n = len(str2)
+                j = 0
+                kk = -1
+                try:
+                    self.serial.write(cmd_str.encode("ascii"))
+                    j = n = rcount = kk = 0
+                    resp = ""
+                    while 0 <= kk < 3000:
+                        result = self.serial.read(1)
+                        if len(result) < 1:
+                            j = -1
+                        else:
+                            j = int.from_bytes(result, byteorder="big")
+                        kk += 1
+                        if j >= 0 and n < 80:
+                            resp += chr(j)
+                            n += 1
+                        if n > 0 and j == -1:
+                            kk = -1  # end of message
+                        # t.getTsec(g, d, gg)
+                    recv = resp
+                except Exception as e:
+                    print(e)
+                if kk != -1 or (recv[0] != "M" and recv[0] != "T"):
+                    print("* ERROR comerr")
+                    return  # TODO: Should throw error here?
+                sleep(0.1)
+                cmd_str = recv[0:n]  # String.copyValueOf(recv, 0, n - 1)
+                parsed_strings = cmd_str.split(" ")
+                try:
+                    str2 = parsed_strings[0]
+                except IndexError as e:
+                    print(e)
+                rcount = 0
+                try:
+                    srt2 = parsed_strings[1]
+                    rcount = int(str2)
+                except IndexError as e:
+                    print(e)
+                b2count = 0
+                try:
+                    str2 = parsed_strings[2]
+                    b2count = int(str2)
+                except IndexError as e:
+                    print(e)
+                if count < 5000:
+                    fcount = (
+                        count * 2 + b2count
+                    )  # add extra 1 / 2 count from motor coast
+                else:
+                    fcount = 0
+                if mm == 2 and recv[0] == "T":
+                    self.elatstow = 1
+                    self.el_count = 0
+                if mm == 0 and recv[0] == "T":
+                    self.azatstow = 1
+                    self.az_count = 0
+                if recv[0] == "M":
+                    if axis == 0:
+                        self.azatstow = 0
+                        if mm == 1:
+                            self.az_count += fcount
+                        else:
+                            self.az_count -= fcount
+                    if axis == 1:
+                        self.elatstow = 0
+                        if mm == 3:
+                            self.el_count += fcount
+                        else:
+                            self.el_count -= fcount
+                sleep(0.005)
+            axis += 1
+            if axis > 1:
+                axis = 0
+        self.az = (
+            self.az_limits[0]
+            - self.count_corrections[0]
+            + self.az_count * 0.5 / azscale
+        )
+        if self.az > 360.0:
+            self.az -= 360.0
+        ellnow = -self.el_count * 0.5 / self.rod[4] + lenzero
+        ellnow = (
+            self.rod[0] * self.rod[0]
+            + self.rod[1] * self.rod[1]
+            - self.rod[2] * self.rod[2]
+            - ellnow * ellnow
+        )
+        ellnow = ellnow / (2.0 * self.rod[0] * self.rod[1])
+        ellnow = -acos(ellnow) * 180.0 / pi + self.rod[3] - self.el_limits[0]
+        self.el = self.el_limits[0] - self.count_corrections[1] + ellnow
+        if self.el > 90.0:
+            if self.az >= 180.0:
+                self.az -= 180.0
+            else:
+                self.az += 180.0
+                self.el = 180.0 - self.el
+
+    def point(self, az, el):
+        """Points an Pushrod Motor at a Certain Az, El
+
+        Parameters
+        ----------
+        az : float
+            Azimuth Coordinate to Point At
+        el : float
+            Elevation Coordinate to Point At
+
+        Returns
+        -------
+        None
+        """
+        self.send_pushrod_cmd(az, el, 0)
 
     def status(self):
-        """
+        """Requests the Current Location of the Pushrod Motor
 
         Returns
         -------
-
+        (float, float)
+            Current Azimuth and Elevation Coordinate as a Tuple of Floats
         """
-        pass
+        return self.az, self.el
