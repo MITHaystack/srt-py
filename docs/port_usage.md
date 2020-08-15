@@ -3,7 +3,7 @@
 
 The SRT control software primarily uses sockets in order to communicate between its various different components.
 This gives the user the ability to be able to remotely control or access data (depending on the purpose of the port), just by opening the specific port on the host system.
-Excluding the Dashboard Webpage, all of the ports use the ZeroMQ socket library, and are capable of accepting from multiple simultaneous sources or multiple recipients depending on the purpose of the port.
+Excluding the Dashboard Webpage and XMLRPC, all of the ports use the ZeroMQ socket library, and are capable of accepting from multiple simultaneous sources or multiple recipients depending on the purpose of the port.
 For instance, if the user were to open up port 5558, anyone could subscribe to the ZMQ publisher socket and receive a live stream copy of the raw I/Q samples from the SDR along with GNU Radio metadata data tags.  Similarly, opening up port 5559 would let anyone subscribe for a copy of the raw I/Q samples that don't contain any GNU Radio metadata, which means the received bytes can just be cast into their appropriate complex float datatype without the need for GNU Radio to parse it.
 
 Quick descriptions of each port, its intended purpose in the system, and the original source and destination of the data are listed below:
