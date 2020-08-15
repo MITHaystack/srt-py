@@ -24,6 +24,12 @@ from .graphs import (
 
 
 def generate_first_row():
+    """Generates First Row (Power and Spectrum) Display
+
+    Returns
+    -------
+    Div Containing First Row Objects
+    """
     return html.Div(
         [
             html.Div(
@@ -48,6 +54,12 @@ def generate_first_row():
 
 
 def generate_popups():
+    """Generates all 'Pop-up' Modal Components
+
+    Returns
+    -------
+    Div Containing all Modal Components
+    """
     return html.Div(
         [
             dbc.Modal(
@@ -390,7 +402,6 @@ def generate_layout():
     }
     layout = html.Div(
         [
-            # generate_title(),
             generate_navbar(drop_down_buttons),
             generate_first_row(),
             html.Div(
@@ -696,9 +707,6 @@ def register_callbacks(
         if not ctx.triggered:
             return is_open
         else:
-            # button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-            # if button_id == "record-btn-yes":
-            #     command_thread.add_to_queue(f"record {record_option}")
             if n_clicks_btn:
                 return not is_open
             return is_open

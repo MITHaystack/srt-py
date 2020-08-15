@@ -24,8 +24,22 @@ from .messaging.spectrum_fetcher import SpectrumThread
 
 
 def generate_app(config_dir, config_dict):
+    """Generates App and Server Objects for Hosting Dashboard
+
+    Parameters
+    ----------
+    config_dir : str
+        Path to the Configuration Directory
+    config_dict : dict
+        Configuration Directory (Output of YAML Parser)
+
+    Returns
+    -------
+    (server, app)
+    """
     config_dict["CONFIG_DIR"] = config_dir
 
+    # Set Up Flash and Dash Objects
     server = flask.Flask(__name__)
     app = dash.Dash(
         __name__,
@@ -37,6 +51,7 @@ def generate_app(config_dir, config_dict):
     )
     app.title = "SRT Dashboard"
 
+    # Start Listening for Radio and Status Data
     status_thread = StatusThread(port=5555)
     status_thread.start()
 
@@ -49,13 +64,15 @@ def generate_app(config_dir, config_dict):
     cal_spectrum_thread = SpectrumThread(port=5563)
     cal_spectrum_thread.start()
 
+    # Dictionary of Pages and matching URL prefixes
     pages = {
         "Monitor Page": "monitor-page",
         "System Page": "system-page",
     }
     refresh_time = 3000  # ms
+    pio.templates.default = "seaborn"  # Style Choice for Graphs
 
-    pio.templates.default = "seaborn"
+    # Generate Sidebar Objects
     side_title = "Small Radio Telescope"
     side_content = {
         "Status": dcc.Markdown(id="sidebar-status"),
@@ -79,6 +96,7 @@ def generate_app(config_dir, config_dict):
     }
     sidebar = generate_sidebar(side_title, side_content)
 
+    # Build Dashboard Framework
     content = html.Div(id="page-content")
     layout = html.Div(
         [
@@ -97,17 +115,18 @@ def generate_app(config_dir, config_dict):
         },
     )
 
-    app.layout = layout
+    app.layout = layout  # Set App Layout to Dashboard Framework
     app.validation_layout = html.Div(
         [layout, monitor_page.generate_layout(), system_page.generate_layout(),]
-    )
+    )  # Necessary for Allowing Other Files to Create Callbacks
 
-    # Create callbacks
+    # Create Resizing JS Script Callback
     app.clientside_callback(
         ClientsideFunction(namespace="clientside", function_name="resize"),
         Output("output-clientside", "children"),
         [Input("page-content", "children")],
     )
+    # Create Callbacks for Monitoring Page Objects
     monitor_page.register_callbacks(
         app,
         config_dict,
@@ -116,10 +135,11 @@ def generate_app(config_dir, config_dict):
         raw_spectrum_thread,
         cal_spectrum_thread,
     )
+    # Create Callbacks for System Page Objects
     system_page.register_callbacks(app, config_dict, status_thread)
 
+    # Activates Downloadable Saves - Caution
     if config_dict["DASHBOARD_DOWNLOADS"]:
-
         @server.route("/download/<path:path>")
         def download(path):
             """Serve a file from the upload directory."""
@@ -134,6 +154,18 @@ def generate_app(config_dir, config_dict):
         [Input("url", "pathname")],
     )
     def toggle_active_links(pathname):
+        """Sets the Page Links to Highlight to Current Page
+
+        Parameters
+        ----------
+        pathname : str
+            Current Page Pathname
+
+        Returns
+        -------
+        list
+            Sparse Bool List Which is True Only on the Proper Page Link
+        """
         if pathname == "/":
             # Treat page 1 as the homepage / index
             return tuple([i == 0 for i, _ in enumerate(pages)])
@@ -145,6 +177,24 @@ def generate_app(config_dir, config_dict):
         [State("sidebar", "className")],
     )
     def toggle_classname(n, classname):
+        """Changes Sidebar's className When it is Collapsed
+
+        Notes
+        -----
+        As per the Dash example this is based on, changing the sidebar's className
+        changes the CSS that applying to it, allowing for hiding the sidebar
+
+        Parameters
+        ----------
+        n
+            Num Clicks on Button
+        classname : str
+            Current Classname
+
+        Returns
+        -------
+
+        """
         if n and classname == "":
             return "collapsed"
         return ""
@@ -154,10 +204,20 @@ def generate_app(config_dir, config_dict):
         [Input("interval-component", "n_intervals")],
     )
     def update_status_display(n):
+        """Updates the Status Part of the Sidebar
+
+        Parameters
+        ----------
+        n : int
+            Number of Intervals that Have Occurred (Unused)
+
+        Returns
+        -------
+        str
+            Content for the Sidebar, Formatted as Markdown
+        """
         status = status_thread.get_status()
         if status is None:
-            # name = "Unknown"
-            # lat = lon = np.nan
             az = el = np.nan
             az_offset = el_offset = np.nan
             cf = np.nan
@@ -189,6 +249,17 @@ def generate_app(config_dir, config_dict):
 
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def render_page_content(pathname):
+        """Renders the Correct Content of the Page Portion
+
+        Parameters
+        ----------
+        pathname : str
+            URL Path Requested
+
+        Returns
+        -------
+        Content of page-content
+        """
         if pathname in ["/", f"/{pages['Monitor Page']}"]:
             return monitor_page.generate_layout()
         elif pathname == f"/{pages['System Page']}":

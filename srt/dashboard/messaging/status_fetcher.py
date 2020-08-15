@@ -6,6 +6,7 @@ Thread Which Handles Receiving Status Data
 
 import zmq
 from threading import Thread
+from time import sleep
 import json
 
 
@@ -62,4 +63,5 @@ class StatusThread(Thread):
 if __name__ == "__main__":
     thread = StatusThread()
     thread.start()
-    thread.join()
+    sleep(1)
+    print(thread.get_status())
