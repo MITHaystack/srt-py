@@ -15,6 +15,7 @@ import plotly.io as pio
 import numpy as np
 from time import time
 from pathlib import Path
+import base64
 
 from .layouts import monitor_page, system_page
 from .layouts.sidebar import generate_sidebar
@@ -71,9 +72,14 @@ def generate_app(config_dir, config_dict):
     }
     refresh_time = 3000  # ms
     pio.templates.default = "seaborn"  # Style Choice for Graphs
-
+    curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects
     side_title = "Small Radio Telescope"
+
+    image_filename = curfold.joinpath(
+        "images", "MIT_HO_logo_landscape.png"
+    )  # replace with your own image
+    encoded_image = base64.b64encode(open(image_filename, "rb").read())
     side_content = {
         "Status": dcc.Markdown(id="sidebar-status"),
         "Pages": html.Div(
@@ -91,6 +97,21 @@ def generate_app(config_dir, config_dict):
                     vertical=True,
                     pills=True,
                 ),
+            ]
+        ),
+        "Image": html.Div(
+            [
+                html.A(
+                    [
+                        html.Img(
+                            src="data:image/png;base64,{}".format(
+                                encoded_image.decode()
+                            ),
+                            style={"height": "100%", "width": "100%"},
+                        )
+                    ],
+                    href="https://www.haystack.mit.edu/",
+                )
             ]
         ),
     }
@@ -140,6 +161,7 @@ def generate_app(config_dir, config_dict):
 
     # Activates Downloadable Saves - Caution
     if config_dict["DASHBOARD_DOWNLOADS"]:
+
         @server.route("/download/<path:path>")
         def download(path):
             """Serve a file from the upload directory."""
