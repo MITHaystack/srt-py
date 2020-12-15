@@ -178,7 +178,7 @@ class SmallRadioTelescopeDaemon:
 
     def beam_switch(self, object_id):
         """Swings Antenna Across Object
-        
+
         Parameters
         ----------
         object_id : str
@@ -659,6 +659,7 @@ class SmallRadioTelescopeDaemon:
                 elif command[0] == ":":
                     command = command[1:].strip()
                 command_parts = command.split(" ")
+                command_parts = [x for x in command_parts if x]
                 command_name = command_parts[0].lower()
 
                 # If Command Starts With a Valid Object Name

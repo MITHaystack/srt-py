@@ -261,7 +261,7 @@ def generate_popups():
                                     {"label": "Digital RF (Raw Data)", "value": ""},
                                     {
                                         "label": ".rad Format (Spectrum)",
-                                        "value": " *.rad",
+                                        "value": "*.rad",
                                     },
                                     {
                                         "label": ".fits Format (Spectrum)",
