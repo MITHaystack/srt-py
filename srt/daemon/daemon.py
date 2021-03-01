@@ -161,7 +161,9 @@ class SmallRadioTelescopeDaemon:
         """
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
-        for scan in range(25):
+        N_pnt_default = 25
+        for scan in range(N_pnt_default):
+            self.log_message("{0} of {1} point scan.".format(scan,N_pnt_default))
             new_rotor_destination = self.ephemeris_locations[object_id]
             i = (scan // 5) - 2
             j = (scan % 5) - 2
