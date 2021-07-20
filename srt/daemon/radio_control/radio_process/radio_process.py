@@ -21,9 +21,9 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import zeromq
-import xmlrpc.server
+import SimpleXMLRPCServer
 import threading
-from . import add_clock_tags
+import add_clock_tags
 import math
 import numpy as np
 import osmosdr
@@ -72,7 +72,7 @@ class radio_process(gr.top_block):
         self.zeromq_pub_sink_1 = zeromq.pub_sink(gr.sizeof_float, num_bins, 'tcp://127.0.0.1:5563', 100, False, -1)
         self.zeromq_pub_sink_0_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:5559', 100, False, -1)
         self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:5558', 100, True, -1)
-        self.xmlrpc_server_0 = xmlrpc.server.SimpleXMLRPCServer(('localhost', 5557), allow_none=True)
+        self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer(('localhost', 5557), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
         self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
         self.xmlrpc_server_0_thread.daemon = True
@@ -84,7 +84,7 @@ class radio_process(gr.top_block):
         self.osmosdr_source_0.set_sample_rate(samp_rate)
         self.osmosdr_source_0.set_center_freq(freq, 0)
         self.osmosdr_source_0.set_freq_corr(0, 0)
-        self.osmosdr_source_0.set_gain(49.6, 0)
+        self.osmosdr_source_0.set_gain(49, 0)
         self.osmosdr_source_0.set_if_gain(0, 0)
         self.osmosdr_source_0.set_bb_gain(0, 0)
         self.osmosdr_source_0.set_antenna('', 0)
@@ -114,7 +114,7 @@ class radio_process(gr.top_block):
         self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(num_bins)
         self.blocks_add_xx_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(num_bins)
-        self.add_clock_tags = add_clock_tags.clk(nsamps=num_bins*8)
+        self.add_clock_tags = add_clock_tags.clk(nsamps=min(num_bins*64, num_bins*num_integrations))
 
 
 
@@ -166,7 +166,7 @@ class radio_process(gr.top_block):
         self.set_custom_window(self.sinc_samples*np.hamming(4*self.num_bins))
         self.set_fft_window(window.blackmanharris(self.num_bins))
         self.set_sinc_sample_locations(np.arange(-np.pi*4/2.0, np.pi*4/2.0, np.pi/self.num_bins))
-        self.add_clock_tags.nsamps = self.num_bins*8
+        self.add_clock_tags.nsamps = min(self.num_bins*64, self.num_bins*self.num_integrations)
         self.blocks_delay_0.set_dly(self.num_bins*3)
         self.blocks_delay_0_0.set_dly(self.num_bins*2)
         self.blocks_delay_0_1.set_dly(self.num_bins)
@@ -183,6 +183,7 @@ class radio_process(gr.top_block):
 
     def set_num_integrations(self, num_integrations):
         self.num_integrations = num_integrations
+        self.add_clock_tags.nsamps = min(self.num_bins*64, self.num_bins*self.num_integrations)
         self.blocks_multiply_const_xx_0.set_k(1.0/float(self.num_integrations))
         self.blocks_tags_strobe_0.set_nsamps(min(self.num_bins*64, self.num_bins*self.num_integrations))
         self.blocks_tags_strobe_0_0.set_value(pmt.to_pmt({"num_bins": self.num_bins, "samp_rate": self.samp_rate, "num_integrations": self.num_integrations, "motor_az": self.motor_az, "motor_el": self.motor_el, "freq": self.freq, "tsys": self.tsys, "tcal": self.tcal, "cal_pwr": self.cal_pwr, "vslr": self.vslr, "glat": self.glat, "glon": self.glon, "soutrack": self.soutrack, "bsw": self.beam_switch}))

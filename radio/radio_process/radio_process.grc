@@ -273,7 +273,7 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    nsamps: num_bins*8
+    nsamps: min(num_bins*64, num_bins*num_integrations)
   states:
     _io_cache: ('Add Clock Tags', 'clk', [('nsamps', '8192')], [('0', 'complex', 1)],
       [('0', 'complex', 1)], '', ['nsamps'])
@@ -424,7 +424,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [823, 280]
+    coordinate: [823, 281]
     rotation: 0
     state: true
 - name: blocks_multiply_const_vxx_0
@@ -688,7 +688,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [547, 251]
+    coordinate: [548, 253]
     rotation: 0
     state: true
 - name: dc_blocker_xx_0
