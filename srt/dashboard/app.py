@@ -70,7 +70,10 @@ def generate_app(config_dir, config_dict):
         "Monitor Page": "monitor-page",
         "System Page": "system-page",
     }
-    refresh_time = 1000  # ms
+    if 'DASHBOARD_REFRESH_MS' in config_dict.keys():
+        refresh_time = config_dict['DASHBOARD_REFRESH_MS']  # ms
+    else:
+        refresh_time = 1000
     pio.templates.default = "seaborn"  # Style Choice for Graphs
     curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects

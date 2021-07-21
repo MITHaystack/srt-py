@@ -21,9 +21,9 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import zeromq
-import SimpleXMLRPCServer
+import xmlrpc.server
 import threading
-import add_clock_tags
+from . import add_clock_tags
 import math
 import numpy as np
 import osmosdr
@@ -72,7 +72,7 @@ class radio_process(gr.top_block):
         self.zeromq_pub_sink_1 = zeromq.pub_sink(gr.sizeof_float, num_bins, 'tcp://127.0.0.1:5563', 100, False, -1)
         self.zeromq_pub_sink_0_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:5559', 100, False, -1)
         self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:5558', 100, True, -1)
-        self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer(('localhost', 5557), allow_none=True)
+        self.xmlrpc_server_0 = xmlrpc.server.SimpleXMLRPCServer(('localhost', 5557), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
         self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
         self.xmlrpc_server_0_thread.daemon = True

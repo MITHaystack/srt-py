@@ -22,6 +22,7 @@ RUN_HEADLESS: bool()
 DASHBOARD_PORT: int()
 DASHBOARD_HOST: ip()
 DASHBOARD_DOWNLOADS: bool()
+DASHBOARD_REFRESH_MS: int()
 ---
 location:
     latitude: num()
