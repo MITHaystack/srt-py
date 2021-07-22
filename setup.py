@@ -1,20 +1,26 @@
 import setuptools
 from pathlib import Path
+import versioneer
+
+
+
+scripts = ["bin/srt_controller.py","bin/srt_runner.py"]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="srt-py",
-    version="0.0.0",
-    author="Example Author",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
+    author="MIT Haystack",
     author_email="author@example.com",
-    description="A small example package",
+    description="SRT",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.mit.edu/SmallRadioTelescope/srt-py",
     packages=setuptools.find_packages(),
-    scripts=[str(path) for path in Path("./bin/").glob("**/*.py")],
+    scripts=[scripts],
     package_data={"": ["*.js", "*.css", "*.ico", "*.png"]},
     classifiers=[
         "Programming Language :: Python :: 3",
