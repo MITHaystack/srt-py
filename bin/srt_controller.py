@@ -67,7 +67,7 @@ def command(args):
 
 def command_file(args):
     """Sends All Commands in a Command File to the SRT
-    
+
     Parameters
     ----------
     args
@@ -115,7 +115,9 @@ if __name__ == "__main__":
         help="The Port of the SRT Status Publisher",
         default=5555,
     )
-    sp_status.set_defaults(func=status,)
+    sp_status.set_defaults(
+        func=status,
+    )
 
     sp_command = sp.add_parser("command", help="Sends a SRT Command")
     sp_command.add_argument(

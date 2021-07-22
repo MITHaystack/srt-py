@@ -3,8 +3,7 @@ from pathlib import Path
 import versioneer
 
 
-
-scripts = ["bin/srt_controller.py","bin/srt_runner.py"]
+scripts = ["bin/srt_controller.py", "bin/srt_runner.py"]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()

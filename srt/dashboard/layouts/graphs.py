@@ -157,7 +157,11 @@ def generate_az_el_graph(
             y0=el_lower_display_lim,
             x1=val,
             y1=el_upper_display_lim,
-            line=dict(color="LightBlue", width=4, dash="dashdot",),
+            line=dict(
+                color="LightBlue",
+                width=4,
+                dash="dashdot",
+            ),
         )
 
     for val in el_limits:
@@ -167,7 +171,11 @@ def generate_az_el_graph(
             y0=val,
             x1=az_upper_display_lim,
             y1=val,
-            line=dict(color="LightBlue", width=4, dash="dashdot",),
+            line=dict(
+                color="LightBlue",
+                width=4,
+                dash="dashdot",
+            ),
         )
 
     # Set axes ranges
@@ -179,7 +187,13 @@ def generate_az_el_graph(
             "xanchor": "center",
             "yanchor": "top",
         },
-        margin=dict(l=20, r=20, b=20, t=30, pad=4,),
+        margin=dict(
+            l=20,
+            r=20,
+            b=20,
+            t=30,
+            pad=4,
+        ),
         xaxis_title="Azimuth",
         yaxis_title="Elevation",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -226,7 +240,13 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
             "xaxis_title": "Time (UTC)",
             "yaxis_title": "Calibrated Power",
             "height": 300,
-            "margin": dict(l=20, r=20, b=20, t=30, pad=4, ),
+            "margin": dict(
+                l=20,
+                r=20,
+                b=20,
+                t=30,
+                pad=4,
+            ),
         },
     )
     return fig
@@ -273,13 +293,24 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
             "xaxis_title": xaxis,
             "yaxis_title": yaxis,
             "height": 150,
-            "margin": dict(l=20, r=20, b=20, t=30, pad=4, ),
+            "margin": dict(
+                l=20,
+                r=20,
+                b=20,
+                t=30,
+                pad=4,
+            ),
         },
     )
     data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(spectrum)) + cf
     if len(spectrum) > max_histogram_size:
         fig.add_trace(
-            go.Scatter(x=data_range, y=spectrum, name="Spectrum", mode="lines", )
+            go.Scatter(
+                x=data_range,
+                y=spectrum,
+                name="Spectrum",
+                mode="lines",
+            )
         )
     else:
         fig.add_trace(

@@ -50,7 +50,9 @@ class blk(gr.sync_block):
             averaged_input = self.past_input / self.num_past_input
             relative_freq_values = np.linspace(-1, 1, self.vec_length)
             poly_fit = poly.Polynomial.fit(
-                relative_freq_values, averaged_input, self.poly_smoothing_order,
+                relative_freq_values,
+                averaged_input,
+                self.poly_smoothing_order,
             )
             smoothed_input = poly_fit(relative_freq_values)
             average_value = np.average(smoothed_input)

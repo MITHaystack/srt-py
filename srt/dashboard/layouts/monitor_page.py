@@ -47,7 +47,10 @@ def generate_first_row():
                     ),
                 ],
                 className="flex-display",
-                style={"justify-content": "center", "margin": "5px",},
+                style={
+                    "justify-content": "center",
+                    "margin": "5px",
+                },
             ),
         ]
     )
@@ -614,7 +617,10 @@ def register_callbacks(
             Input("freq-btn-yes", "n_clicks"),
             Input("freq-btn-no", "n_clicks"),
         ],
-        [State("freq-modal", "is_open"), State("frequency", "value"),],
+        [
+            State("freq-modal", "is_open"),
+            State("frequency", "value"),
+        ],
     )
     def freq_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, freq):
         ctx = dash.callback_context
@@ -635,7 +641,10 @@ def register_callbacks(
             Input("samp-btn-yes", "n_clicks"),
             Input("samp-btn-no", "n_clicks"),
         ],
-        [State("samp-modal", "is_open"), State("samples", "value"),],
+        [
+            State("samp-modal", "is_open"),
+            State("samples", "value"),
+        ],
     )
     def samp_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, samp):
         ctx = dash.callback_context
@@ -699,7 +708,9 @@ def register_callbacks(
 
     @app.callback(
         Output("cmd-file-modal", "is_open"),
-        [Input("btn-cmd-file", "n_clicks"),],
+        [
+            Input("btn-cmd-file", "n_clicks"),
+        ],
         [State("cmd-file-modal", "is_open")],
     )
     def cmd_file_click_func(n_clicks_btn, is_open):
@@ -766,7 +777,10 @@ def register_callbacks(
         ],
     )
     def cmd_button_pressed(
-        n_clicks_stow, n_clicks_stop_record, n_clicks_shutdown, n_clicks_calibrate,
+        n_clicks_stow,
+        n_clicks_stop_record,
+        n_clicks_shutdown,
+        n_clicks_calibrate,
     ):
         ctx = dash.callback_context
         if not ctx.triggered:

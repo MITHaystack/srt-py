@@ -6,6 +6,7 @@ Extra Functions Condensed for Ease-of-Use
 import zmq
 import numpy as np
 
+
 def angle_within_range(actual_angle, desired_angle, bounds=0.5):
     """Determines if Angles are Within a Threshold of One Another
 
@@ -48,6 +49,7 @@ def azel_within_range(actual_azel, desired_azel, bounds=(0.5, 0.5)):
     return angle_within_range(actual_az, desired_az, bounds_az) and angle_within_range(
         actual_el, desired_el, bounds_el
     )
+
 
 def get_spectrum(port=5561):
     """Quickly opens a zmq socket and gets a spectrum

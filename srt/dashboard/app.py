@@ -70,8 +70,8 @@ def generate_app(config_dir, config_dict):
         "Monitor Page": "monitor-page",
         "System Page": "system-page",
     }
-    if 'DASHBOARD_REFRESH_MS' in config_dict.keys():
-        refresh_time = config_dict['DASHBOARD_REFRESH_MS']  # ms
+    if "DASHBOARD_REFRESH_MS" in config_dict.keys():
+        refresh_time = config_dict["DASHBOARD_REFRESH_MS"]  # ms
     else:
         refresh_time = 1000
     pio.templates.default = "seaborn"  # Style Choice for Graphs
@@ -141,7 +141,11 @@ def generate_app(config_dir, config_dict):
 
     app.layout = layout  # Set App Layout to Dashboard Framework
     app.validation_layout = html.Div(
-        [layout, monitor_page.generate_layout(), system_page.generate_layout(),]
+        [
+            layout,
+            monitor_page.generate_layout(),
+            system_page.generate_layout(),
+        ]
     )  # Necessary for Allowing Other Files to Create Callbacks
 
     # Create Resizing JS Script Callback
