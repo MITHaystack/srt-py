@@ -27,18 +27,22 @@ for val in range(0, 100, 10):
     center_freq = metadata["freq"]
 
     subsample_factor = 1
-    averaged_subsampled = np.zeros(num_bins//subsample_factor)
+    averaged_subsampled = np.zeros(num_bins // subsample_factor)
     for i, val in enumerate(averaged):
-        averaged_subsampled[i//subsample_factor] += val
+        averaged_subsampled[i // subsample_factor] += val
     averaged_subsampled /= subsample_factor
 
     lower_bound = int(round(0 * len(averaged_subsampled)))
     upper_bound = int(round(1.0 * len(averaged_subsampled)))
 
-    bins = np.linspace(-samp_rate / 2, samp_rate / 2, len(averaged_subsampled)) + center_freq - 0.05 * pow(10, 6)
-    averaged_subsampled = averaged_subsampled[lower_bound: upper_bound]
+    bins = (
+        np.linspace(-samp_rate / 2, samp_rate / 2, len(averaged_subsampled))
+        + center_freq
+        - 0.05 * pow(10, 6)
+    )
+    averaged_subsampled = averaged_subsampled[lower_bound:upper_bound]
     averaged_subsampled -= np.min(averaged_subsampled)
-    bins = bins[lower_bound: upper_bound]
+    bins = bins[lower_bound:upper_bound]
 
     plt.hist(bins, weights=averaged_subsampled, bins=len(bins))
     plt.show()

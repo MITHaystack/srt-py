@@ -15,7 +15,7 @@ from pathlib import Path
 
 def generate_layout():
     """Generates the Basic Layout for the System Page
-    
+
     Returns
     -------
     System Page Layout
@@ -24,7 +24,10 @@ def generate_layout():
         [
             html.Div(
                 [
-                    html.Div([], className="one-third column",),
+                    html.Div(
+                        [],
+                        className="one-third column",
+                    ),
                     html.Div(
                         [
                             html.H4(
@@ -89,7 +92,10 @@ def generate_layout():
                 [
                     html.Div(
                         [
-                            html.H4("Message Logs", style={"text-align": "center"},),
+                            html.H4(
+                                "Message Logs",
+                                style={"text-align": "center"},
+                            ),
                             html.Div(
                                 id="message-logs",
                                 style={

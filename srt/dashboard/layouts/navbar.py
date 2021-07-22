@@ -28,7 +28,7 @@ def generate_navbar(dropdowns, title="Commands"):
                 in_navbar=True,
                 label=drop_down,
                 style={"display": "flex", "flexWrap": "wrap"},
-                className="m-1"
+                className="m-1",
             )
             for drop_down in dropdowns
         ],

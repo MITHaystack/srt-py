@@ -25,7 +25,7 @@ from .radio_control.radio_task_starter import (
     RadioSaveSpecFitsTask,
 )
 from .utilities.object_tracker import EphemerisTracker
-from .utilities.functions import azel_within_range
+from .utilities.functions import azel_within_range, get_spectrum
 
 
 class SmallRadioTelescopeDaemon:
@@ -110,7 +110,10 @@ class SmallRadioTelescopeDaemon:
 
         # Create Rotor Command Helper Object
         self.rotor = Rotor(
-            self.motor_type, self.motor_port, self.az_limits, self.el_limits,
+            self.motor_type,
+            self.motor_port,
+            self.az_limits,
+            self.el_limits,
         )
         self.rotor_location = self.stow_location
         self.rotor_destination = self.stow_location
@@ -131,6 +134,9 @@ class SmallRadioTelescopeDaemon:
         self.command_queue = Queue()
         self.command_error_logs = []
         self.keep_running = True
+
+        # List for data that will be plotted in the app
+        self.plot_data = []
 
     def log_message(self, message):
         """Writes Contents to a Logging List and Prints
@@ -161,7 +167,11 @@ class SmallRadioTelescopeDaemon:
         """
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
-        for scan in range(25):
+        N_pnt_default = 25
+        rotor_loc = []
+        pwr_list = []
+        for scan in range(N_pnt_default):
+            self.log_message("{0} of {1} point scan.".format(scan, N_pnt_default))
             new_rotor_destination = self.ephemeris_locations[object_id]
             i = (scan // 5) - 2
             j = (scan % 5) - 2
@@ -172,7 +182,18 @@ class SmallRadioTelescopeDaemon:
             if self.rotor.angles_within_bounds(*new_rotor_destination):
                 self.rotor_destination = new_rotor_destination
                 self.point_at_offset(*new_rotor_offsets)
+            rotor_loc.append(self.rotor_location)
             sleep(5)
+            raw_spec = get_spectrum(port=5561)
+            p = np.sum(raw_spec)
+            a = len(raw_spec)
+            pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
+            pwr_list.append(pwr)
+        center = self.ephemeris_locations[object_id]
+        maxdiff = (az_dif, el_dif)
+        self.plot_data = [center, maxdiff, rotor_loc, pwr_list]
+
+        # add code to collect spectrum data.
         self.rotor_offsets = (0.0, 0.0)
         self.ephemeris_cmd_location = object_id
 
@@ -307,7 +328,10 @@ class SmallRadioTelescopeDaemon:
         sleep(
             self.radio_num_bins * self.radio_integ_cycles / self.radio_sample_frequency
         )
-        radio_cal_task = RadioCalibrateTask(self.radio_num_bins, self.config_directory,)
+        radio_cal_task = RadioCalibrateTask(
+            self.radio_num_bins,
+            self.config_directory,
+        )
         radio_cal_task.start()
         radio_cal_task.join(30)
         path = Path(self.config_directory, "calibration.json")
@@ -549,6 +573,7 @@ class SmallRadioTelescopeDaemon:
                 "temp_cal": self.temp_cal,
                 "temp_sys": self.temp_sys,
                 "cal_power": self.cal_power,
+                "plot_data": self.plot_data,
                 "time": time(),
             }
             status_socket.send_json(status)
@@ -690,7 +715,8 @@ class SmallRadioTelescopeDaemon:
                     self.set_samp_rate(samp_rate=float(command_parts[1]) * pow(10, 6))
                 elif command_name == "azel":
                     self.point_at_azel(
-                        float(command_parts[1]), float(command_parts[2]),
+                        float(command_parts[1]),
+                        float(command_parts[2]),
                     )
                 elif command_name == "offset":
                     self.point_at_offset(

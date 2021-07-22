@@ -17,7 +17,7 @@ from astropy.io import fits
 
 
 class blk(gr.sync_block):
-    """Embedded Python Block - Saving """
+    """Embedded Python Block - Saving"""
 
     def __init__(
         self, directory=".", filename="test.fits", vec_length=4096

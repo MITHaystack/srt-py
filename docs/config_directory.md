@@ -11,6 +11,7 @@ As well as the below, which the user should not typically have to modify:
  * 'schema.yaml' - The schema for config.yaml, which lists the valid range of options in config.yaml
  * 'calibration.json' - A JSON containing the calibration data from the most recent time the calibrate command was running
 
+If the user wants to add configuration options within these files they must update schema.yaml and config.yaml and make sure they are in the same directory together when calling srt_runner.py.
 ##### config.yaml
 
 The config.yaml file contains the following settings:
@@ -114,6 +115,10 @@ TCAL: 290
 SAVE_DIRECTORY: ~/Desktop/SRT-Saves
 ```
 
+* DASHBOARD_REFRESH_MS - The number of milliseconds for dashboard refresh.
+```YAML
+DASHBOARD_REFRESH_MS: 3000
+```
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.

@@ -92,7 +92,16 @@ class blk(
         self.obsn = 0
 
     def work(self, input_items, output_items):
-        """example: multiply with constant"""
+        """Saves the data to a rad file.
+
+        Takes the input item, (float,vec) along with the output items [none] and runs the rad file save.
+
+        Parameters
+        ----------
+        input_items : list
+
+
+        """
         file = open(pathlib.Path(self.directory, self.filename), "a+")
         tags = self.get_tags_in_window(0, 0, len(input_items[0]))
         latest_data_dict = {

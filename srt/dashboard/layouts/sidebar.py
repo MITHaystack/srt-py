@@ -30,7 +30,9 @@ def generate_sidebar(title, sections):
     # it consists of a title, and a toggle, the latter is hidden on large screens
     sidebar_header = dbc.Row(
         [
-            dbc.Col(html.H3(title, className="display-7"),),
+            dbc.Col(
+                html.H3(title, className="display-7"),
+            ),
             dbc.Col(
                 [
                     html.Button(
@@ -70,7 +72,13 @@ def generate_sidebar(title, sections):
         contents_list.append(sections[section])
     # use the Collapse component to animate hiding / revealing links
     sidebar = html.Div(
-        [sidebar_header, dbc.Collapse(contents_list, id="collapse",)],
+        [
+            sidebar_header,
+            dbc.Collapse(
+                contents_list,
+                id="collapse",
+            ),
+        ],
         id="sidebar",
     )
     return sidebar

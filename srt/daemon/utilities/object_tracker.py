@@ -136,7 +136,9 @@ class EphemerisTracker:
         if time is None:
             time = Time.now()
         az, el = az_el
-        start_frame = AltAz(obstime=time, location=self.location, alt=el*u.deg, az=az*u.deg)
+        start_frame = AltAz(
+            obstime=time, location=self.location, alt=el * u.deg, az=az * u.deg
+        )
         end_frame = Galactic()
         result = start_frame.transform_to(end_frame)
         g_lat = float(result.b.degree)
@@ -150,7 +152,10 @@ class EphemerisTracker:
         -------
         None
         """
-        if self.latest_time is not None and Time.now() < self.latest_time + self.refresh_time:
+        if (
+            self.latest_time is not None
+            and Time.now() < self.latest_time + self.refresh_time
+        ):
             return
         time = Time.now()
         frame = AltAz(obstime=time, location=self.location)

@@ -20,7 +20,6 @@ from . import save_calibration
 
 
 class radio_calibrate(gr.top_block):
-
     def __init__(self, directory_name=".", num_bins=4096):
         gr.top_block.__init__(self, "radio_calibrate")
 
@@ -33,16 +32,20 @@ class radio_calibrate(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_float, num_bins, 'tcp://127.0.0.1:5560', 100, True, -1)
-        self.save_calibration = save_calibration.blk(directory=directory_name, filename='calibration.json', vec_length=num_bins, poly_smoothing_order=25)
-
-
+        self.zeromq_sub_source_0 = zeromq.sub_source(
+            gr.sizeof_float, num_bins, "tcp://127.0.0.1:5560", 100, True, -1
+        )
+        self.save_calibration = save_calibration.blk(
+            directory=directory_name,
+            filename="calibration.json",
+            vec_length=num_bins,
+            poly_smoothing_order=25,
+        )
 
         ##################################################
         # Connections
         ##################################################
         self.connect((self.zeromq_sub_source_0, 0), (self.save_calibration, 0))
-
 
     def get_directory_name(self):
         return self.directory_name
@@ -59,16 +62,22 @@ class radio_calibrate(gr.top_block):
         self.save_calibration.vec_length = self.num_bins
 
 
-
-
 def argument_parser():
     parser = ArgumentParser()
     parser.add_argument(
-        "--directory-name", dest="directory_name", type=str, default=".",
-        help="Set . [default=%(default)r]")
+        "--directory-name",
+        dest="directory_name",
+        type=str,
+        default=".",
+        help="Set . [default=%(default)r]",
+    )
     parser.add_argument(
-        "--num-bins", dest="num_bins", type=intx, default=4096,
-        help="Set num_bins [default=%(default)r]")
+        "--num-bins",
+        dest="num_bins",
+        type=intx,
+        default=4096,
+        help="Set num_bins [default=%(default)r]",
+    )
     return parser
 
 
@@ -91,5 +100,5 @@ def main(top_block_cls=radio_calibrate, options=None):
     tb.wait()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
