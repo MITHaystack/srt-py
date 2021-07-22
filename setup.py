@@ -20,7 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.mit.edu/SmallRadioTelescope/srt-py",
     packages=setuptools.find_packages(),
-    scripts=[scripts],
+    scripts=scripts,
     package_data={"": ["*.js", "*.css", "*.ico", "*.png"]},
     classifiers=[
         "Programming Language :: Python :: 3",
