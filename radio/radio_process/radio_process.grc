@@ -1,6 +1,7 @@
 options:
   parameters:
     author: ''
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -212,6 +213,18 @@ blocks:
     coordinate: [10, 397]
     rotation: 0
     state: true
+- name: tag_period
+  id: variable
+  parameters:
+    comment: ''
+    value: min(num_bins*64, num_bins*num_integrations)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 232.0]
+    rotation: 0
+    state: true
 - name: tcal
   id: variable
   parameters:
@@ -273,7 +286,7 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    nsamps: min(num_bins*64, num_bins*num_integrations)
+    nsamps: tag_period
   states:
     _io_cache: ('Add Clock Tags', 'clk', [('nsamps', '8192')], [('0', 'complex', 1)],
       [('0', 'complex', 1)], '', ['nsamps'])
@@ -657,7 +670,7 @@ blocks:
     key: pmt.intern("rx_freq")
     maxoutbuf: '0'
     minoutbuf: '0'
-    nsamps: min(num_bins*64, num_bins*num_integrations)
+    nsamps: tag_period
     type: complex
     value: pmt.to_pmt(float(freq))
     vlen: '1'
@@ -677,7 +690,7 @@ blocks:
     key: pmt.intern("metadata")
     maxoutbuf: '0'
     minoutbuf: '0'
-    nsamps: min(num_bins*64, num_bins*num_integrations)
+    nsamps: tag_period
     type: complex
     value: 'pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations":
       num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq,
@@ -1169,6 +1182,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: complex
@@ -1188,6 +1202,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: complex
@@ -1207,6 +1222,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: float
@@ -1226,6 +1242,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: float
@@ -1245,6 +1262,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: float
@@ -1264,6 +1282,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: float
@@ -1285,7 +1304,6 @@ connections:
 - [blocks_delay_0_0, '0', blocks_stream_to_vector_0_0, '0']
 - [blocks_delay_0_1, '0', blocks_stream_to_vector_0_1, '0']
 - [blocks_integrate_xx_0, '0', blocks_multiply_const_xx_0, '0']
-- [blocks_message_strobe_0, strobe, blocks_selector_0, en]
 - [blocks_multiply_const_vxx_0, '0', blocks_add_xx_0, '0']
 - [blocks_multiply_const_vxx_0_0, '0', blocks_add_xx_0, '1']
 - [blocks_multiply_const_vxx_0_0_0, '0', blocks_add_xx_0, '2']
