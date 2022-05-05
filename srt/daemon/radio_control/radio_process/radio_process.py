@@ -21,7 +21,12 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import zeromq
-import xmlrpc.server
+
+try:
+   import SimpleXMLRPCServer
+except ModuleNotFoundError:
+   import xmlrpc.server as SimpleXMLRPCServer
+
 import threading
 from . import add_clock_tags
 import math
@@ -50,6 +55,7 @@ class radio_process(gr.top_block):
         self.vslr = vslr = np.nan
         self.tsys = tsys = 171
         self.tcal = tcal = 290
+        self.tag_period = tag_period = num_bins * num_integrations
         self.soutrack = soutrack = "at_stow"
         self.samp_rate = samp_rate = 2400000
         self.motor_el = motor_el = np.nan
@@ -85,7 +91,7 @@ class radio_process(gr.top_block):
         self.zeromq_pub_sink_0 = zeromq.pub_sink(
             gr.sizeof_gr_complex, 1, "tcp://127.0.0.1:5558", 100, True, -1
         )
-        self.xmlrpc_server_0 = xmlrpc.server.SimpleXMLRPCServer(
+        self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer(
             ("localhost", 5557), allow_none=True
         )
         self.xmlrpc_server_0.register_instance(self)
@@ -128,13 +134,13 @@ class radio_process(gr.top_block):
                     "bsw": beam_switch,
                 }
             ),
-            min(num_bins * 64, num_bins * num_integrations),
+            tag_period,
             pmt.intern("metadata"),
         )
         self.blocks_tags_strobe_0 = blocks.tags_strobe(
             gr.sizeof_gr_complex * 1,
             pmt.to_pmt(float(freq)),
-            min(num_bins * 64, num_bins * num_integrations),
+            tag_period,
             pmt.intern("rx_freq"),
         )
         self.blocks_stream_to_vector_0_2 = blocks.stream_to_vector(
@@ -182,16 +188,11 @@ class radio_process(gr.top_block):
         self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(num_bins)
         self.blocks_add_xx_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(num_bins)
-        self.add_clock_tags = add_clock_tags.clk(
-            nsamps=min(num_bins * 64, num_bins * num_integrations)
-        )
+        self.add_clock_tags = add_clock_tags.clk(nsamps=tag_period)
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect(
-            (self.blocks_message_strobe_0, "strobe"), (self.blocks_selector_0, "en")
-        )
         self.connect((self.add_clock_tags, 0), (self.blocks_add_xx_0_0, 1))
         self.connect((self.blocks_add_xx_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.blocks_add_xx_0_0, 0), (self.blocks_selector_0, 0))
@@ -262,9 +263,7 @@ class radio_process(gr.top_block):
         self.set_sinc_sample_locations(
             np.arange(-np.pi * 4 / 2.0, np.pi * 4 / 2.0, np.pi / self.num_bins)
         )
-        self.add_clock_tags.nsamps = min(
-            self.num_bins * 64, self.num_bins * self.num_integrations
-        )
+        self.set_tag_period(self.num_bins * self.num_integrations)
         self.blocks_delay_0.set_dly(self.num_bins * 3)
         self.blocks_delay_0_0.set_dly(self.num_bins * 2)
         self.blocks_delay_0_1.set_dly(self.num_bins)
@@ -278,9 +277,6 @@ class radio_process(gr.top_block):
         self.blocks_multiply_const_vxx_0_0_0_0.set_k(
             self.custom_window[0 : self.num_bins]
         )
-        self.blocks_tags_strobe_0.set_nsamps(
-            min(self.num_bins * 64, self.num_bins * self.num_integrations)
-        )
         self.blocks_tags_strobe_0_0.set_value(
             pmt.to_pmt(
                 {
@@ -300,9 +296,6 @@ class radio_process(gr.top_block):
                     "bsw": self.beam_switch,
                 }
             )
-        )
-        self.blocks_tags_strobe_0_0.set_nsamps(
-            min(self.num_bins * 64, self.num_bins * self.num_integrations)
         )
 
     def get_num_integrations(self):
@@ -310,13 +303,8 @@ class radio_process(gr.top_block):
 
     def set_num_integrations(self, num_integrations):
         self.num_integrations = num_integrations
-        self.add_clock_tags.nsamps = min(
-            self.num_bins * 64, self.num_bins * self.num_integrations
-        )
+        self.set_tag_period(self.num_bins * self.num_integrations)
         self.blocks_multiply_const_xx_0.set_k(1.0 / float(self.num_integrations))
-        self.blocks_tags_strobe_0.set_nsamps(
-            min(self.num_bins * 64, self.num_bins * self.num_integrations)
-        )
         self.blocks_tags_strobe_0_0.set_value(
             pmt.to_pmt(
                 {
@@ -336,9 +324,6 @@ class radio_process(gr.top_block):
                     "bsw": self.beam_switch,
                 }
             )
-        )
-        self.blocks_tags_strobe_0_0.set_nsamps(
-            min(self.num_bins * 64, self.num_bins * self.num_integrations)
         )
 
     def get_sinc_sample_locations(self):
@@ -444,6 +429,15 @@ class radio_process(gr.top_block):
                 }
             )
         )
+
+    def get_tag_period(self):
+        return self.tag_period
+
+    def set_tag_period(self, tag_period):
+        self.tag_period = tag_period
+        self.add_clock_tags.nsamps = self.tag_period
+        self.blocks_tags_strobe_0.set_nsamps(self.tag_period)
+        self.blocks_tags_strobe_0_0.set_nsamps(self.tag_period)
 
     def get_soutrack(self):
         return self.soutrack

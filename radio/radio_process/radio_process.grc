@@ -1,7 +1,6 @@
 options:
   parameters:
     author: ''
-    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -217,7 +216,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: min(num_bins*64, num_bins*num_integrations)
+    value: num_bins*num_integrations
   states:
     bus_sink: false
     bus_source: false
@@ -1182,7 +1181,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: complex
@@ -1202,7 +1200,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: complex
@@ -1222,7 +1219,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: float
@@ -1242,7 +1238,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: float
@@ -1262,7 +1257,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: float
@@ -1282,7 +1276,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: float
