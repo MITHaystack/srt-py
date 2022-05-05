@@ -6,7 +6,7 @@ from datetime import datetime
 import numpy as np
 
 
-def read(filename):
+def read_radfile(filename):
     """Read in a rad file.py
 
     Parameters
