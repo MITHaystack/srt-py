@@ -76,3 +76,83 @@ def get_spectrum(port=5561):
         return None
 
     return var
+
+
+def sinc_interp2d(x, y, values, dx, dy, xout, yout):
+    """Perform a sinc interpolation
+
+    Parameters
+    ----------
+    x : array_like
+        A 1-d array of x values.
+    y : array_like
+        A 1-d array of y values.
+    values : array_like
+        A 1-d array of values that will be interpolated.
+    dx : float
+        Sampling rate along the x axis.
+    dy : float
+        Sampling rate along the y axis.
+    xout : array_like
+        2-d array for x axis sampling.
+    yout : array_like
+        2-d array for y axis sampling.
+
+    Returns
+    -------
+    val_out : array_like
+        2-d array for of the values at the new sampling sampling.
+    """
+
+    val_out = np.zeros_like(xout)
+
+    for x_c, y_c, v_c in zip(x, y, values):
+        x_1 = (xout - x_c) / dx
+        y_1 = (yout - y_c) / dy
+        val_out += float(v_c) * np.sinc(x_1) * np.sinc(y_1)
+
+    return val_out
+
+
+def npoint_interp(az, el, val, d_az, d_el, nout=100):
+    """Interpolate the result of the npoint scan on to a grid.
+
+    Parameters
+    ----------
+    az : array_like
+        A 1-d array of az values.
+    el : array_like
+        A 1-d array of el values.
+    val : array_like
+        A 1-d array of values that will be interpolated.
+    d_az : float
+        Sampling rate along the az axis.
+    d_el : float
+        Sampling rate along the el axis.
+    nout : int
+        Number of samples per axis.
+
+    Returns
+    -------
+    azarr : array_like
+        2-d array for az axis sampling.
+    elarr : array_like
+        2-d array for el axis sampling.
+    val_out : array_like
+        2-d array for of the values at the new sampling sampling.
+    """
+
+    azmin = np.nanmin(az)
+    azmax = np.nanmax(az)
+    azvec = np.linspace(azmin, azmax, nout)
+
+    elmin = np.nanmin(el)
+    elmax = np.nanmax(el)
+    elvec = np.linspace(elmin, elmax, nout)
+    azarr, elarr = np.meshgrid(azvec, elvec, indexing="xy")
+
+    val_out = sinc_interp2d(
+        az, el, val, d_az, d_el, azarr.astype(float), elarr.astype(float)
+    )
+
+    return azarr, elarr, val_out

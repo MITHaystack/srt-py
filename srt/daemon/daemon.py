@@ -170,17 +170,19 @@ class SmallRadioTelescopeDaemon:
         N_pnt_default = 25
         rotor_loc = []
         pwr_list = []
+        #
+        scan_center = self.ephemeris_locations[object_id]
         for scan in range(N_pnt_default):
             self.log_message("{0} of {1} point scan.".format(scan, N_pnt_default))
-            new_rotor_destination = self.ephemeris_locations[object_id]
             i = (scan // 5) - 2
             j = (scan % 5) - 2
             el_dif = i * self.beamwidth * 0.5
-            az_dif_scalar = np.cos((new_rotor_destination[1] + el_dif) * np.pi / 180.0)
+            az_dif_scalar = np.cos((scan_center[1] + el_dif) * np.pi / 180.0)
             az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
             new_rotor_offsets = (az_dif, el_dif)
-            if self.rotor.angles_within_bounds(*new_rotor_destination):
-                self.rotor_destination = new_rotor_destination
+            
+            if self.rotor.angles_within_bounds(*scan_center):
+                self.rotor_destination = scan_center
                 self.point_at_offset(*new_rotor_offsets)
             rotor_loc.append(self.rotor_location)
             sleep(5)
@@ -189,9 +191,8 @@ class SmallRadioTelescopeDaemon:
             a = len(raw_spec)
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
-        center = self.ephemeris_locations[object_id]
         maxdiff = (az_dif, el_dif)
-        self.plot_data = [center, maxdiff, rotor_loc, pwr_list]
+        self.plot_data = [scan_center, maxdiff, rotor_loc, pwr_list]
 
         # add code to collect spectrum data.
         self.rotor_offsets = (0.0, 0.0)
