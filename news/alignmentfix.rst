@@ -7,7 +7,7 @@
 * Changed radio_process.grc in the radio directory
 * Generated radio_process.py from the grc file and placed in the daemon directory
 * Adjusted behavior of npoint scan to have single center point during scan.
-* Moved readrad.py to utils folder within main srt folder
+* Moved readrad.py to postprocessing folder within main srt folder
 
 **Deprecated:**
 
