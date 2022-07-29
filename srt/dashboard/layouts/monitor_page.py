@@ -56,6 +56,35 @@ def generate_first_row():
     )
 
 
+def generate_fig_row():
+    """Generates First Row (Power and Spectrum) Display
+
+    Returns
+    -------
+    Div Containing First Row Objects
+    """
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        [dcc.Graph(id="npoint-graph")],
+                        className="pretty_container six columns",
+                    ),
+                    html.Div(
+                        [dcc.Graph(id="beamsswitch-graph")],
+                        className="pretty_container six columns",
+                    ),
+                ],
+                className="flex-display",
+                style={
+                    "justify-content": "center",
+                    "margin": "5px",
+                },
+            ),
+        ]
+    )
+
 def generate_popups():
     """Generates all 'Pop-up' Modal Components
 
@@ -380,7 +409,8 @@ def generate_layout():
 
     Returns
     -------
-    Monitor Page Layout
+    layout: html.div
+        Monitor Page Layout
     """
     drop_down_buttons = {
         "Antenna": [
@@ -417,6 +447,7 @@ def generate_layout():
                 className="flex-display",
                 style={"margin": dict(l=10, r=5, t=5, b=5)},
             ),
+            generate_fig_row(),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
         ]
@@ -490,6 +521,15 @@ def register_callbacks(
         if spectrum_history is None:
             return ""
         return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history)
+
+    @app.callback(
+    Output("graph-num-0","figure"),[Input("interval-component", "n_intervals")]
+    )
+    def update_n_point(n):
+        status = status_thread.get_status()
+        print('Make it')
+        if status is None:
+            return ""
 
     @app.callback(
         Output("start-warning", "children"),

@@ -30,6 +30,8 @@ requirements:
     - yamale
     - dash
     - dash-bootstrap-components
+    - dash-html-components
+    - dash-core-components
     - plotly
     - pandas
     - waitress
@@ -39,4 +41,3 @@ test:
     - pytest
   imports:
     - srt
-

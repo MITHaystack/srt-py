@@ -136,7 +136,8 @@ class SmallRadioTelescopeDaemon:
         self.keep_running = True
 
         # List for data that will be plotted in the app
-        self.plot_data = []
+        self.n_point_data = []
+        self.beam_switch_data = []
 
     def log_message(self, message):
         """Writes Contents to a Logging List and Prints
@@ -180,7 +181,7 @@ class SmallRadioTelescopeDaemon:
             az_dif_scalar = np.cos((scan_center[1] + el_dif) * np.pi / 180.0)
             az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
             new_rotor_offsets = (az_dif, el_dif)
-            
+
             if self.rotor.angles_within_bounds(*scan_center):
                 self.rotor_destination = scan_center
                 self.point_at_offset(*new_rotor_offsets)
@@ -192,7 +193,7 @@ class SmallRadioTelescopeDaemon:
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
         maxdiff = (az_dif, el_dif)
-        self.plot_data = [scan_center, maxdiff, rotor_loc, pwr_list]
+        self.n_point_data = [scan_center, maxdiff, rotor_loc, pwr_list]
 
         # add code to collect spectrum data.
         self.rotor_offsets = (0.0, 0.0)
@@ -213,6 +214,8 @@ class SmallRadioTelescopeDaemon:
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
         new_rotor_destination = self.ephemeris_locations[object_id]
+        rotor_loc = []
+        pwr_list = []
         for j in range(0, 3 * self.num_beamswitches):
             self.radio_queue.put(("beam_switch", j + 1))
             az_dif_scalar = np.cos(new_rotor_destination[1] * np.pi / 180.0)
@@ -221,10 +224,17 @@ class SmallRadioTelescopeDaemon:
             if self.rotor.angles_within_bounds(*new_rotor_destination):
                 self.rotor_destination = new_rotor_destination
                 self.point_at_offset(*new_rotor_offsets)
+            rotor_loc.append(self.rotor_location)
             sleep(5)
+            raw_spec = get_spectrum(port=5561)
+            p = np.sum(raw_spec)
+            a = len(raw_spec)
+            pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
+            pwr_list.append(pwr)
         self.rotor_offsets = (0.0, 0.0)
         self.radio_queue.put(("beam_switch", 0))
         self.ephemeris_cmd_location = object_id
+        self.beam_switch_data = [rotor_loc,pwr_list]
 
     def point_at_object(self, object_id):
         """Points Antenna Directly at Object, and Sets Up Tracking to Follow it
@@ -574,7 +584,8 @@ class SmallRadioTelescopeDaemon:
                 "temp_cal": self.temp_cal,
                 "temp_sys": self.temp_sys,
                 "cal_power": self.cal_power,
-                "plot_data": self.plot_data,
+                "n_point_data": self.n_point_data,
+                "beam_switch_data": self.beam_switch_data,
                 "time": time(),
             }
             status_socket.send_json(status)

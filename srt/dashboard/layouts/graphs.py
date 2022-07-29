@@ -329,3 +329,39 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
     if is_spec_cal:
         fig.update_yaxes(range=[min(spectrum), max(spectrum)])
     return fig
+
+
+def sinc_interp2d(x, y, values, dx, dy, xout, yout):
+    """Perform a sinc interpolation
+
+    Parameters
+    ----------
+    x : array_like
+        A 1-d array of x values.
+    y : array_like
+        A 1-d array of y values.
+    values : array_like
+        A 1-d array of values that will be interpolated.
+    dx : float
+        Sampling rate along the x axis.
+    dy : float
+        Sampling rate along the y axis.
+    xout : array_like
+        2-d array for x axis sampling.
+    yout : array_like
+        2-d array for y axis sampling.
+
+    Returns
+    -------
+    val_out : array_like
+        2-d array for of the values at the new sampling sampling.
+    """
+
+    val_out = np.zeros_like(xout)
+
+    for x_c, y_c, v_c in zip(x, y, values):
+        x_1 = (xout - x_c) / dx
+        y_1 = (yout - y_c) / dy
+        val_out += float(v_c) * np.sinc(x_1) * np.sinc(y_1)
+
+    return val_out
