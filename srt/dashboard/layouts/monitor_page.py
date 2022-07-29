@@ -14,12 +14,14 @@ from pathlib import Path
 from time import time
 import base64
 import io
+import numpy as np
 
 from .navbar import generate_navbar
 from .graphs import (
     generate_az_el_graph,
     generate_power_history_graph,
     generate_spectrum_graph,
+    generate_npoint,
 )
 
 
@@ -525,11 +527,31 @@ def register_callbacks(
     @app.callback(
     Output("graph-num-0","figure"),[Input("interval-component", "n_intervals")]
     )
-    def update_n_point(n):
+    def update_n_point(n,fig):
+
         status = status_thread.get_status()
         print('Make it')
         if status is None:
             return ""
+        data = status['n_point_data']
+        if fig['data']:
+            xdata =  fig['data'][0]['x']
+        else:
+            xdata = np.array([])
+
+        if data:
+
+            scan_center, maxdiff, rotor_loc, pwr_list = data
+            az_a = []
+            el_a  = []
+            for irot in rotor_loc:
+                az_a.append(irot[0])
+                el_a.append(irot[1])
+            # Check if the graph needs updating otherwise just return the figure.
+            if np.array_equal(xdata,np.arange(az_a.min(),az_a.max(),100)):
+                return fig
+
+            return generate_npoint(az_a,el_a,maxdiff[0],maxdiff[1],pwr_list,scan_center)
 
     @app.callback(
         Output("start-warning", "children"),
