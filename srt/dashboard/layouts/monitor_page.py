@@ -543,8 +543,9 @@ def register_callbacks(
 
         status = status_thread.get_status()
         ofig = emptygraph( "Azmuth (Degrees)","Elevation (Degrees)", "N-Point Scan")
+
         if status is None:
-            return ofig
+            return ""
 
         data = status['n_point_data']
 
@@ -564,8 +565,9 @@ def register_callbacks(
                 return fig
             ofig = generate_npoint(az_a, el_a, maxdiff[0], maxdiff[1], pwr_list, scan_center)
 
-        return ofig
-
+            return ofig
+        else:
+            return ""
     @app.callback(
         Output("start-warning", "children"),
         [Input("interval-component", "n_intervals")],
