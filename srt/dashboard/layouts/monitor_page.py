@@ -7,14 +7,14 @@ Function for Generating Monitor Page and Creating Callback
 import dash
 try:
     from dash import dcc
-except ModuleNotFoundError:
+except:
     import dash_core_components as dcc
 
 import dash_bootstrap_components as dbc
 
 try:
     from dash import html
-except ModuleNotFoundError:
+except:
     import dash_html_components as html
 
 from dash.dependencies import Input, Output, State

@@ -5,7 +5,7 @@ Functions to Generate Sidebar
 """
 try:
     from dash import html
-except ModuleNotFoundError:
+except:
     import dash_html_components as html
 
 import dash_bootstrap_components as dbc
