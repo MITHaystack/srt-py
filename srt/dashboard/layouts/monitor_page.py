@@ -536,10 +536,10 @@ def register_callbacks(
 
     @app.callback(
         Output("npoint-graph","figure"),
-        [Input("interval-component", "n_intervals"),
-        Input("npoint-graph","figure")]
+        [Input("interval-component", "n_intervals")]
+#        Input("npoint-graph","figure")]
     )
-    def update_n_point(n,fig):
+    def update_n_point(n):
 
         status = status_thread.get_status()
         ofig = emptygraph( "Azmuth (Degrees)","Elevation (Degrees)", "N-Point Scan")
@@ -550,10 +550,10 @@ def register_callbacks(
         data = status['n_point_data']
 
         if data:
-            if fig['data']:
-                xdata =  fig['data'][0]['x']
-            else:
-                xdata = np.array([])
+            # if fig['data']:
+            #     xdata =  fig['data'][0]['x']
+            # else:
+            #     xdata = np.array([])
             scan_center, maxdiff, rotor_loc, pwr_list = data
             az_a = []
             el_a  = []
@@ -561,13 +561,15 @@ def register_callbacks(
                 az_a.append(irot[0])
                 el_a.append(irot[1])
             # Check if the graph needs updating otherwise just return the figure.
-            if np.array_equal(xdata,np.arange(az_a.min(),az_a.max(),100)):
-                return fig
+            # if np.array_equal(xdata,np.arange(az_a.min(),az_a.max(),100)):
+            #     return fig
             ofig = generate_npoint(az_a, el_a, maxdiff[0], maxdiff[1], pwr_list, scan_center)
 
             return ofig
         else:
             return ""
+
+
     @app.callback(
         Output("start-warning", "children"),
         [Input("interval-component", "n_intervals")],
