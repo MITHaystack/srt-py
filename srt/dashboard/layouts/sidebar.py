@@ -3,10 +3,10 @@
 Functions to Generate Sidebar
 
 """
-try:
-    from dash import html
-except:
-    import dash_html_components as html
+# try:
+#     from dash import html
+# except:
+import dash_html_components as html
 
 import dash_bootstrap_components as dbc
 
