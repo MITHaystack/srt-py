@@ -357,6 +357,7 @@ def emptygraph(xlabel,ylabel,title):
         )
 
     return fig
+
 def generate_npoint(az_in,el_in,d_az,d_el,pow_in,cent):
     """Creates the n-point graph image.
 
@@ -383,6 +384,8 @@ def generate_npoint(az_in,el_in,d_az,d_el,pow_in,cent):
 
 
     # create the output grid
+    az_in = np.array(az_in)
+    el_in = np.array(el_in)
     az_a = np.linspace(az_in.min(),az_in.max(),100)
     el_a = np.linspace(el_in.min(),el_in.max(),100)
 
@@ -398,12 +401,12 @@ def generate_npoint(az_in,el_in,d_az,d_el,pow_in,cent):
     el_center = np.sum(np.sum(interp_data*elout))/pow_tot
     az_off = az_center - cent[0]
     el_off = el_center - cent[1]
-    ov_text = "Az Center {0} deg\nEl Center {1}".format(az_off,el_off)
+    ov_text = "Az Center {0} deg<br.El Center {1}".format(az_off,el_off)
     #Make the contour plot
     d1 = go.Contour(
         z=interp_data,
-        x=xa,
-        y=ya,
+        x=az_a,
+        y=el_a,
         colorscale='Viridis',
         contours_coloring='heatmap'
         )
@@ -415,16 +418,17 @@ def generate_npoint(az_in,el_in,d_az,d_el,pow_in,cent):
             "yaxis_title": "Elevation (Degrees)"
             }
         )
-    fig.add_annotation(x=az_a[10], y=el_a[10],
+    fig.add_annotation(x=az_a[10], y=el_a[20],
         text=ov_text,
         showarrow=False,
         font=dict(
             family="Courier New, monospace",
-            size=16,
+            size=15,
             color="#ffffff"
             ),
         )
     return fig
+
 def sinc_interp2d(x, y, values, dx, dy, xout, yout):
     """Perform a sinc interpolation
 
