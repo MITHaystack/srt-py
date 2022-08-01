@@ -5,8 +5,16 @@ Dash Small Radio Telescope Web App Dashboard
 """
 
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
+try:
+    from dash import dcc
+except ModuleNotFoundError:
+    import dash_core_components as dcc
+
+try:
+    from dash import html
+except ModuleNotFoundError:
+    import dash_html_components as html
+    
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State, ClientsideFunction
 

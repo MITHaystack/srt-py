@@ -330,21 +330,76 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
         fig.update_yaxes(range=[min(spectrum), max(spectrum)])
     return fig
 
+def emptygraph(xlabel,ylabel,title):
+    """Creates an empty figure.
+
+    Parameters
+    ----------
+    xlabel : str
+        String for xlabel.
+    ylabel : str
+        String for ylabel.
+    title : str
+        String for title.
+
+    Returns
+    -------
+    fig : plotly.fig
+        Figure object.
+    """
+
+    fig = go.Figure(
+        layout={
+            "title": title,
+            "xaxis_title": xlabel,
+            "yaxis_title": ylabel
+            }
+        )
+
+    return fig
 def generate_npoint(az_in,el_in,d_az,d_el,pow_in,cent):
-    """ """
+    """Creates the n-point graph image.
+
+    Parameters
+    ----------
+    az_in : array_like
+        List of azimuth locations.
+    el_in : array_like
+        List of elevation locations.
+    d_az : float
+        Resolution of power measurements in the azimuth direction.
+    d_el : float
+        REsolution of power measurements in elevation direction.
+    pow_in : array_like
+        List of power measurements for the given locations of the antenna.
+    cent : array_like
+        Center point of the object being imaged.
+
+    Returns
+    -------
+    fig : plotly.fig
+        Figure object.
+    """
 
 
+    # create the output grid
     az_a = np.linspace(az_in.min(),az_in.max(),100)
     el_a = np.linspace(el_in.min(),el_in.max(),100)
+
+
+
     azout,elout = np.meshgrid(az_a,el_a)
 
+    #Interpolate the data
     interp_data = sinc_interp2d(az_in,el_in,pow_in,d_az,d_el,azout,elout)
+    # Determine center of the object and compare to desired center.
     pow_tot = np.sum(np.sum(interp_data))
     az_center = np.sum(np.sum(interp_data*azout))/pow_tot
     el_center = np.sum(np.sum(interp_data*elout))/pow_tot
     az_off = az_center - cent[0]
     el_off = el_center - cent[1]
     ov_text = "Az Center {0} deg\nEl Center {1}".format(az_off,el_off)
+    #Make the contour plot
     d1 = go.Contour(
         z=interp_data,
         x=xa,

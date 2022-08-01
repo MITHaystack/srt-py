@@ -4,8 +4,16 @@ Function for Generating System Page and Creating Callback
 
 """
 
-import dash_core_components as dcc
-import dash_html_components as html
+try:
+    from dash import dcc
+except ModuleNotFoundError:
+    import dash_core_components as dcc
+
+try:
+    from dash import html
+except ModuleNotFoundError:
+    import dash_html_components as html
+
 from dash.dependencies import Input, Output, State
 
 from urllib.parse import quote as urlquote

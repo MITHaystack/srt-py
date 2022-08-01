@@ -5,9 +5,18 @@ Function for Generating Monitor Page and Creating Callback
 """
 
 import dash
-import dash_core_components as dcc
+try:
+    from dash import dcc
+except ModuleNotFoundError:
+    import dash_core_components as dcc
+
 import dash_bootstrap_components as dbc
-import dash_html_components as html
+
+try:
+    from dash import html
+except ModuleNotFoundError:
+    import dash_html_components as html
+
 from dash.dependencies import Input, Output, State
 
 from pathlib import Path
@@ -22,6 +31,7 @@ from .graphs import (
     generate_power_history_graph,
     generate_spectrum_graph,
     generate_npoint,
+    emptygraph
 )
 
 
@@ -73,14 +83,14 @@ def generate_fig_row():
                         [dcc.Graph(id="npoint-graph")],
                         className="pretty_container six columns",
                     ),
-                    html.Div(
-                        [dcc.Graph(id="beamsswitch-graph")],
-                        className="pretty_container six columns",
-                    ),
+                    # html.Div(
+                    #     [dcc.Graph(id="beamsswitch-graph")],
+                    #     className="pretty_container six columns",
+                    # ),
                 ],
                 className="flex-display",
                 style={
-                    "justify-content": "center",
+                    "justify-content": "left",
                     "margin": "5px",
                 },
             ),
@@ -525,22 +535,24 @@ def register_callbacks(
         return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history)
 
     @app.callback(
-    Output("graph-num-0","figure"),[Input("interval-component", "n_intervals")]
+        Output("npoint-graph","figure"),
+        [Input("interval-component", "n_intervals"),
+        Input("npoint-graph","figure")]
     )
     def update_n_point(n,fig):
 
         status = status_thread.get_status()
-        print('Make it')
+        ofig = emptygraph( "Azmuth (Degrees)","Elevation (Degrees)", "N-Point Scan")
         if status is None:
-            return ""
+            return ofig
+
         data = status['n_point_data']
-        if fig['data']:
-            xdata =  fig['data'][0]['x']
-        else:
-            xdata = np.array([])
 
         if data:
-
+            if fig['data']:
+                xdata =  fig['data'][0]['x']
+            else:
+                xdata = np.array([])
             scan_center, maxdiff, rotor_loc, pwr_list = data
             az_a = []
             el_a  = []
@@ -550,8 +562,9 @@ def register_callbacks(
             # Check if the graph needs updating otherwise just return the figure.
             if np.array_equal(xdata,np.arange(az_a.min(),az_a.max(),100)):
                 return fig
+            ofig = generate_npoint(az_a, el_a, maxdiff[0], maxdiff[1], pwr_list, scan_center)
 
-            return generate_npoint(az_a,el_a,maxdiff[0],maxdiff[1],pwr_list,scan_center)
+        return ofig
 
     @app.callback(
         Output("start-warning", "children"),
