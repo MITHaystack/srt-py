@@ -545,11 +545,11 @@ def register_callbacks(
         ofig = emptygraph( "Azmuth (Degrees)","Elevation (Degrees)", "N-Point Scan")
 
         if status is None:
-            return ""
-
+            return ofig
+        
         data = status['n_point_data']
-
         if data:
+            
             # if fig['data']:
             #     xdata =  fig['data'][0]['x']
             # else:
@@ -567,7 +567,7 @@ def register_callbacks(
 
             return ofig
         else:
-            return ""
+            return ofig
 
 
     @app.callback(
