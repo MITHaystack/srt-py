@@ -82,7 +82,7 @@ def generate_fig_row():
         [
             html.Div(
                 [
-                    dcc.Store(id="npoint_info", storage_type="local"),
+                    dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
                         [dcc.Graph(id="npoint-graph")],
                         className="pretty_container six columns",
