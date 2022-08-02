@@ -396,10 +396,10 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent):
     el_center = np.sum(np.sum(interp_data * elout)) / pow_tot
     az_off = az_center - cent[0]
     el_off = el_center - cent[1]
-    ov_text = "Az Center {0} deg<br.El Center {1}".format(az_off, el_off)
+    ov_text = "Az Center {0} deg<br>El Center {1}".format(az_off, el_off)
     # Make the contour plot
     d1 = go.Contour(
-        z=interp_data, x=az_a, y=el_a, colorscale="Viridis", contours_coloring="heatmap"
+        z=interp_data, x=az_a, y=el_a, colorscale="Viridis"
     )
     fig = go.Figure(
         data=d1,
@@ -414,7 +414,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent):
         y=el_a[20],
         text=ov_text,
         showarrow=False,
-        font=dict(family="Courier New, monospace", size=15, color="#ffffff"),
+        font=dict(family="Courier New, monospace", size=14, color="#ffffff"),
     )
     return fig
 
