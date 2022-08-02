@@ -568,7 +568,7 @@ def register_callbacks(
 
         data = status["n_point_data"]
         if data:
-            scan_center, maxdiff, rotor_loc, pwr_list = data
+            scan_center, maxdiff, rotor_loc, pwr_list, npsides = data
             c_azn, c_eln = scan_center
             c_az, c_el = npdata["scan_center"]
             if c_azn == c_az and c_eln == c_el:
@@ -578,6 +578,7 @@ def register_callbacks(
                 npdata["maxdiff"] = maxdiff
                 npdata["rotor_loc"] = rotor_loc
                 npdata["pwr"] = pwr_list
+                npdata['sides'] = npsides
                 return npdata
         else:
             raise PreventUpdate
@@ -619,7 +620,8 @@ def register_callbacks(
         mdiff = npdata["maxdiff"]
         sc = npdata["scan_center"]
         plist = npdata["pwr"]
-        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc)
+        sd = npdata['sides']
+        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc,sd)
         return ofig
 
     @app.callback(

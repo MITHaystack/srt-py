@@ -356,7 +356,7 @@ def emptygraph(xlabel, ylabel, title):
     return fig
 
 
-def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent):
+def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent,sides):
     """Creates the n-point graph image.
 
     Parameters
@@ -373,6 +373,8 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent):
         List of power measurements for the given locations of the antenna.
     cent : array_like
         Center point of the object being imaged.
+    sides : list
+        Number of pointers per side.
 
     Returns
     -------
@@ -387,16 +389,25 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent):
     el_a = np.linspace(el_in.min(), el_in.max(), 100)
 
     azout, elout = np.meshgrid(az_a, el_a)
-
+    pow_in = np.array(pow_in)
+    pmin = pow_in.min()
+    p_in = pow_in-pmin
+    x_l = np.linspace(-.5,.5,sides[0])
+    y_l = np.linspace(-.5,.5,sides[1])
+    xm, ym = np.meshgrid(x_l,y_l)
+    xf = xm.flatten()
+    yf = ym.flatten()
+    xaout = np.linspace(-.5,.5,100)
+    xo, yo = np.meshgrid(xaout,xaout)
     # Interpolate the data
-    interp_data = sinc_interp2d(az_in, el_in, pow_in, d_az, d_el, azout, elout)
+    interp_data = sinc_interp2d(xf, yf, p_in, d_az, d_el, xo, yo)
     # Determine center of the object and compare to desired center.
     pow_tot = np.sum(np.sum(interp_data))
     az_center = np.sum(np.sum(interp_data * azout)) / pow_tot
     el_center = np.sum(np.sum(interp_data * elout)) / pow_tot
     az_off = az_center - cent[0]
     el_off = el_center - cent[1]
-    ov_text = "Az Center {0:.2f} deg<br>El Center {1:.2f}".format(az_off, el_off)
+    ov_text = "Az Center {0:.2f} deg<br/>El Center {1:.2f}".format(az_off, el_off)
     # Make the contour plot
     d1 = go.Contour(
         z=interp_data, x=az_a, y=el_a, colorscale="Viridis"
