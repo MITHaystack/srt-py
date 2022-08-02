@@ -584,8 +584,8 @@ def register_callbacks(
 
     @app.callback(
         Output("npoint-graph", "figure"),
-        [Input("npoint_info", "modified_timestamp"),
-        State("npoint_info", "data")],
+        [Input("npoint_info", "modified_timestamp")],
+        [State("npoint_info", "data")],
     )
     def update_n_point(ts, npdata):
         """Update the npoint track info
