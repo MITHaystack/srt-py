@@ -330,7 +330,8 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
         fig.update_yaxes(range=[min(spectrum), max(spectrum)])
     return fig
 
-def emptygraph(xlabel,ylabel,title):
+
+def emptygraph(xlabel, ylabel, title):
     """Creates an empty figure.
 
     Parameters
@@ -349,16 +350,13 @@ def emptygraph(xlabel,ylabel,title):
     """
 
     fig = go.Figure(
-        layout={
-            "title": title,
-            "xaxis_title": xlabel,
-            "yaxis_title": ylabel
-            }
-        )
+        layout={"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel}
+    )
 
     return fig
 
-def generate_npoint(az_in,el_in,d_az,d_el,pow_in,cent):
+
+def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent):
     """Creates the n-point graph image.
 
     Parameters
@@ -382,52 +380,44 @@ def generate_npoint(az_in,el_in,d_az,d_el,pow_in,cent):
         Figure object.
     """
 
-
     # create the output grid
     az_in = np.array(az_in)
     el_in = np.array(el_in)
-    az_a = np.linspace(az_in.min(),az_in.max(),100)
-    el_a = np.linspace(el_in.min(),el_in.max(),100)
+    az_a = np.linspace(az_in.min(), az_in.max(), 100)
+    el_a = np.linspace(el_in.min(), el_in.max(), 100)
 
+    azout, elout = np.meshgrid(az_a, el_a)
 
-
-    azout,elout = np.meshgrid(az_a,el_a)
-
-    #Interpolate the data
-    interp_data = sinc_interp2d(az_in,el_in,pow_in,d_az,d_el,azout,elout)
+    # Interpolate the data
+    interp_data = sinc_interp2d(az_in, el_in, pow_in, d_az, d_el, azout, elout)
     # Determine center of the object and compare to desired center.
     pow_tot = np.sum(np.sum(interp_data))
-    az_center = np.sum(np.sum(interp_data*azout))/pow_tot
-    el_center = np.sum(np.sum(interp_data*elout))/pow_tot
+    az_center = np.sum(np.sum(interp_data * azout)) / pow_tot
+    el_center = np.sum(np.sum(interp_data * elout)) / pow_tot
     az_off = az_center - cent[0]
     el_off = el_center - cent[1]
-    ov_text = "Az Center {0} deg<br.El Center {1}".format(az_off,el_off)
-    #Make the contour plot
+    ov_text = "Az Center {0} deg<br.El Center {1}".format(az_off, el_off)
+    # Make the contour plot
     d1 = go.Contour(
-        z=interp_data,
-        x=az_a,
-        y=el_a,
-        colorscale='Viridis',
-        contours_coloring='heatmap'
-        )
+        z=interp_data, x=az_a, y=el_a, colorscale="Viridis", contours_coloring="heatmap"
+    )
     fig = go.Figure(
         data=d1,
         layout={
             "title": "N-Point Scan",
             "xaxis_title": "Azmuth (Degrees)",
-            "yaxis_title": "Elevation (Degrees)"
-            }
-        )
-    fig.add_annotation(x=az_a[10], y=el_a[20],
+            "yaxis_title": "Elevation (Degrees)",
+        },
+    )
+    fig.add_annotation(
+        x=az_a[10],
+        y=el_a[20],
         text=ov_text,
         showarrow=False,
-        font=dict(
-            family="Courier New, monospace",
-            size=15,
-            color="#ffffff"
-            ),
-        )
+        font=dict(family="Courier New, monospace", size=15, color="#ffffff"),
+    )
     return fig
+
 
 def sinc_interp2d(x, y, values, dx, dy, xout, yout):
     """Perform a sinc interpolation

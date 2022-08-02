@@ -5,17 +5,20 @@ Function for Generating Monitor Page and Creating Callback
 """
 
 import dash
-# try:
-#     from dash import dcc
-# except:
-import dash_core_components as dcc
+
+try:
+    from dash import dcc
+except:
+    import dash_core_components as dcc
 
 import dash_bootstrap_components as dbc
 
-# try:
-#     from dash import html
-# except:
-import dash_html_components as html
+try:
+    from dash import html
+except:
+    import dash_html_components as html
+
+from dash.exceptions import PreventUpdate
 
 from dash.dependencies import Input, Output, State
 
@@ -31,7 +34,7 @@ from .graphs import (
     generate_power_history_graph,
     generate_spectrum_graph,
     generate_npoint,
-    emptygraph
+    emptygraph,
 )
 
 
@@ -79,6 +82,7 @@ def generate_fig_row():
         [
             html.Div(
                 [
+                    dcc.Store(id="npoint_info", storage_type="local"),
                     html.Div(
                         [dcc.Graph(id="npoint-graph")],
                         className="pretty_container six columns",
@@ -96,6 +100,7 @@ def generate_fig_row():
             ),
         ]
     )
+
 
 def generate_popups():
     """Generates all 'Pop-up' Modal Components
@@ -129,14 +134,14 @@ def generate_popups():
                                 "Yes",
                                 id="az-el-graph-btn-yes",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="az-el-graph-btn-no",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="secondary",
                             ),
                         ]
@@ -169,14 +174,14 @@ def generate_popups():
                                 "Yes",
                                 id="point-btn-yes",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="point-btn-no",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="secondary",
                             ),
                         ]
@@ -204,14 +209,14 @@ def generate_popups():
                                 "Yes",
                                 id="freq-btn-yes",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="freq-btn-no",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="secondary",
                             ),
                         ]
@@ -239,14 +244,14 @@ def generate_popups():
                                 "Yes",
                                 id="samp-btn-yes",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="samp-btn-no",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="secondary",
                             ),
                         ]
@@ -279,14 +284,14 @@ def generate_popups():
                                 "Yes",
                                 id="offset-btn-yes",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="offset-btn-no",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="secondary",
                             ),
                         ]
@@ -323,14 +328,14 @@ def generate_popups():
                                 "Yes",
                                 id="record-btn-yes",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="record-btn-no",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="secondary",
                             ),
                         ]
@@ -397,14 +402,14 @@ def generate_popups():
                                 "Yes",
                                 id="start-btn-yes",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="start-btn-no",
                                 className="ml-auto",
-                                #block=True,
+                                # block=True,
                                 color="secondary",
                             ),
                         ]
@@ -535,40 +540,87 @@ def register_callbacks(
         return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history)
 
     @app.callback(
-        Output("npoint-graph","figure"),
-        [Input("interval-component", "n_intervals"),
-        Input("npoint-graph","figure")]
+        Output("npoint_info", "data"),
+        Input("interval-component", "n_intervals"),
+        State("npoint_info", "data"),
     )
-    def update_n_point(n, fig):
+    def npointstore(n, npdata):
+        """Update the npoint track info
 
+        Parameters
+        ----------
+        n : int
+            number of Update intervals
+        npdata : dict
+            will hold N- point data.
+
+        Returns
+        -------
+        npdata : dict
+            Updated data for the N point scan plot.
+        """
+        if npdata is None:
+            return {"scan_center": (0, 0)}
         status = status_thread.get_status()
-        ofig = emptygraph( "Azmuth (Degrees)","Elevation (Degrees)", "N-Point Scan")
 
         if status is None:
-            return ofig
-        
-        data = status['n_point_data']
+            return {"scan_center": (0, 0)}
+
+        data = status["n_point_data"]
         if data:
-            
-            if fig['data']:
-                xdata =  fig['data'][0]['x']
-            else:
-                xdata = np.array([])
             scan_center, maxdiff, rotor_loc, pwr_list = data
-            az_a = []
-            el_a  = []
-            for irot in rotor_loc:
-                az_a.append(irot[0])
-                el_a.append(irot[1])
-            # Check if the graph needs updating otherwise just return the figure.
-            if np.array_equal(xdata,np.arange(az_a.min(),az_a.max(),100)):
-                return fig
-            ofig = generate_npoint(az_a, el_a, maxdiff[0], maxdiff[1], pwr_list, scan_center)
-
-            return ofig
+            c_azn, c_eln = scan_center
+            c_az, c_el = npdata["scan_center"]
+            if c_azn == c_az and c_eln == c_el:
+                raise PreventUpdate
+            else:
+                npdata["scan_center"] = scan_center
+                npdata["maxdiff"] = maxdiff
+                npdata["rotor_loc"] = rotor_loc
+                npdata["pwr"] = pwr_list
+                return npdata
         else:
-            return ofig
+            raise PreventUpdate
 
+    @app.callback(
+        Output("npoint-graph", "figure"),
+        Input("npoint_info", "modified_timestamp"),
+        State("npoint_info", "data"),
+    )
+    def update_n_point(ts, npdata):
+        """Update the npoint track info
+
+        Parameters
+        ----------
+        ts : int
+            modified time stamp
+        npdata : dict
+            will hold N- point data.
+
+        Returns
+        -------
+        ofig : plotly.fig
+            Plotly figure
+        """
+
+        if ts is None:
+            raise PreventUpdate
+        if npdata is None:
+            return emptygraph("Azmuth (Degrees)", "Elevation (Degrees)", "N-Point Scan")
+
+        if npdata.get("scan_center", [1, 1])[0] == 0:
+            return emptygraph("Azmuth (Degrees)", "Elevation (Degrees)", "N-Point Scan")
+
+        az_a = []
+        el_a = []
+        for irot in npdata["rotor_loc"]:
+            az_a.append(irot[0])
+            el_a.append(irot[1])
+        mdiff = npdata["maxdiff"]
+        sc = npdata["scan_center"]
+        plist = npdata["pwr"]
+        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc)
+        return ofig
 
     @app.callback(
         Output("start-warning", "children"),

@@ -4,15 +4,15 @@ Function for Generating System Page and Creating Callback
 
 """
 
-# try:
-#     from dash import dcc
-# except:
-import dash_core_components as dcc
+try:
+    from dash import dcc
+except:
+    import dash_core_components as dcc
 
-# try:
-#     from dash import html
-# except:
-import dash_html_components as html
+try:
+    from dash import html
+except:
+    import dash_html_components as html
 
 from dash.dependencies import Input, Output, State
 
