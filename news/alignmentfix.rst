@@ -1,6 +1,7 @@
 **Added:**
 
 * Added npoint scan (sinc) interpolation to daemon/utilities/functions.py
+* Added npoint scan image to dashboard/layouts/graphs.py
 
 **Changed:**
 
@@ -19,7 +20,7 @@
 
 **Fixed:**
 
-* <news item>
+* Time alignment issues with spectrum and pointing direction.
 
 **Security:**
 
