@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="srt-py",
-    version=versioneer.get_version(),
+    version='1.0.0',
     cmdclass=versioneer.get_cmdclass(),
     author="MIT Haystack",
     author_email="srt@mit.edu",
