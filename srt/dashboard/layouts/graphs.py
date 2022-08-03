@@ -422,16 +422,16 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent,sides):
         },
     )
     fig.add_annotation(
-        x=az_a[10],
-        y=el_a[20],
+        x=xaout[10],
+        y=xaout[20],
         text=antext0,
         showarrow=False,
         font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
     )
 
     fig.add_annotation(
-        x=az_a[10],
-        y=el_a[10],
+        x=xaout[10],
+        y=xaout[10],
         text=antext1,
         showarrow=False,
         font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
