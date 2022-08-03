@@ -541,8 +541,7 @@ def register_callbacks(
 
     @app.callback(
         Output("npoint_info", "data"),
-        [Input("interval-component", "n_intervals"),
-        State("npoint_info", "data")],
+        [Input("interval-component", "n_intervals"), State("npoint_info", "data")],
     )
     def npointstore(n, npdata):
         """Update the npoint track info
@@ -578,7 +577,7 @@ def register_callbacks(
                 npdata["maxdiff"] = maxdiff
                 npdata["rotor_loc"] = rotor_loc
                 npdata["pwr"] = pwr_list
-                npdata['sides'] = npsides
+                npdata["sides"] = npsides
                 return npdata
         else:
             raise PreventUpdate
@@ -620,8 +619,8 @@ def register_callbacks(
         mdiff = npdata["maxdiff"]
         sc = npdata["scan_center"]
         plist = npdata["pwr"]
-        sd = npdata['sides']
-        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc,sd)
+        sd = npdata["sides"]
+        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc, sd)
         return ofig
 
     @app.callback(

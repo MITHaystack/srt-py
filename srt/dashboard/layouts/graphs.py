@@ -356,7 +356,7 @@ def emptygraph(xlabel, ylabel, title):
     return fig
 
 
-def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent,sides):
+def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     """Creates the n-point graph image.
 
     Parameters
@@ -391,14 +391,14 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent,sides):
     azout, elout = np.meshgrid(az_a, el_a)
     pow_in = np.array(pow_in)
     pmin = pow_in.min()
-    p_in = pow_in-pmin
-    x_l = np.linspace(-.5,.5,sides[0])
-    y_l = np.linspace(-.5,.5,sides[1])
-    xm, ym = np.meshgrid(x_l,y_l)
+    p_in = pow_in - pmin
+    x_l = np.linspace(-0.5, 0.5, sides[0])
+    y_l = np.linspace(-0.5, 0.5, sides[1])
+    xm, ym = np.meshgrid(x_l, y_l)
     xf = xm.flatten()
     yf = ym.flatten()
-    xaout = np.linspace(-.5,.5,100)
-    xo, yo = np.meshgrid(xaout,xaout)
+    xaout = np.linspace(-0.5, 0.5, 100)
+    xo, yo = np.meshgrid(xaout, xaout)
     # Interpolate the data
     interp_data = sinc_interp2d(xf, yf, p_in, d_az, d_el, xo, yo)
     # Determine center of the object and compare to desired center.
@@ -410,9 +410,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent,sides):
     antext0 = "Az Center {0:.2f} deg".format(az_off)
     antext1 = "El Center {0:.2f} deg".format(el_off)
     # Make the contour plot
-    d1 = go.Contour(
-        z=interp_data, x=xaout, y=xaout, colorscale="Viridis"
-    )
+    d1 = go.Contour(z=interp_data, x=xaout, y=xaout, colorscale="Viridis")
     fig = go.Figure(
         data=d1,
         layout={

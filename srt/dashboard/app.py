@@ -5,6 +5,7 @@ Dash Small Radio Telescope Web App Dashboard
 """
 
 import dash
+
 try:
     from dash import dcc
 except:
@@ -25,7 +26,7 @@ from time import time
 from pathlib import Path
 import base64
 
-from .layouts import monitor_page, system_page#, figure_page
+from .layouts import monitor_page, system_page  # , figure_page
 from .layouts.sidebar import generate_sidebar
 from .messaging.status_fetcher import StatusThread
 from .messaging.command_dispatcher import CommandThread
@@ -77,7 +78,7 @@ def generate_app(config_dir, config_dict):
     pages = {
         "Monitor Page": "monitor-page",
         "System Page": "system-page",
-    #    "Figure Page": "figure-page"
+        #    "Figure Page": "figure-page"
     }
     if "DASHBOARD_REFRESH_MS" in config_dict.keys():
         refresh_time = config_dict["DASHBOARD_REFRESH_MS"]  # ms
@@ -154,7 +155,7 @@ def generate_app(config_dir, config_dict):
             layout,
             monitor_page.generate_layout(),
             system_page.generate_layout(),
-        #    figure_page.generate_layout()
+            #    figure_page.generate_layout()
         ]
     )  # Necessary for Allowing Other Files to Create Callbacks
 

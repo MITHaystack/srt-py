@@ -173,7 +173,7 @@ class SmallRadioTelescopeDaemon:
         pwr_list = []
         #
         scan_center = self.ephemeris_locations[object_id]
-        np_sides = [5,5]
+        np_sides = [5, 5]
         for scan in range(N_pnt_default):
             self.log_message("{0} of {1} point scan.".format(scan, N_pnt_default))
             i = (scan // 5) - 2
@@ -194,7 +194,7 @@ class SmallRadioTelescopeDaemon:
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
         maxdiff = (az_dif, el_dif)
-        self.n_point_data = [scan_center, maxdiff, rotor_loc, pwr_list,np_sides]
+        self.n_point_data = [scan_center, maxdiff, rotor_loc, pwr_list, np_sides]
 
         # add code to collect spectrum data.
         self.rotor_offsets = (0.0, 0.0)
@@ -235,7 +235,7 @@ class SmallRadioTelescopeDaemon:
         self.rotor_offsets = (0.0, 0.0)
         self.radio_queue.put(("beam_switch", 0))
         self.ephemeris_cmd_location = object_id
-        self.beam_switch_data = [rotor_loc,pwr_list]
+        self.beam_switch_data = [rotor_loc, pwr_list]
 
     def point_at_object(self, object_id):
         """Points Antenna Directly at Object, and Sets Up Tracking to Follow it
