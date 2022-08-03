@@ -610,7 +610,7 @@ def register_callbacks(
             return emptygraph("x", "y", "N-Point Scan")
 
         if npdata.get("scan_center", [1, 1])[0] == 0:
-            return emptygraph("Azmuth (Degrees)", "Elevation (Degrees)", "N-Point Scan")
+            return emptygraph("x", "y", "N-Point Scan")
 
         az_a = []
         el_a = []
