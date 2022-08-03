@@ -407,25 +407,34 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent,sides):
     el_center = np.sum(np.sum(interp_data * elout)) / pow_tot
     az_off = az_center - cent[0]
     el_off = el_center - cent[1]
-    ov_text = "Az Center {0:.2f} deg<br/>El Center {1:.2f}".format(az_off, el_off)
+    antext0 = "Az Center {0:.2f} deg".format(az_off)
+    antext1 = "El Center {1:.2f} deg".format(el_off)
     # Make the contour plot
     d1 = go.Contour(
-        z=interp_data, x=az_a, y=el_a, colorscale="Viridis"
+        z=interp_data, x=xaout, y=xaout, colorscale="Viridis"
     )
     fig = go.Figure(
         data=d1,
         layout={
             "title": "N-Point Scan",
-            "xaxis_title": "Azmuth (Degrees)",
-            "yaxis_title": "Elevation (Degrees)",
+            "xaxis_title": "Normalized x",
+            "yaxis_title": "Normalized y",
         },
     )
     fig.add_annotation(
         x=az_a[10],
         y=el_a[20],
-        text=ov_text,
+        text=antext0,
         showarrow=False,
-        font=dict(family="Courier New, monospace", size=14, color="#ffffff"),
+        font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
+    )
+
+    fig.add_annotation(
+        x=az_a[10],
+        y=el_a[10],
+        text=antext1,
+        showarrow=False,
+        font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
     )
     return fig
 
