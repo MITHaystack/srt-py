@@ -408,7 +408,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent,sides):
     az_off = az_center - cent[0]
     el_off = el_center - cent[1]
     antext0 = "Az Center {0:.2f} deg".format(az_off)
-    antext1 = "El Center {1:.2f} deg".format(el_off)
+    antext1 = "El Center {0:.2f} deg".format(el_off)
     # Make the contour plot
     d1 = go.Contour(
         z=interp_data, x=xaout, y=xaout, colorscale="Viridis"
