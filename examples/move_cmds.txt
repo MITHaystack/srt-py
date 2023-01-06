@@ -1,0 +1,5 @@
+stow
+wait 10
+azel 30 30
+wait 50
+stow
