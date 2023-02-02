@@ -1,6 +1,6 @@
-# SRT-Py
+# Tufts SRT-Py
 
-Small Radio Telescope Control Code for Python
+This repository is a fork of the SRT-Py framework developed by MIT Haystack Observatory for Tufts University's Small Radio Telescope (SRT).
 
 ## Description
 
