@@ -212,4 +212,6 @@ Important Sections:
 This work was supported by the National Science Foundation and Haystack Observatory.  Additionally, this work wouldn't have been possible without John Swoboda, Ryan Volz, and Alan Rogers and their help and guidance throughout its development.
 
 
+## Actively Contributing Members (Tufts)
 Won Kim
+Cole Morrel
