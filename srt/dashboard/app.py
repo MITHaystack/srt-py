@@ -90,7 +90,7 @@ def generate_app(config_dir, config_dict):
     side_title = "Small Radio Telescope"
 
     image_filename = curfold.joinpath(
-        "images", "MIT_HO_logo_landscape.png"
+        "images", "tufts_logo_banner.png"
     )  # replace with your own image
     encoded_image = base64.b64encode(open(image_filename, "rb").read())
     side_content = {
