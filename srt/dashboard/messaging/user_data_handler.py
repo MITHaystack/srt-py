@@ -8,6 +8,22 @@ import sqlite3, werkzeug, os
 
 class UserDatabase():
 
+    """ Notes:
+    .schema:
+    
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        is_verified INTEGER DEFAULT 0,
+        Is_admin INTEGER DEFAULT 0,
+        n_sched_observations INTEGER DEFAULT 0
+    );
+
+    Can use werkzeug password hash function
+    """
+
     def __init__(self):
         pass
     
