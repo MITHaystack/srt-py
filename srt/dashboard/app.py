@@ -6,6 +6,9 @@ Dash Small Radio Telescope Web App Dashboard
 
 import dash
 
+from flask_login import LoginManager
+
+
 try:
     from dash import dcc
 except:
@@ -25,12 +28,17 @@ import numpy as np
 from time import time
 from pathlib import Path
 import base64
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Table, create_engine
+import sqlite3
 
 from .layouts import monitor_page, system_page  # , figure_page
 from .layouts.sidebar import generate_sidebar
 from .messaging.status_fetcher import StatusThread
 from .messaging.command_dispatcher import CommandThread
 from .messaging.spectrum_fetcher import SpectrumThread
+# from .messaging.user_data_handler import UserDatabase
+from .messaging.user import User
 
 
 def generate_app(config_dir, config_dict):
@@ -61,6 +69,12 @@ def generate_app(config_dir, config_dict):
     )
     app.title = "SRT Dashboard"
 
+    # Setup Flask-login
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    # TODO connect database
+
     # Start Listening for Radio and Status Data
     status_thread = StatusThread(port=5555)
     status_thread.start()
@@ -78,8 +92,11 @@ def generate_app(config_dir, config_dict):
     pages = {
         "Monitor Page": "monitor-page",
         "System Page": "system-page",
+        #? TODO
+        "Login Page": "login"
         #    "Figure Page": "figure-page"
     }
+
     if "DASHBOARD_REFRESH_MS" in config_dict.keys():
         refresh_time = config_dict["DASHBOARD_REFRESH_MS"]  # ms
     else:
@@ -92,6 +109,7 @@ def generate_app(config_dir, config_dict):
     image_filename = curfold.joinpath(
         "images", "tufts_logo_banner.png"
     )  # replace with your own image
+
     encoded_image = base64.b64encode(open(image_filename, "rb").read())
     side_content = {
         "Status": dcc.Markdown(id="sidebar-status"),
@@ -134,7 +152,7 @@ def generate_app(config_dir, config_dict):
     content = html.Div(id="page-content")
     layout = html.Div(
         [
-            dcc.Location(id="url"),
+            dcc.Location(id="url", refresh=True),
             sidebar,
             content,
             dcc.Interval(id="interval-component", interval=refresh_time, n_intervals=0),
@@ -191,6 +209,11 @@ def generate_app(config_dir, config_dict):
                 as_attachment=True,
             )
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        """ Returns User object from ID """
+        return User.query.get(user_id)
+    
     @app.callback(
         [Output(f"{pages[page_name]}-link", "active") for page_name in pages],
         [Input("url", "pathname")],
@@ -302,6 +325,8 @@ def generate_app(config_dir, config_dict):
         -------
         Content of page-content
         """
+
+        # TODO check if logged in
         if pathname in ["/", f"/{pages['Monitor Page']}"]:
             return monitor_page.generate_layout()
         elif pathname == f"/{pages['System Page']}":
