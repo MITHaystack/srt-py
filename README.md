@@ -213,5 +213,7 @@ This work was supported by the National Science Foundation and Haystack Observat
 
 
 ## Actively Contributing Members (Tufts)
-Won Kim
-Cole Morrel
+Won Kim  
+Cole Morrel  
+Daniel Harrington   
+Max Ammons

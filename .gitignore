@@ -108,3 +108,6 @@ venv.bak/
 
 # Rever
 rever/
+
+# DS Store
+.DS_Store
