@@ -14,7 +14,7 @@ import numpy as np
 from pathlib import Path
 
 
-root_folder = Path(__file__).parent.parent
+root_folder = Path(__file__).parent.parent.parent.parent
 
 
 class EphemerisTracker:
@@ -88,6 +88,7 @@ class EphemerisTracker:
         self.refresh_time = refresh_time * u.second
 
         self.az_el_dict = {}
+        self.vlsr_dict = {}
         self.update_all_az_el()
         conf.auto_download = auto_download
 
@@ -118,6 +119,37 @@ class EphemerisTracker:
             )
         return alt_az.az.degree, alt_az.alt.degree
 
+    def calculate_vlsr(self,name,time, frame):
+        """Calculates the velocity in the local standard of rest.
+        
+        Parameters
+        ----------
+        name : str
+            Name of the Object being Tracked
+        time : Time
+            Current Time (only necessary for Sun/Moon Ephemeris)
+        alt_az_frame : AltAz
+            AltAz Frame Object
+        
+        
+        Returns
+        -------
+        float
+            vlsr in km/s.
+        
+        """
+        if name == "Sun":
+            tframe = get_sun(time).transform_to(frame)
+            vlsr = tframe.radial_velocity_correction(obstime=time)
+        elif name == "Moon":
+            tframe = get_moon(time).transform_to(frame)
+            vlsr = tframe.radial_velocity_correction(obstime=time)
+        else:
+            tframe =  self.sky_coord_names[name].transform_to(frame)
+            vlsr = tframe.radial_velocity_correction(obstime=time)
+        
+        return vlsr.to(u.km/u.s).value
+    
     def convert_to_gal_coord(self, az_el, time=None):
         """Converts an AzEl Tuple into a Galactic Tuple from Location
 
@@ -166,8 +198,12 @@ class EphemerisTracker:
                 transformed.az[index].degree,
                 transformed.alt[index].degree,
             )
+            vlsr = transformed[index].radial_velocity_correction(obstime=time)
+            self.vlsr_dict[name] = vlsr.to(u.km/u.s).value
         self.az_el_dict["Sun"] = self.calculate_az_el("Sun", time, frame)
+        self.vlsr_dict["Sun"] = self.calculate_vlsr("Sun", time, frame)
         self.az_el_dict["Moon"] = self.calculate_az_el("Moon", time, frame)
+        self.vlsr_dict["Moon"] = self.calculate_vlsr("Moon", time, frame)
         self.latest_time = time
 
     def get_all_azimuth_elevation(self):
