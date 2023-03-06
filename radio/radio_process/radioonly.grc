@@ -237,7 +237,7 @@ blocks:
     coordinate: [129, 543]
     rotation: 0
     state: true
-- name: vslr
+- name: vlsr
   id: variable
   parameters:
     comment: ''
@@ -1112,6 +1112,7 @@ blocks:
     label7: ''
     label8: ''
     label9: ''
+    legend: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
     name: '""'
@@ -1185,6 +1186,7 @@ blocks:
     label7: ''
     label8: ''
     label9: ''
+    legend: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
     name: '""'
@@ -1258,6 +1260,7 @@ blocks:
     label7: ''
     label8: ''
     label9: ''
+    legend: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
     name: '""'
@@ -1322,3 +1325,4 @@ connections:
 
 metadata:
   file_format: 1
+  grc_version: 3.10.5.1

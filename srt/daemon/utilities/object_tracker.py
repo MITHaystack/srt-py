@@ -119,9 +119,9 @@ class EphemerisTracker:
             )
         return alt_az.az.degree, alt_az.alt.degree
 
-    def calculate_vlsr(self,name,time, frame):
+    def calculate_vlsr(self, name, time, frame):
         """Calculates the velocity in the local standard of rest.
-        
+
         Parameters
         ----------
         name : str
@@ -130,13 +130,12 @@ class EphemerisTracker:
             Current Time (only necessary for Sun/Moon Ephemeris)
         alt_az_frame : AltAz
             AltAz Frame Object
-        
-        
+
+
         Returns
         -------
         float
             vlsr in km/s.
-        
         """
         if name == "Sun":
             tframe = get_sun(time).transform_to(frame)
@@ -145,11 +144,11 @@ class EphemerisTracker:
             tframe = get_moon(time).transform_to(frame)
             vlsr = tframe.radial_velocity_correction(obstime=time)
         else:
-            tframe =  self.sky_coord_names[name].transform_to(frame)
+            tframe = self.sky_coord_names[name].transform_to(frame)
             vlsr = tframe.radial_velocity_correction(obstime=time)
-        
-        return vlsr.to(u.km/u.s).value
-    
+
+        return vlsr.to(u.km / u.s).value
+
     def convert_to_gal_coord(self, az_el, time=None):
         """Converts an AzEl Tuple into a Galactic Tuple from Location
 
@@ -199,7 +198,7 @@ class EphemerisTracker:
                 transformed.alt[index].degree,
             )
             vlsr = transformed[index].radial_velocity_correction(obstime=time)
-            self.vlsr_dict[name] = vlsr.to(u.km/u.s).value
+            self.vlsr_dict[name] = vlsr.to(u.km / u.s).value
         self.az_el_dict["Sun"] = self.calculate_az_el("Sun", time, frame)
         self.vlsr_dict["Sun"] = self.calculate_vlsr("Sun", time, frame)
         self.az_el_dict["Moon"] = self.calculate_az_el("Moon", time, frame)

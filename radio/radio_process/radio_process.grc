@@ -1,6 +1,7 @@
 options:
   parameters:
     author: ''
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -248,7 +249,7 @@ blocks:
     coordinate: [97, 529]
     rotation: 0
     state: true
-- name: vslr
+- name: vlsr
   id: variable
   parameters:
     comment: ''
@@ -693,7 +694,7 @@ blocks:
     type: complex
     value: 'pmt.to_pmt({"num_bins": num_bins, "samp_rate": samp_rate, "num_integrations":
       num_integrations, "motor_az": motor_az, "motor_el": motor_el, "freq": freq,
-      "tsys": tsys, "tcal": tcal, "cal_pwr": cal_pwr, "vslr": vslr, "glat": glat,
+      "tsys": tsys, "tcal": tcal, "cal_pwr": cal_pwr, "vlsr": vlsr, "glat": glat,
       "glon": glon, "soutrack": soutrack, "bsw": beam_switch})'
     vlen: '1'
   states:
@@ -1180,7 +1181,9 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
+    drop_on_hwm: 'True'
     hwm: '-1'
+    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: complex
@@ -1199,7 +1202,9 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
+    drop_on_hwm: 'True'
     hwm: '-1'
+    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: complex
@@ -1218,7 +1223,9 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
+    drop_on_hwm: 'True'
     hwm: '-1'
+    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: float
@@ -1237,7 +1244,9 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
+    drop_on_hwm: 'True'
     hwm: '-1'
+    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: float
@@ -1256,7 +1265,9 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
+    drop_on_hwm: 'True'
     hwm: '-1'
+    key: ''
     pass_tags: 'True'
     timeout: '100'
     type: float
@@ -1275,7 +1286,9 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
+    drop_on_hwm: 'True'
     hwm: '-1'
+    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: float
@@ -1325,3 +1338,4 @@ connections:
 
 metadata:
   file_format: 1
+  grc_version: 3.10.5.1

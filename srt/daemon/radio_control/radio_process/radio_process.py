@@ -52,7 +52,7 @@ class radio_process(gr.top_block):
             -np.pi * 4 / 2.0, np.pi * 4 / 2.0, np.pi / num_bins
         )
         self.sinc_samples = sinc_samples = np.sinc(sinc_sample_locations / np.pi)
-        self.vslr = vslr = np.nan
+        self.vlsr = vlsr = np.nan
         self.tsys = tsys = 171
         self.tcal = tcal = 290
         self.tag_period = tag_period = num_bins * num_integrations
@@ -127,7 +127,7 @@ class radio_process(gr.top_block):
                     "tsys": tsys,
                     "tcal": tcal,
                     "cal_pwr": cal_pwr,
-                    "vslr": vslr,
+                    "vlsr": vlsr,
                     "glat": glat,
                     "glon": glon,
                     "soutrack": soutrack,
@@ -289,7 +289,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -317,7 +317,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -340,11 +340,11 @@ class radio_process(gr.top_block):
         self.sinc_samples = sinc_samples
         self.set_custom_window(self.sinc_samples * np.hamming(4 * self.num_bins))
 
-    def get_vslr(self):
-        return self.vslr
+    def get_vlsr(self):
+        return self.vlsr
 
-    def set_vslr(self, vslr):
-        self.vslr = vslr
+    def set_vlsr(self, vlsr):
+        self.vlsr = vlsr
         self.blocks_tags_strobe_0_0.set_value(
             pmt.to_pmt(
                 {
@@ -357,7 +357,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -389,7 +389,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -421,7 +421,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -456,7 +456,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -482,7 +482,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -509,7 +509,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -535,7 +535,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -568,7 +568,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -594,7 +594,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -621,7 +621,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -688,7 +688,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
@@ -714,7 +714,7 @@ class radio_process(gr.top_block):
                     "tsys": self.tsys,
                     "tcal": self.tcal,
                     "cal_pwr": self.cal_pwr,
-                    "vslr": self.vslr,
+                    "vlsr": self.vlsr,
                     "glat": self.glat,
                     "glon": self.glon,
                     "soutrack": self.soutrack,
