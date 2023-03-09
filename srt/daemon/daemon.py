@@ -106,6 +106,7 @@ class SmallRadioTelescopeDaemon:
             config_file=str(Path(config_directory, "sky_coords.csv").absolute()),
         )
         self.ephemeris_locations = self.ephemeris_tracker.get_all_azimuth_elevation()
+        self.ephemeris_vlsr = self.ephemeris_tracker.get_all_vlsr()
         self.ephemeris_cmd_location = None
 
         # Create Rotor Command Helper Object
@@ -168,6 +169,8 @@ class SmallRadioTelescopeDaemon:
         """
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
+        # Send vlsr to radio queue
+        # self.radio_queue.put(("vlsr",self.ephemeris_vlsr[object_id]))
         N_pnt_default = 25
         rotor_loc = []
         pwr_list = []
@@ -214,6 +217,8 @@ class SmallRadioTelescopeDaemon:
         """
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
+        # Send vlsr to radio queue
+        # self.radio_queue.put(("vlsr",self.ephemeris_vlsr[object_id]))
         new_rotor_destination = self.ephemeris_locations[object_id]
         rotor_loc = []
         pwr_list = []
@@ -251,6 +256,8 @@ class SmallRadioTelescopeDaemon:
         """
         self.rotor_offsets = (0.0, 0.0)
         self.radio_queue.put(("soutrack", object_id))
+        # Send vlsr to radio queue
+        # self.radio_queue.put(("vlsr",self.ephemeris_vlsr[object_id]))
         new_rotor_cmd_location = self.ephemeris_locations[object_id]
         if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
             self.ephemeris_cmd_location = object_id
@@ -278,7 +285,10 @@ class SmallRadioTelescopeDaemon:
         """
         self.ephemeris_cmd_location = None
         self.rotor_offsets = (0.0, 0.0)
+        # Send az and el angles to sources track for the radio
         self.radio_queue.put(("soutrack", f"azel_{az}_{el}"))
+        # Send vlsr to radio queue
+        # self.radio_queue.put(("vlsr",vlsrkms))
         new_rotor_destination = (az, el)
         new_rotor_cmd_location = new_rotor_destination
         if self.rotor.angles_within_bounds(*new_rotor_cmd_location):

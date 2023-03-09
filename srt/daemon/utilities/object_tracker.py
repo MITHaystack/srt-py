@@ -235,3 +235,13 @@ class EphemerisTracker:
             return self.calculate_az_el(
                 name, time, AltAz(obstime=time, location=self.location)
             )
+    def get_all_vlsr(self):
+        return self.vlsr_dict
+    def get_vlsr(self, name, time_offset=0):
+        
+        if time_offset==0:
+            return self.get_all_vlsr()[name]
+        else:
+            time = Time.now() + time_offset
+            frame = AltAz(obstime=time, location=self.location)
+            return self.calculate_vlsr(name,time,frame)
