@@ -36,7 +36,7 @@ class Rotor:
     motors.py
     """
 
-    def __init__(self, motor_type, port, az_limits, el_limits):
+    def __init__(self, motor_type, port, baudrate, az_limits, el_limits):
         """Initializes the Rotor with its Motor Object
 
         Parameters
@@ -51,13 +51,13 @@ class Rotor:
             Tuple of Lower and Upper Elevation Limits
         """
         if motor_type == RotorType.NONE or motor_type == RotorType.NONE.value:
-            self.motor = NoMotor(port, az_limits, el_limits)
+            self.motor = NoMotor(port, baudrate, az_limits, el_limits)
         elif motor_type == RotorType.ROT2 or motor_type == RotorType.ROT2.value:
-            self.motor = Rot2Motor(port, az_limits, el_limits)
+            self.motor = Rot2Motor(port, baudrate, az_limits, el_limits)
         elif motor_type == RotorType.H180 or motor_type == RotorType.H180.value:
-            self.motor = H180Motor(port, az_limits, el_limits)
+            self.motor = H180Motor(port, baudrate, az_limits, el_limits)
         elif motor_type == RotorType.PUSH_ROD == RotorType.PUSH_ROD.value:
-            self.motor = PushRodMotor(port, az_limits, el_limits)
+            self.motor = PushRodMotor(port, baudrate, az_limits, el_limits)
         else:
             raise ValueError("Not a known motor type")
 

@@ -70,6 +70,7 @@ class SmallRadioTelescopeDaemon:
         ]
         self.motor_type = config_dict["MOTOR_TYPE"]
         self.motor_port = config_dict["MOTOR_PORT"]
+        self.motor_baudrate = config_dict["MOTOR_BAUDRATE"]
         self.radio_center_frequency = config_dict["RADIO_CF"]
         self.radio_sample_frequency = config_dict["RADIO_SF"]
         self.radio_frequency_correction = config_dict["RADIO_FREQ_CORR"]
@@ -107,12 +108,14 @@ class SmallRadioTelescopeDaemon:
         )
         self.ephemeris_locations = self.ephemeris_tracker.get_all_azimuth_elevation()
         self.ephemeris_vlsr = self.ephemeris_tracker.get_all_vlsr()
+        self.current_vlsr = 0.
         self.ephemeris_cmd_location = None
 
         # Create Rotor Command Helper Object
         self.rotor = Rotor(
             self.motor_type,
             self.motor_port,
+            self.motor_baudrate,
             self.az_limits,
             self.el_limits,
         )
@@ -170,7 +173,9 @@ class SmallRadioTelescopeDaemon:
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
-        # self.radio_queue.put(("vlsr",self.ephemeris_vlsr[object_id]))
+        cur_vlsr = self.ephemeris_vlsr[object_id]
+        self.radio_queue.put(("vlsr",cur_vlsr))
+        self.current_vlsr = cur_vlsr
         N_pnt_default = 25
         rotor_loc = []
         pwr_list = []
@@ -218,7 +223,9 @@ class SmallRadioTelescopeDaemon:
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
-        # self.radio_queue.put(("vlsr",self.ephemeris_vlsr[object_id]))
+        cur_vlsr = self.ephemeris_vlsr[object_id]
+        self.radio_queue.put(("vlsr",cur_vlsr))
+        self.current_vlsr = cur_vlsr
         new_rotor_destination = self.ephemeris_locations[object_id]
         rotor_loc = []
         pwr_list = []
@@ -257,7 +264,9 @@ class SmallRadioTelescopeDaemon:
         self.rotor_offsets = (0.0, 0.0)
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
-        # self.radio_queue.put(("vlsr",self.ephemeris_vlsr[object_id]))
+        cur_vlsr = self.ephemeris_vlsr[object_id]
+        self.radio_queue.put(("vlsr",cur_vlsr))
+        self.current_vlsr = cur_vlsr
         new_rotor_cmd_location = self.ephemeris_locations[object_id]
         if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
             self.ephemeris_cmd_location = object_id
@@ -283,12 +292,18 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
+        # cur_vlsr = self.ephemeris_tracker.calculate_vlsr_azel((az,el))
+        # self.radio_queue.put(("vlsr",cur_vlsr))
+        # self.current_vlsr = cur_vlsr
         self.ephemeris_cmd_location = None
         self.rotor_offsets = (0.0, 0.0)
         # Send az and el angles to sources track for the radio
         self.radio_queue.put(("soutrack", f"azel_{az}_{el}"))
         # Send vlsr to radio queue
-        # self.radio_queue.put(("vlsr",vlsrkms))
+        cur_vlsr = self.ephemeris_tracker.calculate_vlsr_azel((az,el))
+        self.current_vlsr = cur_vlsr
+        self.radio_queue.put(("vlsr",cur_vlsr))
+
         new_rotor_destination = (az, el)
         new_rotor_cmd_location = new_rotor_destination
         if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
@@ -480,10 +495,12 @@ class SmallRadioTelescopeDaemon:
             self.ephemeris_locations = (
                 self.ephemeris_tracker.get_all_azimuth_elevation()
             )
+            self.ephemeris_vlsr = self.ephemeris_tracker.get_all_vlsr()
             if self.ephemeris_cmd_location is not None:
                 new_rotor_destination = self.ephemeris_locations[
                     self.ephemeris_cmd_location
                 ]
+                self.current_vlsr = self.ephemeris_vlsr[self.ephemeris_cmd_location]
                 new_rotor_cmd_location = tuple(
                     map(add, new_rotor_destination, self.rotor_offsets)
                 )
@@ -578,6 +595,7 @@ class SmallRadioTelescopeDaemon:
                 "location": self.station,
                 "motor_azel": self.rotor_location,
                 "motor_cmd_azel": self.rotor_cmd_location,
+                "vlsr": self.current_vlsr,
                 "object_locs": self.ephemeris_locations,
                 "az_limits": self.az_limits,
                 "el_limits": self.el_limits,

@@ -265,6 +265,7 @@ def generate_app(config_dir, config_dict):
             cf = np.nan
             bandwidth = np.nan
             status_string = "SRT Not Connected"
+            vlsr = np.nan
         else:
             az = status["motor_azel"][0]
             el = status["motor_azel"][1]
@@ -272,6 +273,7 @@ def generate_app(config_dir, config_dict):
             el_offset = status["motor_offsets"][1]
             cf = status["center_frequency"]
             bandwidth = status["bandwidth"]
+            vlsr = status['vlsr']
             time_dif = time() - status["time"]
             if time_dif > 5:
                 status_string = "SRT Daemon Not Available"
@@ -286,6 +288,7 @@ def generate_app(config_dir, config_dict):
          - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
          - Center Frequency: {cf / pow(10, 6)} MHz
          - Bandwidth: {bandwidth / pow(10, 6)} MHz
+         - VLSR: {vlsr:.1f} km/s
         """
         return status_string
 

@@ -17,6 +17,8 @@ class Motor(ABC):
     ----------
     port : str
         Serial Port Identifier String for Communicating with the Motor
+    baudrate : int
+        Baudrate for serial connection
     az_limits : (float, float)
         Tuple of Lower and Upper Azimuth Limits
     el_limits : (float, float)
@@ -29,7 +31,7 @@ class Motor(ABC):
     <https://pyserial.readthedocs.io/en/latest/pyserial_api.html>
     """
 
-    def __init__(self, port, az_limits, el_limits):
+    def __init__(self, port, baudrate, az_limits, el_limits):
         """Constructor for the Abstract Motor Class
 
         Parameters
@@ -42,6 +44,7 @@ class Motor(ABC):
             Tuple of Lower and Upper Elevation Limits
         """
         self.port = port
+        self.baudrate=baudrate
         self.az_limits = az_limits
         self.el_limits = el_limits
         self.serial = None
@@ -91,7 +94,7 @@ class NoMotor(Motor):
     Class for Simulating a Motor or Using a Stationary Telescope
     """
 
-    def __init__(self, port, az_limits, el_limits):
+    def __init__(self, port, baudrate, az_limits, el_limits):
         """
         Initializer for Rot2Motor
 
@@ -99,6 +102,8 @@ class NoMotor(Motor):
         ----------
         port : str
             NOT USED - Needed For Abstract Motor Initializer
+        baudrate : int
+            Baudrate for serial connection
         az_limits : (float, float)
             Tuple of Lower and Upper Azimuth Limits (if Stationary, both should be the same value)
         el_limits : (float, float)
@@ -149,6 +154,7 @@ class Rot2Motor(Motor):
     def __init__(
         self,
         port,
+        baudrate,
         az_limits,
         el_limits,
         pulses_per_degree=2,
@@ -160,6 +166,8 @@ class Rot2Motor(Motor):
         ----------
         port : str
             Serial Port Identifier String for Communicating with the Motor
+        baudrate : int
+            Baudrate for serial connection
         az_limits : (float, float)
             Tuple of Lower and Upper Azimuth Limits
         el_limits : (float, float)
@@ -169,10 +177,10 @@ class Rot2Motor(Motor):
         test_pulses_per_degree : bool
             Whether to Run A Call to Ask the Motor What its True Pulses per Degree Is (By Calling status)
         """
-        Motor.__init__(self, port, az_limits, el_limits)
+        Motor.__init__(self, port, baudrate, az_limits, el_limits)
         self.serial = serial.Serial(
             port=self.port,
-            baudrate=600,
+            baudrate=baudrate,
             bytesize=serial.EIGHTBITS,
             parity="N",
             stopbits=serial.STOPBITS_ONE,
@@ -325,13 +333,15 @@ class H180Motor(Motor):  # TODO: Test!
     AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
     ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
-    def __init__(self, port, az_limits, el_limits, counts_per_step=100):
-        """Initializer for the H180 Motor
+    def __init__(self, port, baudrate,az_limits, el_limits, counts_per_step=100):
+        """Initializer for the H180 Motor, baudrate should be 2400.
 
         Parameters
         ----------
         port : str
             Serial Port Identifier String for Communicating with the Motor
+        baudrate : int
+            Baudrate for serial connection
         az_limits : (float, float)
             Tuple of Lower and Upper Azimuth Limits
         el_limits : (float, float)
@@ -342,7 +352,7 @@ class H180Motor(Motor):  # TODO: Test!
         Motor.__init__(self, port, az_limits, el_limits)
         self.serial = serial.Serial(
             port=port,
-            baudrate=2400,
+            baudrate=baudrate,#2400,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -489,7 +499,7 @@ class H180Motor(Motor):  # TODO: Test!
 
 class PushRodMotor(Motor):  # TODO: Test!
     """
-    Controls old SRT PushRod Style Motors
+    Controls old SRT PushRod Style Motors. baudrate should be 2000
 
     WARNING: This is currently a hard port of the azel function in sport.java, so expect some errors
     """
@@ -502,6 +512,7 @@ class PushRodMotor(Motor):  # TODO: Test!
     def __init__(
         self,
         port,
+        baudrate,
         az_limits,
         el_limits,
         rod=(),
@@ -515,15 +526,17 @@ class PushRodMotor(Motor):  # TODO: Test!
         ----------
         port : str
             Serial Port Identifier String for Communicating with the Motor
+        baudrate : int
+            Baudrate for serial connection
         az_limits : (float, float)
             Tuple of Lower and Upper Azimuth Limits
         el_limits : (float, float)
             Tuple of Lower and Upper Elevation Limits
         """
-        Motor.__init__(self, port, az_limits, el_limits)
+        Motor.__init__(self, port, baudrate, az_limits, el_limits)
         self.serial = serial.Serial(
             port=port,
-            baudrate=2000,
+            baudrate=baudrate,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
