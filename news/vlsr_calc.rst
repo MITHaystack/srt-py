@@ -6,7 +6,7 @@
 
 **Changed:**
 
-* Added baudrate 
+* Added baudrate as an option to config/schema file.
 
 **Deprecated:**
 
