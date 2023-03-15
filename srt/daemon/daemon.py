@@ -108,7 +108,7 @@ class SmallRadioTelescopeDaemon:
         )
         self.ephemeris_locations = self.ephemeris_tracker.get_all_azimuth_elevation()
         self.ephemeris_vlsr = self.ephemeris_tracker.get_all_vlsr()
-        self.current_vlsr = 0.
+        self.current_vlsr = 0.0
         self.ephemeris_cmd_location = None
 
         # Create Rotor Command Helper Object
@@ -174,7 +174,7 @@ class SmallRadioTelescopeDaemon:
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
         cur_vlsr = self.ephemeris_vlsr[object_id]
-        self.radio_queue.put(("vlsr",cur_vlsr))
+        self.radio_queue.put(("vlsr", float(cur_vlsr)))
         self.current_vlsr = cur_vlsr
         N_pnt_default = 25
         rotor_loc = []
@@ -224,7 +224,7 @@ class SmallRadioTelescopeDaemon:
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
         cur_vlsr = self.ephemeris_vlsr[object_id]
-        self.radio_queue.put(("vlsr",cur_vlsr))
+        self.radio_queue.put(("vlsr", float(cur_vlsr)))
         self.current_vlsr = cur_vlsr
         new_rotor_destination = self.ephemeris_locations[object_id]
         rotor_loc = []
@@ -265,7 +265,7 @@ class SmallRadioTelescopeDaemon:
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
         cur_vlsr = self.ephemeris_vlsr[object_id]
-        self.radio_queue.put(("vlsr",cur_vlsr))
+        self.radio_queue.put(("vlsr", float(cur_vlsr)))
         self.current_vlsr = cur_vlsr
         new_rotor_cmd_location = self.ephemeris_locations[object_id]
         if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
@@ -300,9 +300,9 @@ class SmallRadioTelescopeDaemon:
         # Send az and el angles to sources track for the radio
         self.radio_queue.put(("soutrack", f"azel_{az}_{el}"))
         # Send vlsr to radio queue
-        cur_vlsr = self.ephemeris_tracker.calculate_vlsr_azel((az,el))
+        cur_vlsr = self.ephemeris_tracker.calculate_vlsr_azel((az, el))
         self.current_vlsr = cur_vlsr
-        self.radio_queue.put(("vlsr",cur_vlsr))
+        self.radio_queue.put(("vlsr", float(cur_vlsr)))
 
         new_rotor_destination = (az, el)
         new_rotor_cmd_location = new_rotor_destination

@@ -44,7 +44,7 @@ class Motor(ABC):
             Tuple of Lower and Upper Elevation Limits
         """
         self.port = port
-        self.baudrate=baudrate
+        self.baudrate = baudrate
         self.az_limits = az_limits
         self.el_limits = el_limits
         self.serial = None
@@ -109,7 +109,7 @@ class NoMotor(Motor):
         el_limits : (float, float)
             Tuple of Lower and Upper Elevation Limits (if Stationary, both should be the same value)
         """
-        super().__init__(port, az_limits, el_limits)
+        super().__init__(port, baudrate, az_limits, el_limits)
         self.position = (az_limits[0], el_limits[0])
 
     def point(self, az, el):
@@ -333,7 +333,7 @@ class H180Motor(Motor):  # TODO: Test!
     AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
     ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
-    def __init__(self, port, baudrate,az_limits, el_limits, counts_per_step=100):
+    def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=100):
         """Initializer for the H180 Motor, baudrate should be 2400.
 
         Parameters
@@ -352,7 +352,7 @@ class H180Motor(Motor):  # TODO: Test!
         Motor.__init__(self, port, az_limits, el_limits)
         self.serial = serial.Serial(
             port=port,
-            baudrate=baudrate,#2400,
+            baudrate=baudrate,  # 2400,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,

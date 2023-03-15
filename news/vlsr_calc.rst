@@ -19,6 +19,8 @@
 **Fixed:**
 
 * Typo in gnuradio grc files and derived python vslr to vlsr.
+* Dashboard error from not finding image. MHO images now install with setup and listed in Manifest.in.
+* Added shebang to start of scripts.
 
 **Security:**
 

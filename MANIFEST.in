@@ -1,2 +1,4 @@
 include versioneer.py
 include srt/_version.py
+include srt/dashboard/images/MIT_HO_logo_square_transparent.png
+include srt/dashboard/images/MIT_HO_logo_landscape.png
