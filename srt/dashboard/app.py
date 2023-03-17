@@ -92,7 +92,12 @@ def generate_app(config_dir, config_dict):
     image_filename = curfold.joinpath(
         "images", "MIT_HO_logo_landscape.png"
     )  # replace with your own image
-    encoded_image = base64.b64encode(open(image_filename, "rb").read())
+    # Check if file is there and if not put in a single pixel image.
+    if image_filename.exists():
+        encoded_image = base64.b64encode(open(image_filename, "rb").read())
+    else:
+        encoded_image = b"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+
     side_content = {
         "Status": dcc.Markdown(id="sidebar-status"),
         "Pages": html.Div(
@@ -265,6 +270,7 @@ def generate_app(config_dir, config_dict):
             cf = np.nan
             bandwidth = np.nan
             status_string = "SRT Not Connected"
+            vlsr = np.nan
         else:
             az = status["motor_azel"][0]
             el = status["motor_azel"][1]
@@ -272,6 +278,7 @@ def generate_app(config_dir, config_dict):
             el_offset = status["motor_offsets"][1]
             cf = status["center_frequency"]
             bandwidth = status["bandwidth"]
+            vlsr = status["vlsr"]
             time_dif = time() - status["time"]
             if time_dif > 5:
                 status_string = "SRT Daemon Not Available"
@@ -286,6 +293,7 @@ def generate_app(config_dir, config_dict):
          - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
          - Center Frequency: {cf / pow(10, 6)} MHz
          - Bandwidth: {bandwidth / pow(10, 6)} MHz
+         - VLSR: {vlsr:.1f} km/s
         """
         return status_string
 

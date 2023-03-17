@@ -46,7 +46,7 @@ def parse_metadata(metadata):
     tsys = metadata["tsys"]
     tcal = metadata["tcal"]
     cal_pwr = metadata["cal_pwr"]
-    vslr = metadata["vslr"]
+    vlsr = metadata["vlsr"]
     glat = metadata["glat"]
     glon = metadata["glon"]
     soutrack = metadata["soutrack"]
@@ -61,7 +61,7 @@ def parse_metadata(metadata):
         tsys,
         tcal,
         cal_pwr,
-        vslr,
+        vlsr,
         glat,
         glon,
         soutrack,
