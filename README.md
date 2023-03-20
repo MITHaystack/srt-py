@@ -205,7 +205,7 @@ Important Sections:
 - [SRT 2013 Paper](https://www.haystack.mit.edu/wp-content/uploads/2020/07/srt_2013_HigginsonRollinsPaper.pdf)
 
 ## License
-
+BSD 3-Clause License
 
 ## Acknowledgments
 
