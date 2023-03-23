@@ -41,31 +41,31 @@ def generate_layout():
         Monitor Page Layout
     """
     
-    layout = html.Div([dcc.Location(id='url_login', refresh=True)
-            , html.H2('''Please log in to continue:''', id='h1')
-            , dcc.Input(placeholder='Enter your username',
-                    type='text',
-                    id='uname-box')
-            , dcc.Input(placeholder='Enter your password',
-                    type='password',
-                    id='pwd-box')
-            , html.Button(children='Login',
+    layout = html.Div([dcc.Location(id="url_login", refresh=True)
+            , html.H2("""Please log in to continue:""", id="h1")
+            , dcc.Input(placeholder="Enter your email",
+                    type="text",
+                    id="email-box")
+            , dcc.Input(placeholder="Enter your password",
+                    type="password",
+                    id="pw-box")
+            , html.Button(children="Login",
                     n_clicks=0,
-                    type='submit',
-                    id='login-button')
-            , html.Div(children='', id='status-div'),
+                    type="submit",
+                    id="login-button")
+            , html.Div(children="", id="status-div"),
             # TODO rename:
-            html.Div(children='', id='new-div'),
-            html.Div([html.H4('Don\'t have an account?'), 
-                    html.Button('Click here to Create', 
+            html.Div(children="", id="new-div"),
+            html.Div([html.H4("Don\'t have an account?"), 
+                    html.Button("Click here to Create", 
                                 n_clicks=0,
-                                id='create-button')])
+                                id="create-button")])
         ]) #end div
     return layout
 
 
 # def register_callbacks(app, config, users_db):
-def register_callbacks(app):
+def register_callbacks(app, db_engine):
     """Registers the Callbacks for the Login Page
     # TODO type hinting
     Parameters
@@ -80,29 +80,38 @@ def register_callbacks(app):
     None
     """
 
+    # TODO remove "account not found" when re-entering information
+    # TODO create callback
 
-    @app.callback(Output("url", "pathname"), [Input("submit-button", "n_clicks")],
-                [State("email-box", "em_value"), State("pw-box", "value")])
+    @app.callback(Output("url", "pathname"), [Input("login-button", "n_clicks")],
+                [State("email-box", "value"), State("pw-box", "value")])
     def login_success(n: int, email_value: str, pw_value: str) -> str:
         if n > 0:
-            user = Users.query.filter_by(email=email_value).first()
-            if user and check_password_hash(user.password, pw_value):
-                #TODO check if "remember me box is checked"
-                login_user(user)
-                return "/"
+            with db_engine.connect() as conn:
+                user = Users.query.filter_by(email=email_value).first()
+                if user and check_password_hash(user.password, pw_value):
+                    #TODO check if "remember me box is checked"
+                    login_user(user)
+                    return "/"
+                else:
+                    pass
         else:
             pass
         
     
-    @app.callback(Output("status-div", "children"), [Input("submit-button", "n_clicks")],
-                [State("email-box", "em_value"), State("pw-box", "value")])
-    def login_fail(n, email_value, pw_value):
-        if n > 0:
-            user = Users.query.filter_by(email=email_value).first()
-            if not user:
-                return "account not found"
-            elif not check_password_hash(user.password, pw_value):
-                return "invalid password"
+    @app.callback(Output("status-div", "children"), [Input("login-button", "n_clicks")],
+                [State("email-box", "value"), State("pw-box", "value"),
+                 State("login-button", "n_clicks")])
+    def login_fail(n, email_value, pw_value, n_clicks):
+        if n_clicks > 0:
+            with db_engine.connect() as conn:
+                user = Users.query.filter_by(email=email_value).first()
+                if not user:
+                    return "account not found"
+                elif not check_password_hash(user.password, pw_value):
+                    return "invalid password"
+                else:
+                    pass
         else:
             pass
        
@@ -124,10 +133,8 @@ def register_callbacks(app):
                   [Input("create-button", "n_clicks")])
     def create_fields(n_clicks):
         if n_clicks > 0:
-            # return "Hello world"
-            print("Button pressed")
-            create = html.Div([ html.H1('Create User Account')
-            , dcc.Location(id='create_user', refresh=True)
+            create = html.Div([ html.H1("Create User Account")
+            , dcc.Location(id="create_user", refresh=True)
             , dcc.Input(id="username"
                 , type="text"
                 , placeholder="user name"
@@ -139,8 +146,8 @@ def register_callbacks(app):
                 , type="email"
                 , placeholder="email"
                 , maxLength = 50)
-            , html.Button('Create User', id='submit-val', n_clicks=0)
-            , html.Div(id='container-button-basic')
+            , html.Button("Create User", id="submit-val", n_clicks=0)
+            , html.Div(id="container-button-basic")
             ])
 
             return create
