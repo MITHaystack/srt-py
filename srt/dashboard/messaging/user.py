@@ -6,12 +6,13 @@ See https://flask-login.readthedocs.io/en/latest/
 """
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 from sqlalchemy import Table, create_engine
 import sqlite3
 
 db = SQLAlchemy()
 
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     """
     Need:
     insert into database
@@ -27,32 +28,32 @@ class Users(db.Model):
     n_scheduled_observations = db.Column(db.Integer, default=0, nullable=False)
 
     
-    @property
-    def is_authenticated(self) -> bool:
-        """ 
-        returns: True if user is authenticated, else False
-        """
-        return self.authenticated
+    # @property
+    # def is_authenticated(self) -> bool:
+    #     """ 
+    #     returns: True if user is authenticated, else False
+    #     """
+    #     return self.authenticated
 
-    @property
-    def is_active(self) -> bool:
-        """ 
-        returns: True if user has validated email, else False
-        """
-        # TODO
-        # return self.validated
-        return True
+    # @property
+    # def is_active(self) -> bool:
+    #     """ 
+    #     returns: True if user has validated email, else False
+    #     """
+    #     # TODO
+    #     # return self.validated
+    #     return True
     
-    @property
-    def is_anonymous(self) -> bool:
-        """ 
-        returns: True if user is anonymous, else False
-        """
-        # TODO
-        return False
+    # @property
+    # def is_anonymous(self) -> bool:
+    #     """ 
+    #     returns: True if user is anonymous, else False
+    #     """
+    #     # TODO
+    #     return False
 
-    def get_id(self) -> str:
-        """ 
-        returns: str containing the user's ID
-        """
-        return str(self.id)
+    # def get_id(self) -> str:
+    #     """ 
+    #     returns: str containing the user's ID
+    #     """
+    #     return str(self.id)
