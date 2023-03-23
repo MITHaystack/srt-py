@@ -256,3 +256,8 @@ def logout_dashboard(n_clicks):
 if __name__ == '__main__':
     app.run_server(debug=True)
 ```
+
+# Installation Issues
+
+Must use werkzeug 2.0.3
+Install libvorbis in conda environment
