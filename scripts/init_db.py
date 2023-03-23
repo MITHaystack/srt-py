@@ -8,7 +8,7 @@ from srt.dashboard.messaging.user import Users
 
 #connect to the database
 conn = sqlite3.connect('../data.sqlite')
-engine = create_engine('sqlite:///../../data.sqlite')
+engine = create_engine('sqlite:///../data.sqlite')
 db = SQLAlchemy()
 
 Users_tbl = Table('users', Users.metadata)
