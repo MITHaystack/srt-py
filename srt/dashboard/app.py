@@ -71,18 +71,16 @@ def generate_app(config_dir, config_dict):
     )
     app.title = "SRT Dashboard"
 
+    # Configure database
+    server.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///../../data.sqlite"
+    server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    server.secret_key = b'_5#y2L"F4Q8z\n\xec]/' #! TESTING ONLY - CHANGE IN PROD
+    db = SQLAlchemy(server)
+    db.init_app(server)
+
     # Setup Flask-login
     login_manager = LoginManager()
     login_manager.init_app(server)
-
-    # Connect database
-    # os.path('../../data.sqlite')
-    # conn = sqlite3.connect('../../data.sqlite')
-    engine = create_engine('sqlite:///../../data.sqlite')
-    conn = engine.connect()
-    db = SQLAlchemy()
-    server.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///../../data.sqlite"
-    db.init_app(server)
 
     # Start Listening for Radio and Status Data
     status_thread = StatusThread(port=5555)
@@ -161,7 +159,7 @@ def generate_app(config_dir, config_dict):
     content = html.Div(id="page-content")
     layout = html.Div(
         [
-            dcc.Location(id="url", refresh=True),
+            dcc.Location(id="url", refresh=False),
             sidebar,
             content,
             dcc.Interval(id="interval-component", interval=refresh_time, n_intervals=0),
@@ -204,7 +202,7 @@ def generate_app(config_dir, config_dict):
     )
     # Create Callbacks for System Page Objects
     system_page.register_callbacks(app, config_dict, status_thread)
-    login_page.register_callbacks(app, engine)
+    login_page.register_callbacks(app, db)
 
     # # Create Callbacks for figure page callbacks
     # figure_page.register_callbacks(app,config_dict, status_thread)
