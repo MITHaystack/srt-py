@@ -26,8 +26,6 @@ from flask_login import login_user, logout_user, current_user
 
 from pathlib import Path
 from time import time
-import base64
-import io
 from ..messaging.user import Users
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -40,8 +38,10 @@ def generate_layout():
     layout: html.div
         Monitor Page Layout
     """
+    # TODO make layout generic, have divs for create and login
     
     layout = html.Div([dcc.Location(id="url_login", refresh=True)
+            , html.Div(id="hidden_for_redirect")
             , html.H2("""Please log in to continue:""", id="h1")
             , dcc.Input(placeholder="Enter your email",
                     type="text",
@@ -65,7 +65,7 @@ def generate_layout():
 
 
 # def register_callbacks(app, config, users_db):
-def register_callbacks(app, db_engine):
+def register_callbacks(app, users_db):
     """Registers the Callbacks for the Login Page
     # TODO type hinting
     Parameters
@@ -80,21 +80,48 @@ def register_callbacks(app, db_engine):
     None
     """
 
+
     # TODO remove "account not found" when re-entering information
     # TODO create callback
 
-    @app.callback(Output("url", "pathname"), [Input("login-button", "n_clicks")],
+    @app.callback(
+    [Output('container-button-basic', "children")]
+    , [Input('create-button', 'n_clicks')]
+    , [State('name', 'value'), State('email', 'value'), State('password', 'value')
+    , State("create-button", "n-clicks")])
+    def insert_users(_n, name, em, pw, n_clicks):
+        # if n_clicks is None:
+        #     print("n_clicks is none")
+        #     raise dash.exceptions.PreventUpdate
+        # else:
+        if name is not None and pw is not None and em is not None:
+            hashed_password = generate_password_hash(pw, method='sha256')
+            
+            new = Users(
+                name=name, email=em, password=hashed_password,
+                authenticated=False, validated=False, admin=False,
+                n_scheduled_observations=0)
+            users_db.session.add(new)
+            print("Data inserted")
+            users_db.session.commit()
+
+            return [f"Account Created for {name}"]
+        else:
+            return ["Please fill out all fields"]
+            # return [html.Div([html.H2('Already have a user account?'), dcc.Link('Click here to Log In', href='/login')])]
+
+
+    @app.callback(Output("hidden_for_redirect", "children"), [Input("login-button", "n_clicks")],
                 [State("email-box", "value"), State("pw-box", "value")])
     def login_success(n: int, email_value: str, pw_value: str) -> str:
         if n > 0:
-            with db_engine.connect() as conn:
-                user = Users.query.filter_by(email=email_value).first()
-                if user and check_password_hash(user.password, pw_value):
-                    #TODO check if "remember me box is checked"
-                    login_user(user)
-                    return "/"
-                else:
-                    pass
+            user = Users.query.filter_by(email=email_value).first()
+            if user and check_password_hash(user.password, pw_value):
+                #TODO check if "remember me box is checked"
+                login_user(user)
+                return dcc.Location(pathname="/", id="hi")
+            else:
+                pass
         else:
             pass
         
@@ -102,16 +129,15 @@ def register_callbacks(app, db_engine):
     @app.callback(Output("status-div", "children"), [Input("login-button", "n_clicks")],
                 [State("email-box", "value"), State("pw-box", "value"),
                  State("login-button", "n_clicks")])
-    def login_fail(n, email_value, pw_value, n_clicks):
+    def login_fail(_n, email_value, pw_value, n_clicks):
         if n_clicks > 0:
-            with db_engine.connect() as conn:
-                user = Users.query.filter_by(email=email_value).first()
-                if not user:
-                    return "account not found"
-                elif not check_password_hash(user.password, pw_value):
-                    return "invalid password"
-                else:
-                    pass
+            user = Users.query.filter_by(email=email_value).first()
+            if not user:
+                return "account not found"
+            elif not check_password_hash(user.password, pw_value):
+                return "invalid password"
+            else:
+                pass
         else:
             pass
        
@@ -130,23 +156,24 @@ def register_callbacks(app, db_engine):
 
     # TODO hide login fields, make back button
     @app.callback(Output("new-div", "children"), 
-                  [Input("create-button", "n_clicks")])
-    def create_fields(n_clicks):
+                  [Input("create-button", "n_clicks")],
+                  [State("create-button", "n_clicks")])
+    def create_fields(_n, n_clicks):
         if n_clicks > 0:
             create = html.Div([ html.H1("Create User Account")
             , dcc.Location(id="create_user", refresh=True)
-            , dcc.Input(id="username"
+            , dcc.Input(id="name"
                 , type="text"
-                , placeholder="user name"
+                , placeholder="name"
                 , maxLength =15)
-            , dcc.Input(id="password"
-                , type="password"
-                , placeholder="password")
             , dcc.Input(id="email"
                 , type="email"
                 , placeholder="email"
                 , maxLength = 50)
-            , html.Button("Create User", id="submit-val", n_clicks=0)
+            , dcc.Input(id="password"
+                , type="password"
+                , placeholder="password")
+            , html.Button("Create User", id="create-button", n_clicks=0)
             , html.Div(id="container-button-basic")
             ])
 
