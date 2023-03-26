@@ -34,7 +34,7 @@ import sqlite3
 from flask_login import login_user, logout_user, current_user, LoginManager, UserMixin
 
 
-from .layouts import monitor_page, system_page, login_page  # , figure_page
+from .layouts import monitor_page, system_page, login_page, create_page  # , figure_page
 from .layouts.sidebar import generate_sidebar
 from .messaging.status_fetcher import StatusThread
 from .messaging.command_dispatcher import CommandThread
@@ -58,6 +58,8 @@ def generate_app(config_dir, config_dict):
     (server, app)
     """
     config_dict["CONFIG_DIR"] = config_dir
+
+    # TODO Serve bootstrap css locally
 
     # Set Up Flash and Dash Objects
     server = flask.Flask(__name__)
@@ -180,7 +182,8 @@ def generate_app(config_dir, config_dict):
             layout,
             monitor_page.generate_layout(),
             system_page.generate_layout(),
-            login_page.generate_layout()
+            login_page.generate_layout(),
+            create_page.generate_layout()
             #    figure_page.generate_layout()
         ]
     )  # Necessary for Allowing Other Files to Create Callbacks
@@ -202,7 +205,8 @@ def generate_app(config_dir, config_dict):
     )
     # Create Callbacks for System Page Objects
     system_page.register_callbacks(app, config_dict, status_thread)
-    login_page.register_callbacks(app, db)
+    login_page.register_callbacks(app)
+    create_page.register_callbacks(app, db)
 
     # # Create Callbacks for figure page callbacks
     # figure_page.register_callbacks(app,config_dict, status_thread)
@@ -335,15 +339,31 @@ def generate_app(config_dir, config_dict):
         Content of page-content
         """
 
-        if current_user.is_authenticated:
-            if pathname in ["/", f"/{pages['Monitor Page']}"]:
+        if pathname in ["/", f"/{pages['Monitor Page']}"]:
+            if current_user.is_authenticated:
                 return monitor_page.generate_layout()
-            elif pathname == f"/{pages['System Page']}":
+            else:
+                return dcc.Location(pathname="/login", id="to-login")
+        elif pathname == f"/{pages['System Page']}":
+            if current_user.is_authenticated:
                 return system_page.generate_layout()
-        else:
-            return login_page.generate_layout()
+            else:
+                return dcc.Location(pathname="/login", id="to-login")
+        elif pathname == "/login":
+            if not current_user.is_authenticated:
+                return login_page.generate_layout()
+            else:
+                return dcc.Location(pathname="/", id="to-root")
+        elif pathname == "/create":
+            if not current_user.is_authenticated:
+                return create_page.generate_layout()
+            else:
+                return dcc.Location(pathname="/", id="to-root")
+            
         # elif pathname == f"/{pages['Figure Page']}":
         #     return figure_page.generate_layout()
+
+        
         # If the user tries to reach a different page, return a 404 message
         return dbc.Jumbotron(
             [
