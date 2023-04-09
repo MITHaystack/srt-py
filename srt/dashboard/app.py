@@ -180,7 +180,7 @@ def generate_app(config_dir, config_dict):
     app.validation_layout = html.Div(
         [
             layout,
-            monitor_page.generate_layout(),
+            monitor_page.generate_layout(current_user),
             system_page.generate_layout(),
             login_page.generate_layout(),
             create_page.generate_layout()
@@ -341,7 +341,7 @@ def generate_app(config_dir, config_dict):
 
         if pathname in ["/", f"/{pages['Monitor Page']}"]:
             if current_user.is_authenticated:
-                return monitor_page.generate_layout()
+                return monitor_page.generate_layout(current_user)
             else:
                 return dcc.Location(pathname="/login", id="to-login")
         elif pathname == f"/{pages['System Page']}":
