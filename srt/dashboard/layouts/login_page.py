@@ -24,7 +24,7 @@ from dash.dependencies import Input, Output, State
 
 from flask_login import login_user
 
-from ..messaging.user import Users
+from ..messaging.user import User
 from werkzeug.security import check_password_hash
 
 
@@ -82,7 +82,7 @@ def register_callbacks(app) -> None:
         List of Dash Components
         """
         if n_clicks > 0:
-            user = Users.query.filter_by(email=email_value).first()
+            user = User.query.filter_by(email=email_value).first()
             if user and check_password_hash(user.password, pw_value):
                 # TODO check if "remember me box is checked"
                 login_user(user)
@@ -106,7 +106,7 @@ def register_callbacks(app) -> None:
         List of Dash Components
         """
         if n_clicks > 0:
-            user = Users.query.filter_by(email=email_value).first()
+            user = User.query.filter_by(email=email_value).first()
             if not user:
                 return ["Account not found"]
             elif not check_password_hash(user.password, pw_value):

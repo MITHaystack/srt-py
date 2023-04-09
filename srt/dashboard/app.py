@@ -40,7 +40,7 @@ from .messaging.status_fetcher import StatusThread
 from .messaging.command_dispatcher import CommandThread
 from .messaging.spectrum_fetcher import SpectrumThread
 # from .messaging.user_data_handler import UserDatabase
-from .messaging.user import Users
+from .messaging.user import User
 
 
 def generate_app(config_dir, config_dict):
@@ -225,7 +225,7 @@ def generate_app(config_dir, config_dict):
     @login_manager.user_loader
     def load_user(user_id):
         """ Returns User object from ID """
-        return Users.query.get(user_id)
+        return User.query.get(user_id)
     
     @app.callback(
         [Output(f"{pages[page_name]}-link", "active") for page_name in pages],

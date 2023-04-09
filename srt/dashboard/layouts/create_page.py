@@ -24,7 +24,7 @@ from dash.dependencies import Input, Output, State
 
 from flask_login import login_user
 
-from ..messaging.user import Users
+from ..messaging.user import User
 from werkzeug.security import generate_password_hash
 
 
@@ -93,7 +93,7 @@ def register_callbacks(app, users_db) -> None:
             if name is not None and pw is not None and em is not None:
                 hashed_password = generate_password_hash(pw, method="sha256")
                 
-                new = Users(
+                new = User(
                     name=name, email=em, password=hashed_password,
                     authenticated=False, validated=False, admin=False,
                     n_scheduled_observations=0)
