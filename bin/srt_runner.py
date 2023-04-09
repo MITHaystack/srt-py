@@ -51,6 +51,13 @@ if __name__ == "__main__":
         default="config.yaml",
     )
 
+    my_parser.add_argument(
+        "--dash_only",
+        dest="dash_only",
+        action="store_true",
+        help="Load up the dashboard only",
+        
+    )
     # Execute the parse_args() method
     args = my_parser.parse_args()
 
@@ -59,6 +66,8 @@ if __name__ == "__main__":
     sky_coords_path = Path(config_dir_path, "sky_coords.csv")
     schema_path = Path(config_dir_path, "schema.yaml")
     config_path = Path(config_dir_path, args.config_file_name)
+
+    dash_only = args.dash_only
 
     if not config_dir_path.is_dir():
         print("Configuration Directory Does Not Exist")
@@ -75,6 +84,15 @@ if __name__ == "__main__":
     elif not config_loader.validate_yaml_schema(config_path, schema_path):
         print("YAML Configuration File Invalid")
         print("YAML did not validate against its schema file")
+    elif dash_only:
+        config_dict = config_loader.load_yaml(config_path)
+        dashboard_process = Process(
+            target=run_srt_dashboard,
+            args=(args.config_dir, config_dict),
+            name="SRT-Dashboard",
+        )
+        dashboard_process.start()
+        dashboard_process.join()
     else:
         config_dict = config_loader.load_yaml(config_path)
 
