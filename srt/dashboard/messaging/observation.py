@@ -6,6 +6,7 @@ Class Defining an Observation Table
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
+from .user import User
 
 db = SQLAlchemy()
 
@@ -29,9 +30,8 @@ class Observation(db.Model):
 
     output_file_name = db.Column(db.String, nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    user = db.relationship('User', backref=db.backref('observations', lazy=True))
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user = db.relationship(User, backref=db.backref('observations', lazy=True))
 
-
-
-    
+    def __repr__(self):
+        return f"""<Observation '{self.obs_name}'>"""
