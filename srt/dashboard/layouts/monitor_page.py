@@ -29,6 +29,7 @@ import io
 import numpy as np
 
 from .navbar import generate_navbar
+from .observation_queue import generate_queue_list
 from .graphs import (
     generate_az_el_graph,
     generate_power_history_graph,
@@ -421,7 +422,7 @@ def generate_popups():
     )
 
 
-def generate_layout():
+def generate_layout(user):
     """Generates the Basic Layout for the Monitor Page
 
     Returns
@@ -453,6 +454,7 @@ def generate_layout():
     layout = html.Div(
         [
             generate_navbar(drop_down_buttons),
+            generate_queue_list(user),
             generate_first_row(),
             html.Div(
                 [
