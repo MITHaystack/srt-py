@@ -7,8 +7,10 @@ See https://flask-login.readthedocs.io/en/latest/
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from ...dashboard import db
 
-db = SQLAlchemy()
+
+# db = SQLAlchemy()
 
 class User(db.Model, UserMixin):
     
