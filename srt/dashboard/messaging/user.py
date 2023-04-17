@@ -9,9 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from ...dashboard import db
 
-
-# db = SQLAlchemy()
-
 class User(db.Model, UserMixin):
     
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -22,3 +19,6 @@ class User(db.Model, UserMixin):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     admin = db.Column(db.Boolean, default=False, nullable=False)
     n_scheduled_observations = db.Column(db.Integer, default=0, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"""<User '{self.name}'>"""
