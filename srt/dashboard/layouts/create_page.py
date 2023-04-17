@@ -59,13 +59,13 @@ def generate_layout() -> html.Div:
     return layout
 
 
-def register_callbacks(app, users_db) -> None:
+def register_callbacks(app, db) -> None:
     """Registers the Callbacks for the Create Account Page
     Parameters
     ----------
     app : Dash Object
         Dash Object to Set Up Callbacks to
-    users_db: Flask-SQLAlchemy database Object for user data handling    
+    db: Flask-SQLAlchemy database Object for user data handling    
     Returns
     -------
     None
@@ -97,8 +97,8 @@ def register_callbacks(app, users_db) -> None:
                     name=name, email=em, password=hashed_password,
                     authenticated=False, validated=False, admin=False,
                     n_scheduled_observations=0)
-                users_db.session.add(new)
-                users_db.session.commit()
+                db.session.add(new)
+                db.session.commit()
                 login_user(new)
                 return [dcc.Location(pathname="/", id="hi2", refresh=True)]
             else:
