@@ -35,5 +35,34 @@ class Observation(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
     user = db.relationship(User, backref=db.backref('observations', lazy=True))
 
-    def __repr__(self):
+    @classmethod
+    def from_dict(self, config):
+        target_name = config.get("target_obj_name")
+        file_name = config.get("output_file_name")
+        try:
+            name = config["obs_name"]
+            schd_time = config["scheduled_time"]
+            strt_time = config["obs_start_time"]
+            ra = config["ra"]
+            dec = config["dec"]
+            duration = config["duration"]
+        except KeyError as ke:
+            raise KeyError("Error: Missing required field(s):\n" + repr(ke))
+
+        if not file_name:
+            file_name = name + str(schd_time).replace(' ', "_")
+
+        return Observation(
+            obs_name = name,
+            target_obj_name=target_name,
+            scheduled_time=schd_time,
+            start_time=strt_time,
+            ra=ra,
+            dec=dec,
+            duration=duration,
+            output_file_name=file_name
+        )
+            
+    def __repr__(self) -> str:
         return f"""<Observation '{self.obs_name}'>"""
+    
