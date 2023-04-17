@@ -42,6 +42,8 @@ from .messaging.spectrum_fetcher import SpectrumThread
 # from .messaging.user_data_handler import UserDatabase
 from .messaging.user import User
 
+from ..dashboard import db
+
 
 def generate_app(config_dir, config_dict):
     """Generates App and Server Objects for Hosting Dashboard
@@ -77,7 +79,7 @@ def generate_app(config_dir, config_dict):
     server.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///../../data.sqlite"
     server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     server.secret_key = b'_5#y2L"F4Q8z\n\xec]/' #! TESTING ONLY - CHANGE IN PROD
-    db = SQLAlchemy(server)
+    # db = SQLAlchemy()
     db.init_app(server)
 
     # Setup Flask-login
@@ -197,6 +199,7 @@ def generate_app(config_dir, config_dict):
     # Create Callbacks for Monitoring Page Objects
     monitor_page.register_callbacks(
         app,
+        current_user,
         config_dict,
         status_thread,
         command_thread,
