@@ -328,6 +328,18 @@ def generate_app(config_dir, config_dict):
         """
         return status_string
 
+    @app.callback(Output("sidebar", "style"), [Input("url", "pathname")])
+    def hide_sidebar_on_login(pathname):
+        if pathname == "/login":
+            return {"display": "none",
+                    "width": 0 }
+    
+    @app.callback(Output("page-content", "style"), [Input("url", "pathname")])
+    def remove_padding_on_login(pathname):
+        if pathname == "/login":
+            return {"margin": 0}
+                    
+
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def render_page_content(pathname):
         """Renders the Correct Content of the Page Portion
