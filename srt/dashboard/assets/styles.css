@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans&display=swap');
+
 .js-plotly-plot .plotly .modebar {
   padding-top: 5%;
   margin-right: 3.5%;
@@ -6,6 +8,7 @@
 body {
   background-color: #f2f2f2;
   margin: 0%;
+  font-family: 'Work Sans', sans-serif;
 }
 
 .two.columns {
