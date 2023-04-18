@@ -19,8 +19,9 @@ except:
     import dash_html_components as html
 
 from dash.exceptions import PreventUpdate
-
 from dash.dependencies import Input, Output, State
+from pathlib import Path
+import base64
 
 from flask_login import login_user
 
@@ -36,24 +37,79 @@ def generate_layout() -> html.Div:
     layout: html.div
         Login Page Layout
     """
-    
+    curfold = Path(__file__).parent.absolute()
+    bg_fname = curfold.parent.joinpath(
+        "images", "landing_bg.png"
+    )
+    logo_fname = curfold.parent.joinpath(
+        "images", "landing_logos.png"
+    )
+    bg_encoded = base64.b64encode(open(bg_fname, "rb").read())
+    logo_encoded = base64.b64encode(open(logo_fname, "rb").read())
+    img_style = {
+        "display": "block",
+        "min-width": "100%",
+        "height": "100%",
+        "object-fit": "cover"
+    }
+    img_div_style = {
+        "width": "50%",
+        "height": "100vh",
+        "overflow": "hidden"
+    }
+    right_style = {
+        "width": "50%",
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "flex-direction": "column"
+    }
+    logo_style = {
+        "display": "block",
+        "max-width": "80%",
+        "position": "relative",
+        "bottom": 220,
+        "left": 15
+    }
+    container_style = {
+        "display": "flex",
+        "width": "100%"
+    }
+
+
     layout = html.Div([dcc.Location(id="url_login", refresh=True),
-            html.Div(id="hidden_for_redirect"),
-            html.H2("Please log in to continue:", id="h1"),
-            dcc.Input(placeholder="Email",
-                  type="text",
-                  id="email-box"),
-            dcc.Input(placeholder="Password",
-                  type="password",
-                  id="pw-box"),
-            html.Button(children="Login",
-                  n_clicks=0,
-                  type="submit",
-                  id="login-button"),
-            html.Div(id="status-div"),
-            html.Div([html.H4("Don\'t have an account?"), 
-                    dcc.Link("Click here to Create", 
-                                href="/create")])])
+                html.Div(id="hidden_for_redirect"),
+                html.Div(id="container", children=[
+                    html.Div([
+                        html.Img(src="data:image/png;base64,{}".format(
+                                            bg_encoded.decode()
+                                        ),
+                                style=img_style),
+                        html.Img(src="data:image/png;base64,{}".format(
+                                            logo_encoded.decode()
+                                        ),
+                                style=logo_style),
+                    ], id="img-div", style=img_div_style),
+                    html.Div([
+                        html.H2("Tufts Radio Telescope"),
+                        dcc.Input(placeholder="Email",
+                            type="text",
+                            id="email-box"),
+                        dcc.Input(placeholder="Password",
+                            type="password",
+                            id="pw-box"),
+                        html.Button(children="Launch",
+                            n_clicks=0,
+                            type="submit",
+                            id="login-button"),
+                        html.Div(id="status-div"),
+                        html.Div([html.P("New?"), 
+                                dcc.Link("Create Account", 
+                                            href="/create")])
+                    ], style=right_style)
+                    ], style=container_style)
+                ])
+
     return layout
 
 def register_callbacks(app) -> None:
