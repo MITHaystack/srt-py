@@ -686,6 +686,7 @@ def register_callbacks(
                 status["stow_loc"],
                 status["cal_loc"],
                 status["horizon_points"],
+                status["beam_width"],
             )
         return ""
 

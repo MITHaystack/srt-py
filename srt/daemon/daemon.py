@@ -188,7 +188,12 @@ class SmallRadioTelescopeDaemon:
             j = (scan % 5) - 2
             el_dif = i * self.beamwidth * 0.5
             az_dif_scalar = np.cos((scan_center[1] + el_dif) * np.pi / 180.0)
-            az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
+            # Avoid issues where you get close to the zenith
+            if np.abs(az_dif_scalar)<1e-4:
+                az_dif = 0
+            else:
+                az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
+    
             new_rotor_offsets = (az_dif, el_dif)
 
             if self.rotor.angles_within_bounds(*scan_center):
