@@ -4,6 +4,16 @@ srt-py Change Log
 
 .. current developments
 
+vv1.1.1
+====================
+
+**Added:**
+
+* Dashboard view mode in srt_runner.py
+* Visability on dashboard showing beamwdith.
+
+
+
 vv1.1.0
 ====================
 
