@@ -277,6 +277,7 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
                 t=30,
                 pad=4,
             ),
+            "uirevision": True,
         },
     )
     return fig
@@ -330,6 +331,7 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
                 t=30,
                 pad=4,
             ),
+            "uirevision": True,
         },
     )
     data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(spectrum)) + cf
@@ -447,6 +449,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
             "title": "N-Point Scan",
             "xaxis_title": "Normalized x",
             "yaxis_title": "Normalized y",
+            "uirevision": True,
         },
     )
     fig.add_annotation(
