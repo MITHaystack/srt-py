@@ -17,6 +17,7 @@ def generate_az_el_graph(
     stow_position,
     cal_position,
     horizon_points,
+    beam_width
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -36,6 +37,8 @@ def generate_az_el_graph(
         Location of the Antenna for Comparative Calibration
     horizon_points : list((float, float))
         Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
+    beam_width : float
+        Beamwidth of the antenna
 
     Returns
     -------
@@ -48,6 +51,8 @@ def generate_az_el_graph(
     el_lower_display_lim = 0
     el_upper_display_lim = 90
 
+
+    # Markers for celestial objects
     fig.add_trace(
         go.Scatter(
             x=[points_dict[name][0] for name in points_dict],
@@ -60,17 +65,42 @@ def generate_az_el_graph(
         )
     )
 
+    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles. 
+
+    az_l = current_location[0]
+    el_l = current_location[1]
+    el_u = el_l + .5*beam_width
+    el_d = el_l - .5*beam_width
+
+    azu= .5*beam_width/np.cos(el_u * np.pi / 180.0)
+    azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
+    x_vec = [max(az_l-azd,0),min(az_l-azu,360), max(az_l+azu,0),min(az_l+azd,360),max(az_l-azd,0)]
+    y_vec = [max(el_d,0),min(el_u,90), min(el_u,90),min(el_d,90),max(el_d,0)]
+
     fig.add_trace(
         go.Scatter(
-            x=[current_location[0]],
-            y=[current_location[1]],
+            x=x_vec, 
+            y=y_vec, 
+            fill="toself",
+            fillcolor="rgba(147,112,219,0.1)",
+            text=["Visability"],
+            name='Visability',
+            mode="markers",
+            marker_color=["rgba(147,112,219, .8)" for _ in x_vec]
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[az_l],
+            y=[el_l],
             text=["Antenna Location"],
             name="Current Location",
             mode="markers+text",
             textposition="bottom center",
             marker_color=["rgba(0, 0, 152, .8)"],
         )
-    )
+    )        
 
     fig.add_trace(
         go.Scatter(
