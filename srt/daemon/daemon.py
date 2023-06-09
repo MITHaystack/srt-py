@@ -46,7 +46,10 @@ class SmallRadioTelescopeDaemon:
 
         # Store Individual Settings In Object
         self.config_directory = config_directory
-        self.station = config_dict["STATION"]
+        # self.station = config_dict["STATION"]
+        self.station = {"latitude": 0.0,
+                        "longitude": 0.0,
+                        "name": None}
         self.contact = config_dict["EMERGENCY_CONTACT"]
         self.az_limits = (
             config_dict["AZLIMITS"]["lower_bound"],
@@ -104,7 +107,8 @@ class SmallRadioTelescopeDaemon:
         self.ephemeris_tracker = EphemerisTracker(
             self.station["latitude"],
             self.station["longitude"],
-            config_file=str(Path(config_directory, "sky_coords.csv").absolute()),
+            config_file=str(
+                Path(config_directory, "sky_coords.csv").absolute()),
         )
         self.ephemeris_locations = self.ephemeris_tracker.get_all_azimuth_elevation()
         self.ephemeris_vlsr = self.ephemeris_tracker.get_all_vlsr()
@@ -183,17 +187,18 @@ class SmallRadioTelescopeDaemon:
         scan_center = self.ephemeris_locations[object_id]
         np_sides = [5, 5]
         for scan in range(N_pnt_default):
-            self.log_message("{0} of {1} point scan.".format(scan, N_pnt_default))
+            self.log_message(
+                "{0} of {1} point scan.".format(scan, N_pnt_default))
             i = (scan // 5) - 2
             j = (scan % 5) - 2
             el_dif = i * self.beamwidth * 0.5
             az_dif_scalar = np.cos((scan_center[1] + el_dif) * np.pi / 180.0)
             # Avoid issues where you get close to the zenith
-            if np.abs(az_dif_scalar)<1e-4:
+            if np.abs(az_dif_scalar) < 1e-4:
                 az_dif = 0
             else:
                 az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
-    
+
             new_rotor_offsets = (az_dif, el_dif)
 
             if self.rotor.angles_within_bounds(*scan_center):
@@ -207,7 +212,8 @@ class SmallRadioTelescopeDaemon:
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
         maxdiff = (az_dif, el_dif)
-        self.n_point_data = [scan_center, maxdiff, rotor_loc, pwr_list, np_sides]
+        self.n_point_data = [scan_center, maxdiff,
+                             rotor_loc, pwr_list, np_sides]
 
         # add code to collect spectrum data.
         self.rotor_offsets = (0.0, 0.0)
@@ -317,7 +323,8 @@ class SmallRadioTelescopeDaemon:
             while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
                 sleep(0.1)
         else:
-            self.log_message(f"Object at {new_rotor_cmd_location} Not in Motor Bounds")
+            self.log_message(
+                f"Object at {new_rotor_cmd_location} Not in Motor Bounds")
 
     def point_at_offset(self, az_off, el_off):
         """From the Current Object or Position Pointed At, Move to an Offset of That Location
@@ -454,6 +461,35 @@ class SmallRadioTelescopeDaemon:
             ("freq", self.radio_center_frequency + self.radio_frequency_correction)
         )  # Push Update to GNU Radio
 
+    def set_coords(self, lat, long, config_directory="config/sky_coords.csv", name=None):
+        """Set the lat/long coordinates of observer location
+
+        Parameters
+        ----------
+        lat : float
+            Observer Latitude, in degs, to Set SDR to
+
+        long: float
+            Observer Longitude, in degs, to Set SDR to
+
+        name: string
+            Observer location name, None if not given
+
+        Returns
+        -------
+        None
+        """
+        self.station = {"latitude": lat,
+                        "longitude": long,
+                        "name": name}
+        self.ephemeris_tracker = EphemerisTracker(
+            self.station["latitude"],
+            self.station["longitude"],
+            config_file=str(
+                Path(config_directory, "sky_coords.csv").absolute()),
+        )
+        # self.radio_queue.put((""))
+
     def set_samp_rate(self, samp_rate):
         """Set the Sample Rate of the Processing Script
 
@@ -536,7 +572,8 @@ class SmallRadioTelescopeDaemon:
                 if not azel_within_range(
                     self.rotor_location, current_rotor_cmd_location
                 ):
-                    self.rotor.set_azimuth_elevation(*current_rotor_cmd_location)
+                    self.rotor.set_azimuth_elevation(
+                        *current_rotor_cmd_location)
                     sleep(1)
                     start_time = time()
                     while (
@@ -670,8 +707,10 @@ class SmallRadioTelescopeDaemon:
         ephemeris_tracker_thread = Thread(
             target=self.update_ephemeris_location, daemon=True
         )
-        rotor_pointing_thread = Thread(target=self.update_rotor_status, daemon=True)
-        command_queueing_thread = Thread(target=self.update_command_queue, daemon=True)
+        rotor_pointing_thread = Thread(
+            target=self.update_rotor_status, daemon=True)
+        command_queueing_thread = Thread(
+            target=self.update_command_queue, daemon=True)
         status_thread = Thread(target=self.update_status, daemon=True)
         radio_thread = Thread(target=self.update_radio_settings, daemon=True)
 
@@ -694,11 +733,13 @@ class SmallRadioTelescopeDaemon:
             "Motor Elevation": ("motor_el", self.rotor_location[1]),
             "Motor GalLat": (
                 "glat",
-                self.ephemeris_tracker.convert_to_gal_coord(self.rotor_location)[0],
+                self.ephemeris_tracker.convert_to_gal_coord(
+                    self.rotor_location)[0],
             ),
             "Motor GalLon": (
                 "glon",
-                self.ephemeris_tracker.convert_to_gal_coord(self.rotor_location)[1],
+                self.ephemeris_tracker.convert_to_gal_coord(
+                    self.rotor_location)[1],
             ),
             "Object Tracking": ("soutrack", "at_stow"),
             "System Temp": ("tsys", self.temp_sys),
@@ -751,14 +792,20 @@ class SmallRadioTelescopeDaemon:
                     self.quit()
                 elif command_name == "record":
                     self.start_recording(
-                        name=(None if len(command_parts) <= 1 else command_parts[1])
+                        name=(None if len(command_parts)
+                              <= 1 else command_parts[1])
                     )
                 elif command_name == "roff":
                     self.stop_recording()
                 elif command_name == "freq":
-                    self.set_freq(frequency=float(command_parts[1]) * pow(10, 6))
+                    self.set_freq(frequency=float(
+                        command_parts[1]) * pow(10, 6))
                 elif command_name == "samp":
-                    self.set_samp_rate(samp_rate=float(command_parts[1]) * pow(10, 6))
+                    self.set_samp_rate(samp_rate=float(
+                        command_parts[1]) * pow(10, 6))
+                elif command_name == "coords":
+                    self.set_coords(
+                        float(command_parts[1]), float(command_parts[2]))
                 elif command_name == "azel":
                     self.point_at_azel(
                         float(command_parts[1]),
@@ -774,7 +821,8 @@ class SmallRadioTelescopeDaemon:
                     sleep(float(command_name))
                 elif command_name == "wait":
                     sleep(float(command_parts[1]))
-                elif command_name.split(":")[0] == "lst":  # Wait Until Next Time H:M:S
+                # Wait Until Next Time H:M:S
+                elif command_name.split(":")[0] == "lst":
                     time_string = command_name.replace("LST:", "")
                     time_val = datetime.strptime(time_string, "%H:%M:%S")
                     while time_val < datetime.utcfromtimestamp(time()):
@@ -784,7 +832,8 @@ class SmallRadioTelescopeDaemon:
                     ).total_seconds()
                     sleep(time_delta)
                 elif len(command_name.split(":")) == 5:  # Wait Until Y:D:H:M:S
-                    time_val = datetime.strptime(command_name, "%Y:%j:%H:%M:%S")
+                    time_val = datetime.strptime(
+                        command_name, "%Y:%j:%H:%M:%S")
                     time_delta = (
                         time_val - datetime.utcfromtimestamp(time())
                     ).total_seconds()

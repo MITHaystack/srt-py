@@ -87,7 +87,7 @@ def generate_app(config_dir, config_dict):
     pio.templates.default = "seaborn"  # Style Choice for Graphs
     curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects
-    side_title = "Small Radio Telescope"
+    side_title = "Very Small Radio Telescope"
 
     image_filename = curfold.joinpath(
         "images", "MIT_HO_logo_landscape.png"
@@ -142,7 +142,8 @@ def generate_app(config_dir, config_dict):
             dcc.Location(id="url"),
             sidebar,
             content,
-            dcc.Interval(id="interval-component", interval=refresh_time, n_intervals=0),
+            dcc.Interval(id="interval-component",
+                         interval=refresh_time, n_intervals=0),
             html.Div(id="output-clientside"),
         ],
         id="mainContainer",
@@ -265,6 +266,7 @@ def generate_app(config_dir, config_dict):
         """
         status = status_thread.get_status()
         if status is None:
+            lat = long = np.nan
             az = el = np.nan
             az_offset = el_offset = np.nan
             cf = np.nan
@@ -272,6 +274,8 @@ def generate_app(config_dir, config_dict):
             status_string = "SRT Not Connected"
             vlsr = np.nan
         else:
+            lat = status["location"]["latitude"]
+            long = status["location"]["longitude"]
             az = status["motor_azel"][0]
             el = status["motor_azel"][1]
             az_offset = status["motor_offsets"][0]
@@ -287,8 +291,15 @@ def generate_app(config_dir, config_dict):
             else:
                 status_string = "SRT In Use!"
 
+        if lat == 0.0 and long == 0.0:
+            set_coords_string = "Please set your current location."
+        else:
+            set_coords_string = ""
+
         status_string = f"""
          #### {status_string}
+         {set_coords_string}
+         - Location Lat, Long: {lat} {long} deg
          - Motor Az, El: {az:.1f}, {el:.1f} deg
          - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
          - Center Frequency: {cf / pow(10, 6)} MHz

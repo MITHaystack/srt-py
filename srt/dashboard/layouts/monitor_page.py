@@ -29,13 +29,15 @@ import io
 import numpy as np
 
 from .navbar import generate_navbar
-from .graphs import (
-    generate_az_el_graph,
-    generate_power_history_graph,
-    generate_spectrum_graph,
-    generate_npoint,
-    emptygraph,
-)
+from .graphs import *
+# (
+#     generate_az_el_graph,
+#     generate_az_el_time_graph,
+#     generate_power_history_graph,
+#     generate_spectrum_graph,
+#     generate_npoint,
+#     emptygraph,
+# )
 
 
 def generate_first_row():
@@ -71,35 +73,35 @@ def generate_first_row():
     )
 
 
-def generate_fig_row():
-    """Generates First Row (Power and Spectrum) Display
+# def generate_fig_row():
+#     """Generates First Row (Power and Spectrum) Display
 
-    Returns
-    -------
-    Div Containing First Row Objects
-    """
-    return html.Div(
-        [
-            html.Div(
-                [
-                    dcc.Store(id="npoint_info", storage_type="session"),
-                    html.Div(
-                        [dcc.Graph(id="npoint-graph")],
-                        className="pretty_container six columns",
-                    ),
-                    # html.Div(
-                    #     [dcc.Graph(id="beamsswitch-graph")],
-                    #     className="pretty_container six columns",
-                    # ),
-                ],
-                className="flex-display",
-                style={
-                    "justify-content": "left",
-                    "margin": "5px",
-                },
-            ),
-        ]
-    )
+#     Returns
+#     -------
+#     Div Containing First Row Objects
+#     """
+#     return html.Div(
+#         [
+#             html.Div(
+#                 [
+#                     dcc.Store(id="npoint_info", storage_type="session"),
+#                     html.Div(
+#                         [dcc.Graph(id="npoint-graph")],
+#                         className="pretty_container six columns",
+#                     ),
+#                     # html.Div(
+#                     #     [dcc.Graph(id="beamsswitch-graph")],
+#                     #     className="pretty_container six columns",
+#                     # ),
+#                 ],
+#                 className="flex-display",
+#                 style={
+#                     "justify-content": "left",
+#                     "margin": "5px",
+#                 },
+#             ),
+#         ]
+#     )
 
 
 def generate_popups():
@@ -149,6 +151,50 @@ def generate_popups():
                 ],
                 id="az-el-graph-modal",
             ),
+
+
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Enter Location Coordinates"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(
+                                id="coords-lat",
+                                type="number",
+                                debounce=True,
+                                placeholder="Latitude",
+                            ),
+                            dcc.Input(
+                                id="coords-long",
+                                type="number",
+                                debounce=True,
+                                placeholder="Longitude",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="coords-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="coords-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="coords-modal",
+            ),
+
+
             dbc.Modal(
                 [
                     dbc.ModalHeader("Enter Azimuth and Elevation"),
@@ -307,7 +353,8 @@ def generate_popups():
                             html.H5("Select a File Type"),
                             dcc.RadioItems(
                                 options=[
-                                    {"label": "Digital RF (Raw Data)", "value": ""},
+                                    {"label": "Digital RF (Raw Data)",
+                                     "value": ""},
                                     {
                                         "label": ".rad Format (Spectrum)",
                                         "value": "*.rad",
@@ -352,7 +399,8 @@ def generate_popups():
                             dcc.Upload(
                                 id="upload-data",
                                 children=html.Div(
-                                    ["Drag and Drop or ", html.A("Select Files")]
+                                    ["Drag and Drop or ",
+                                        html.A("Select Files")]
                                 ),
                                 style={
                                     "width": "95%",
@@ -383,7 +431,8 @@ def generate_popups():
                             html.H6(
                                 "Are you sure you want to try to start the background SRT Process?"
                             ),
-                            html.H6("If the process is already running, this may fail"),
+                            html.H6(
+                                "If the process is already running, this may fail"),
                             html.H5(
                                 "Process is Already Running",
                                 id="start-warning",
@@ -430,6 +479,9 @@ def generate_layout():
         Monitor Page Layout
     """
     drop_down_buttons = {
+        "Coordinates": [
+            dbc.DropdownMenuItem("Set Location", id="btn-set-coords"),
+        ],
         "Antenna": [
             dbc.DropdownMenuItem("Stow", id="btn-stow"),
             dbc.DropdownMenuItem("Set AzEl", id="btn-point-azel"),
@@ -458,13 +510,36 @@ def generate_layout():
                 [
                     html.Div(
                         [dcc.Graph(id="az-el-graph")],
-                        className="pretty_container twelve columns",
+                        className="pretty_container six columns",
                     ),
+
+                    # html.Div(
+                    #     [dcc.Graph(id="az-el-graph2")],
+                    #     className="pretty_container six columns",
+                    # ),
+
+
+                    html.Div(
+                        [dcc.Store(id="npoint_info", storage_type="session"),
+                            html.Div(
+                                [dcc.Graph(id="npoint-graph")],
+
+                        ),
+                            # html.Div(
+                            #     [dcc.Graph(id="beamsswitch-graph")],
+                            #     className="pretty_container six columns",
+                            # ),
+                        ],
+                        className="pretty_container six columns",
+
+                    ),
+
+
                 ],
                 className="flex-display",
                 style={"margin": dict(l=10, r=5, t=5, b=5)},
             ),
-            generate_fig_row(),
+            # generate_fig_row(),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
         ]
@@ -525,7 +600,8 @@ def register_callbacks(
         return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=False)
 
     @app.callback(
-        Output("power-graph", "figure"), [Input("interval-component", "n_intervals")]
+        Output("power-graph",
+               "figure"), [Input("interval-component", "n_intervals")]
     )
     def update_power_graph(n):
         status = status_thread.get_status()
@@ -541,7 +617,8 @@ def register_callbacks(
 
     @app.callback(
         Output("npoint_info", "data"),
-        [Input("interval-component", "n_intervals"), State("npoint_info", "data")],
+        [Input("interval-component", "n_intervals"),
+         State("npoint_info", "data")],
     )
     def npointstore(n, npdata):
         """Update the npoint track info
@@ -582,46 +659,46 @@ def register_callbacks(
         else:
             raise PreventUpdate
 
-    @app.callback(
-        Output("npoint-graph", "figure"),
-        [Input("npoint_info", "modified_timestamp")],
-        [State("npoint_info", "data")],
-    )
-    def update_n_point(ts, npdata):
-        """Update the npoint track info
+    # @app.callback(
+    #     Output("npoint-graph", "figure"),
+    #     [Input("npoint_info", "modified_timestamp")],
+    #     [State("npoint_info", "data")],
+    # )
+    # def update_n_point(ts, npdata):
+    #     """Update the npoint track info
 
-        Parameters
-        ----------
-        ts : int
-            modified time stamp
-        npdata : dict
-            will hold N- point data.
+    #     Parameters
+    #     ----------
+    #     ts : int
+    #         modified time stamp
+    #     npdata : dict
+    #         will hold N- point data.
 
-        Returns
-        -------
-        ofig : plotly.fig
-            Plotly figure
-        """
+    #     Returns
+    #     -------
+    #     ofig : plotly.fig
+    #         Plotly figure
+    #     """
 
-        if ts is None:
-            raise PreventUpdate
-        if npdata is None:
-            return emptygraph("x", "y", "N-Point Scan")
+    #     if ts is None:
+    #         raise PreventUpdate
+    #     if npdata is None:
+    #         return emptygraph("x", "y", "N-Point Scan")
 
-        if npdata.get("scan_center", [1, 1])[0] == 0:
-            return emptygraph("x", "y", "N-Point Scan")
+    #     if npdata.get("scan_center", [1, 1])[0] == 0:
+    #         return emptygraph("x", "y", "N-Point Scan")
 
-        az_a = []
-        el_a = []
-        for irot in npdata["rotor_loc"]:
-            az_a.append(irot[0])
-            el_a.append(irot[1])
-        mdiff = npdata["maxdiff"]
-        sc = npdata["scan_center"]
-        plist = npdata["pwr"]
-        sd = npdata["sides"]
-        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc, sd)
-        return ofig
+    #     az_a = []
+    #     el_a = []
+    #     for irot in npdata["rotor_loc"]:
+    #         az_a.append(irot[0])
+    #         el_a.append(irot[1])
+    #     mdiff = npdata["maxdiff"]
+    #     sc = npdata["scan_center"]
+    #     plist = npdata["pwr"]
+    #     sd = npdata["sides"]
+    #     ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc, sd)
+    #     return ofig
 
     @app.callback(
         Output("start-warning", "children"),
@@ -652,7 +729,8 @@ def register_callbacks(
     @app.callback(
         Output("output-data-upload", "children"),
         [Input("upload-data", "contents")],
-        [State("upload-data", "filename"), State("upload-data", "last_modified")],
+        [State("upload-data", "filename"),
+         State("upload-data", "last_modified")],
     )
     def update_output(contents, name, date):
         if contents is not None:
@@ -673,12 +751,32 @@ def register_callbacks(
             return html.Div(["Awaiting Command File"])
 
     @app.callback(
-        Output("az-el-graph", "figure"), [Input("interval-component", "n_intervals")]
+        Output("az-el-graph",
+               "figure"), [Input("interval-component", "n_intervals")]
     )
     def update_az_el_graph(n):
         status = status_thread.get_status()
         if status is not None:
             return generate_az_el_graph(
+                status["az_limits"],
+                status["el_limits"],
+                status["object_locs"],
+                status["motor_azel"],
+                status["stow_loc"],
+                status["cal_loc"],
+                status["horizon_points"],
+                status["beam_width"],
+            )
+        return ""
+
+    @app.callback(
+        Output("az-el-time-graph2",
+               "figure"), [Input("interval-component", "n_intervals")]
+    )
+    def update_az_el_time_graph(n):
+        status = status_thread.get_status()
+        if status is not None:
+            return generate_az_el_time_graph(
                 status["az_limits"],
                 status["el_limits"],
                 status["object_locs"],
@@ -697,7 +795,8 @@ def register_callbacks(
             Input("az-el-graph-btn-yes", "n_clicks"),
             Input("az-el-graph-btn-no", "n_clicks"),
         ],
-        [State("az-el-graph-modal", "is_open"), State("point-options", "value")],
+        [State("az-el-graph-modal", "is_open"),
+         State("point-options", "value")],
     )
     def az_el_click_func(clickData, n_clicks_yes, n_clicks_no, is_open, mode):
         ctx = dash.callback_context
@@ -706,7 +805,8 @@ def register_callbacks(
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "az-el-graph-btn-yes":
-                command_thread.add_to_queue(f"{clickData['points'][0]['text']}{mode}")
+                command_thread.add_to_queue(
+                    f"{clickData['points'][0]['text']}{mode}")
             if (
                 n_clicks_yes
                 or n_clicks_no
@@ -715,6 +815,29 @@ def register_callbacks(
                     and not clickData["points"][0]["text"] == "Antenna Location"
                 )
             ):
+                return not is_open
+            return is_open
+
+    @app.callback(
+        Output("coords-modal", "is_open"),
+        [
+            Input("btn-set-coords", "n_clicks"),
+            Input("coords-btn-yes", "n_clicks"),
+            Input("coords-btn-no", "n_clicks"),
+        ],
+        [State("coords-modal", "is_open"),
+         State("coords-lat", "value"),
+         State("coords-long", "value")],
+    )
+    def coords_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, lat, long):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            if button_id == "coords-btn-yes":
+                command_thread.add_to_queue(f"coords {lat} {long}")
+            if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
             return is_open
 

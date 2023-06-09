@@ -51,13 +51,13 @@ def generate_az_el_graph(
     el_lower_display_lim = 0
     el_upper_display_lim = 90
 
-
     # Markers for celestial objects
     fig.add_trace(
         go.Scatter(
             x=[points_dict[name][0] for name in points_dict],
             y=[points_dict[name][1] for name in points_dict],
             text=[name for name in points_dict],
+            # hovertext=[name for name in points_dict],
             name="Celestial Objects",
             mode="markers+text",
             textposition="top center",
@@ -65,22 +65,24 @@ def generate_az_el_graph(
         )
     )
 
-    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles. 
+    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
 
     az_l = current_location[0]
     el_l = current_location[1]
     el_u = el_l + .5*beam_width
     el_d = el_l - .5*beam_width
 
-    azu= .5*beam_width/np.cos(el_u * np.pi / 180.0)
+    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
     azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
-    x_vec = [max(az_l-azd,0),min(az_l-azu,360), max(az_l+azu,0),min(az_l+azd,360),max(az_l-azd,0)]
-    y_vec = [max(el_d,0),min(el_u,90), min(el_u,90),min(el_d,90),max(el_d,0)]
+    x_vec = [max(az_l-azd, 0), min(az_l-azu, 360),
+             max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
+    y_vec = [max(el_d, 0), min(el_u, 90), min(
+        el_u, 90), min(el_d, 90), max(el_d, 0)]
 
     fig.add_trace(
         go.Scatter(
-            x=x_vec, 
-            y=y_vec, 
+            x=x_vec,
+            y=y_vec,
             fill="toself",
             fillcolor="rgba(147,112,219,0.1)",
             text=["Visability"],
@@ -100,7 +102,7 @@ def generate_az_el_graph(
             textposition="bottom center",
             marker_color=["rgba(0, 0, 152, .8)"],
         )
-    )        
+    )
 
     fig.add_trace(
         go.Scatter(
@@ -211,7 +213,7 @@ def generate_az_el_graph(
     # Set axes ranges
     fig.update_layout(
         title={
-            "text": "Click to Track an Object",
+            # "text": "Click to Track an Object",
             "y": 0.97,
             "x": 0.25,
             "xanchor": "center",
@@ -221,17 +223,250 @@ def generate_az_el_graph(
             l=20,
             r=20,
             b=20,
-            t=30,
+            t=50,
             pad=4,
         ),
         xaxis_title="Azimuth",
         yaxis_title="Elevation",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
     )
     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
 
     return fig
+
+# def generate_az_el_time_graph(
+#     az_limits,
+#     el_limits,
+#     points_dict,
+#     current_location,
+#     stow_position,
+#     cal_position,
+#     horizon_points,
+#     beam_width
+# ):
+#     """Generates Figure for Displaying AzEl Locations
+
+#     Parameters
+#     ----------
+#     az_limits : (float, float)
+#         Minimum and Maximum Azimuth Limits
+#     el_limits : (float, float)
+#         Minimum and Maximum Elevation Limits
+#     points_dict : dict
+#         Dictionary of All Points Azimuth and Elevation
+#     current_location : (float, float)
+#         Current Antenna Azimuth and Elevation
+#     stow_position : (float, float)
+#         Location of the Antenna in Stow
+#     cal_position : (float, float)
+#         Location of the Antenna for Comparative Calibration
+#     horizon_points : list((float, float))
+#         Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
+#     beam_width : float
+#         Beamwidth of the antenna
+
+#     Returns
+#     -------
+#     Plotly Figure of Azimuth and Elevation Graph
+#     """
+#     fig = go.Figure()
+
+#     time_lower_display_lim = 0
+#     time_lower_display_lim = 60
+#     az_lower_display_lim = 0
+#     az_upper_display_lim = 360
+#     el_lower_display_lim = 0
+#     el_upper_display_lim = 90
+
+#     time_dict = [x for x in range(0,61,5)] # hard coded time interval array
+
+#     # Markers for celestial objects
+
+#     fig.add_trace(
+#         go.Scatter(
+#             x=[points_dict[name][0] for name in points_dict],
+#             y=[points_dict[name][1] for name in points_dict],
+#             text=[name for name in points_dict],
+#             # hovertext=[name for name in points_dict],
+#             name="Celestial Objects",
+#             mode="markers+text",
+#             textposition="top center",
+#             marker_color=["rgba(152, 0, 0, .8)" for _ in points_dict],
+#         )
+#     )
+
+#     # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
+
+#     az_l = current_location[0]
+#     el_l = current_location[1]
+#     el_u = el_l + .5*beam_width
+#     el_d = el_l - .5*beam_width
+
+#     azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
+#     azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
+#     x_vec = [max(az_l-azd, 0), min(az_l-azu, 360),
+#              max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
+#     y_vec = [max(el_d, 0), min(el_u, 90), min(
+#         el_u, 90), min(el_d, 90), max(el_d, 0)]
+
+#     fig.add_trace(
+#         go.Scatter(
+#             x=x_vec,
+#             y=y_vec,
+#             fill="toself",
+#             fillcolor="rgba(147,112,219,0.1)",
+#             text=["Visability"],
+#             name='Visability',
+#             mode="markers",
+#             marker_color=["rgba(147,112,219, .8)" for _ in x_vec]
+#         )
+#     )
+
+#     fig.add_trace(
+#         go.Scatter(
+#             x=[az_l],
+#             y=[el_l],
+#             text=["Antenna Location"],
+#             name="Current Location",
+#             mode="markers+text",
+#             textposition="bottom center",
+#             marker_color=["rgba(0, 0, 152, .8)"],
+#         )
+#     )
+
+#     fig.add_trace(
+#         go.Scatter(
+#             x=[stow_position[0], cal_position[0]],
+#             y=[stow_position[1], cal_position[1]],
+#             text=["Stow", "Cal"],
+#             name="Other Locations",
+#             mode="markers+text",
+#             textposition="top center",
+#             marker_color=["rgba(0, 152, 0, .8)", "rgba(0, 152, 0, .8)"],
+#         )
+#     )
+
+#     if horizon_points is not None and len(horizon_points) > 0:
+#         fig.add_trace(
+#             go.Scatter(
+#                 x=[point[0] for point in horizon_points],
+#                 y=[point[1] for point in horizon_points],
+#                 name="Horizon",
+#                 mode="lines",
+#                 textposition="top center",
+#                 marker_color=["rgba(0, 152, 0, .8)"],
+#             )
+#         )
+
+#     if az_limits[0] < az_limits[1]:
+#         fig.add_shape(
+#             type="rect",
+#             xref="x",
+#             yref="y",
+#             x0=0,
+#             y0=-90,
+#             x1=az_limits[0],
+#             y1=90,
+#             fillcolor="lightgrey",
+#         )
+#         fig.add_shape(
+#             type="rect",
+#             xref="x",
+#             yref="y",
+#             x0=360,
+#             y0=-90,
+#             x1=az_limits[1],
+#             y1=90,
+#             fillcolor="lightgrey",
+#         )
+#     else:
+#         fig.add_shape(
+#             type="rect",
+#             xref="x",
+#             yref="y",
+#             x0=az_limits[1],
+#             y0=-90,
+#             x1=az_limits[0],
+#             y1=90,
+#             fillcolor="lightgrey",
+#         )
+
+#     fig.add_shape(
+#         type="rect",
+#         xref="x",
+#         yref="y",
+#         x0=0,
+#         y0=-90,
+#         x1=360,
+#         y1=el_limits[0],
+#         fillcolor="lightgrey",
+#     )
+#     fig.add_shape(
+#         type="rect",
+#         xref="x",
+#         yref="y",
+#         x0=0,
+#         y0=90,
+#         x1=360,
+#         y1=el_limits[1],
+#         fillcolor="lightgrey",
+#     )
+
+#     for val in az_limits:
+#         fig.add_shape(
+#             type="line",
+#             x0=val,
+#             y0=el_lower_display_lim,
+#             x1=val,
+#             y1=el_upper_display_lim,
+#             line=dict(
+#                 color="LightBlue",
+#                 width=4,
+#                 dash="dashdot",
+#             ),
+#         )
+
+#     for val in el_limits:
+#         fig.add_shape(
+#             type="line",
+#             x0=az_lower_display_lim,
+#             y0=val,
+#             x1=az_upper_display_lim,
+#             y1=val,
+#             line=dict(
+#                 color="LightBlue",
+#                 width=4,
+#                 dash="dashdot",
+#             ),
+#         )
+
+#     # Set axes ranges
+#     fig.update_layout(
+#         title={
+#             # "text": "Click to Track an Object",
+#             "y": 0.97,
+#             "x": 0.25,
+#             "xanchor": "center",
+#             "yanchor": "top",
+#         },
+#         margin=dict(
+#             l=20,
+#             r=20,
+#             b=20,
+#             t=50,
+#             pad=4,
+#         ),
+#         xaxis_title="Azimuth",
+#         yaxis_title="Elevation",
+#         legend=dict(orientation="h", yanchor="bottom",
+#                     y=1.02, xanchor="right", x=1),
+#     )
+#     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
+#     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
+
+#     return fig
 
 
 def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
@@ -334,7 +569,8 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
             "uirevision": True,
         },
     )
-    data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(spectrum)) + cf
+    data_range = np.linspace(-bandwidth / 2, bandwidth /
+                             2, num=len(spectrum)) + cf
     if len(spectrum) > max_histogram_size:
         fig.add_trace(
             go.Scatter(
