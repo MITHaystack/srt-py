@@ -29,15 +29,14 @@ import io
 import numpy as np
 
 from .navbar import generate_navbar
-from .graphs import *
-# (
-#     generate_az_el_graph,
-#     generate_az_el_time_graph,
-#     generate_power_history_graph,
-#     generate_spectrum_graph,
-#     generate_npoint,
-#     emptygraph,
-# )
+from .graphs import (
+    generate_az_el_graph,
+    generate_az_el_time_graph,
+    generate_power_history_graph,
+    generate_spectrum_graph,
+    # generate_npoint,
+    emptygraph,
+)
 
 
 def generate_first_row():
@@ -513,26 +512,26 @@ def generate_layout():
                         className="pretty_container six columns",
                     ),
 
-                    # html.Div(
-                    #     [dcc.Graph(id="az-el-graph2")],
-                    #     className="pretty_container six columns",
-                    # ),
-
-
                     html.Div(
-                        [dcc.Store(id="npoint_info", storage_type="session"),
-                            html.Div(
-                                [dcc.Graph(id="npoint-graph")],
-
-                        ),
-                            # html.Div(
-                            #     [dcc.Graph(id="beamsswitch-graph")],
-                            #     className="pretty_container six columns",
-                            # ),
-                        ],
+                        [dcc.Graph(id="az-el-graph2")],
                         className="pretty_container six columns",
-
                     ),
+
+
+                    # html.Div(
+                    #     [dcc.Store(id="npoint_info", storage_type="session"),
+                    #         html.Div(
+                    #             [dcc.Graph(id="npoint-graph")],
+
+                    #     ),
+                    #         # html.Div(
+                    #         #     [dcc.Graph(id="beamsswitch-graph")],
+                    #         #     className="pretty_container six columns",
+                    #         # ),
+                    #     ],
+                    #     className="pretty_container six columns",
+
+                    # ),
 
 
                 ],
@@ -770,7 +769,7 @@ def register_callbacks(
         return ""
 
     @app.callback(
-        Output("az-el-time-graph2",
+        Output("az-el-graph2",
                "figure"), [Input("interval-component", "n_intervals")]
     )
     def update_az_el_time_graph(n):
@@ -779,7 +778,7 @@ def register_callbacks(
             return generate_az_el_time_graph(
                 status["az_limits"],
                 status["el_limits"],
-                status["object_locs"],
+                status["object_time_locs"],
                 status["motor_azel"],
                 status["stow_loc"],
                 status["cal_loc"],
@@ -788,7 +787,7 @@ def register_callbacks(
             )
         return ""
 
-    @app.callback(
+    @ app.callback(
         Output("az-el-graph-modal", "is_open"),
         [
             Input("az-el-graph", "clickData"),
@@ -818,7 +817,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("coords-modal", "is_open"),
         [
             Input("btn-set-coords", "n_clicks"),
@@ -841,7 +840,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("point-modal", "is_open"),
         [
             Input("btn-point-azel", "n_clicks"),
@@ -866,7 +865,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("freq-modal", "is_open"),
         [
             Input("btn-set-freq", "n_clicks"),
@@ -890,7 +889,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("samp-modal", "is_open"),
         [
             Input("btn-set-samp", "n_clicks"),
@@ -914,7 +913,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("offset-modal", "is_open"),
         [
             Input("btn-set-offset", "n_clicks"),
@@ -939,7 +938,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("record-modal", "is_open"),
         [
             Input("btn-start-record", "n_clicks"),
@@ -962,7 +961,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("cmd-file-modal", "is_open"),
         [
             Input("btn-cmd-file", "n_clicks"),
@@ -978,7 +977,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("start-modal", "is_open"),
         [
             Input("btn-start", "n_clicks"),
@@ -1023,7 +1022,7 @@ def register_callbacks(
                 return not is_open
             return is_open
 
-    @app.callback(
+    @ app.callback(
         Output("signal", "children"),
         [
             Input("btn-stow", "n_clicks"),

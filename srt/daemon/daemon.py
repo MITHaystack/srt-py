@@ -112,6 +112,7 @@ class SmallRadioTelescopeDaemon:
         )
         self.ephemeris_locations = self.ephemeris_tracker.get_all_azimuth_elevation()
         self.ephemeris_vlsr = self.ephemeris_tracker.get_all_vlsr()
+        self.ephemeris_time_locs = self.ephemeris_tracker.get_all_azel_time()
         self.current_vlsr = 0.0
         self.ephemeris_cmd_location = None
 
@@ -537,6 +538,9 @@ class SmallRadioTelescopeDaemon:
                 self.ephemeris_tracker.get_all_azimuth_elevation()
             )
             self.ephemeris_vlsr = self.ephemeris_tracker.get_all_vlsr()
+            self.ephemeris_time_locs = (
+                self.ephemeris_tracker.get_all_azel_time()
+            )
             if self.ephemeris_cmd_location is not None:
                 new_rotor_destination = self.ephemeris_locations[
                     self.ephemeris_cmd_location
@@ -639,6 +643,7 @@ class SmallRadioTelescopeDaemon:
                 "motor_cmd_azel": self.rotor_cmd_location,
                 "vlsr": self.current_vlsr,
                 "object_locs": self.ephemeris_locations,
+                "object_time_locs": self.ephemeris_time_locs,
                 "az_limits": self.az_limits,
                 "el_limits": self.el_limits,
                 "stow_loc": self.stow_location,

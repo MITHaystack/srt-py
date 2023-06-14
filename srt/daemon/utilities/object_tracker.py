@@ -12,6 +12,7 @@ import astropy.units as u
 
 import numpy as np
 from pathlib import Path
+from copy import deepcopy
 
 
 root_folder = Path(__file__).parent.parent.parent.parent
@@ -52,6 +53,7 @@ class EphemerisTracker:
         auto_download : bool
             Whether AstroPy is Permitted to Use Internet to Increase Accuracy
         """
+
         table = Table.read(Path(root_folder, config_file), format="ascii.csv")
 
         self.sky_coord_names = {}
@@ -89,7 +91,9 @@ class EphemerisTracker:
 
         self.az_el_dict = {}
         self.vlsr_dict = {}
+        self.time_interval_dict = {}
         self.update_all_az_el()
+        self.time_interval_dict = self.get_az_el_time_interval()
         conf.auto_download = auto_download
 
     def calculate_az_el(self, name, time, alt_az_frame):
@@ -244,6 +248,38 @@ class EphemerisTracker:
         self.az_el_dict : {str: (float, float)}
         """
         return self.az_el_dict
+
+    def get_all_azel_time(self):
+        """Returns Dictionary Mapping the Time Offset to a dictionary of updated azel coordinates
+
+        Returns
+        -------
+        self.time_interval_dict : {int: {str: (float, float)}}s
+        """
+        # return
+        return self.time_interval_dict
+
+    def update_azel_time_dict(self, offset):
+        """Returns a new dictionary mapping all objects to their azel coordinates for a given time offset
+
+        Returns
+        -------
+        self.az_el_dict_offset : {str: (float, float)}
+        """
+        new_time_dict = deepcopy(self.az_el_dict)
+        for object in new_time_dict:
+            value = self.get_azimuth_elevation(object, offset)
+            new_time_dict[object] = value
+        return new_time_dict
+
+    def get_az_el_time_interval(self):
+        # return a dictionary where each key is time from time now (min), value is dictionary all objects az el
+        time_interval_dict = self.time_interval_dict
+
+        for time_passed in range(0, 61, 5):
+            new_dict = self.update_azel_time_dict(time_passed)
+            time_interval_dict[time_passed] = new_dict
+        return time_interval_dict
 
     def get_azimuth_elevation(self, name, time_offset):
         """Returns Individual Object AzEl at Specified Time Offset

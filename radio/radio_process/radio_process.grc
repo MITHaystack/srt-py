@@ -1282,7 +1282,7 @@ blocks:
 - name: zeromq_pub_sink_2_0
   id: zeromq_pub_sink
   parameters:
-    address: tcp://127.0.0.1:5561
+    address: tcp://127.0.0.1:5561 
     affinity: ''
     alias: ''
     comment: ''
