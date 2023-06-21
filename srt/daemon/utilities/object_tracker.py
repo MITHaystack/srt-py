@@ -91,9 +91,12 @@ class EphemerisTracker:
 
         self.az_el_dict = {}
         self.vlsr_dict = {}
-        self.time_interval_dict = {}
+        # self.time_interval_dict = {}
+        self.time_interval_dict = self.inital_azeltime()
+
         self.update_all_az_el()
-        self.time_interval_dict = self.get_az_el_time_interval()
+
+        # self.update_azeltime()
         conf.auto_download = auto_download
 
     def calculate_az_el(self, name, time, alt_az_frame):
@@ -159,7 +162,7 @@ class EphemerisTracker:
         Parameters
         ----------
         az_el : (float, float)
-            Azimuth and Elevation 
+            Azimuth and Elevation
         time : AstroPy Time Obj
             Time of Conversion
 
@@ -238,6 +241,20 @@ class EphemerisTracker:
         self.vlsr_dict["Sun"] = self.calculate_vlsr("Sun", time, frame)
         self.az_el_dict["Moon"] = self.calculate_az_el("Moon", time, frame)
         self.vlsr_dict["Moon"] = self.calculate_vlsr("Moon", time, frame)
+
+        for time_passed in range(0, 61, 5):
+
+            timenew = time + time_passed
+            frame = AltAz(obstime=timenew, location=self.location)
+            transformed = self.sky_coords.transform_to(frame)
+
+            for name in self.sky_coord_names:
+                index = self.sky_coord_names[name]
+                self.time_interval_dict[time_passed][name] = (
+                    transformed.az[index].degree,
+                    transformed.alt[index].degree,
+                )
+
         self.latest_time = time
 
     def get_all_azimuth_elevation(self):
@@ -258,28 +275,6 @@ class EphemerisTracker:
         """
         # return
         return self.time_interval_dict
-
-    def update_azel_time_dict(self, offset):
-        """Returns a new dictionary mapping all objects to their azel coordinates for a given time offset
-
-        Returns
-        -------
-        self.az_el_dict_offset : {str: (float, float)}
-        """
-        new_time_dict = deepcopy(self.az_el_dict)
-        for object in new_time_dict:
-            value = self.get_azimuth_elevation(object, offset)
-            new_time_dict[object] = value
-        return new_time_dict
-
-    def get_az_el_time_interval(self):
-        # return a dictionary where each key is time from time now (min), value is dictionary all objects az el
-        time_interval_dict = self.time_interval_dict
-
-        for time_passed in range(0, 61, 5):
-            new_dict = self.update_azel_time_dict(time_passed)
-            time_interval_dict[time_passed] = new_dict
-        return time_interval_dict
 
     def get_azimuth_elevation(self, name, time_offset):
         """Returns Individual Object AzEl at Specified Time Offset
@@ -314,3 +309,33 @@ class EphemerisTracker:
             time = Time.now() + time_offset
             frame = AltAz(obstime=time, location=self.location)
             return self.calculate_vlsr(name, time, frame)
+
+    def inital_azeltime(self):
+        new_dict = {}
+        for time_passed in range(0, 61, 5):
+            # new_time_dict = deepcopy(self.az_el_dict)
+            new_time_dict = {}
+            new_dict[time_passed] = new_time_dict
+        return new_dict
+
+    def update_azeltime(self):
+        # if (
+        #     self.latest_time is not None
+        #     and Time.now() < self.latest_time + self.refresh_time
+        # ):
+        #     return
+
+        for time_passed in range(0, 61, 5):
+
+            time = Time.now() + time_passed
+            frame = AltAz(obstime=time, location=self.location)
+            transformed = self.sky_coords.transform_to(frame)
+
+            for name in self.sky_coord_names:
+                index = self.sky_coord_names[name]
+                self.time_interval_dict[time_passed][name] = (
+                    transformed.az[index].degree,
+                    transformed.alt[index].degree,
+                )
+        self.latest_time = Time.now()
+        return

@@ -7,6 +7,7 @@ Contains the Code for Generating Complicated Graphs
 import plotly.graph_objects as go
 from datetime import datetime
 import numpy as np
+from dash import Dash, dcc, html, Input, Output, callback
 
 
 def generate_az_el_graph(
@@ -240,6 +241,7 @@ def generate_az_el_graph(
 def generate_az_el_time_graph(
     az_limits,
     el_limits,
+    points_dict,
     points_time_dict,
     current_location,
     stow_position,
@@ -286,49 +288,30 @@ def generate_az_el_time_graph(
 
     # Markers for celestial objects
 
-    new_list = []
-    for time in points_time_dict:
-        for name in points_time_dict[time]:
-            new_list.append(points_time_dict[time][name][1])
+    # new_list = []
+    # for time in points_time_dict:
+    #     for name in points_time_dict[time]:
+    #         new_list.append(points_time_dict[time][name][1])
 
-    fig.add_trace(
-        go.Scatter(
-            x=[time for time in points_time_dict],
-            y=new_list,
-            # y=[points_time_dict[time][name][1] for time in points_time_dict],
-            # text=[name for name in points_dict],
-            # hovertext=[name for name in points_dict],
-            name="Celestial Objects",
-            mode="markers+text",
-            textposition="top center",
-            # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
+    for name in points_time_dict['0']:
+        fig.add_trace(
+            go.Scatter(
+                x=[float(time) for time in points_time_dict],
+
+                y=[points_time_dict[time][name][1]
+                    for time in points_time_dict],
+
+                hovertext=['(Azimuth: %s, Elevation: %s)' % (round(points_time_dict[time][name][0], 2), round(points_time_dict[time][name][1], 2))
+                           for time in points_time_dict],
+
+
+                name="Celestial Objects",
+                mode="markers+text",
+                showlegend=False
+                # textposition="top center",
+                # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
+            )
         )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=[time for time in points_time_dict],
-            # y=new_list,
-            y=[points_time_dict[time][name][1] for time in points_time_dict],
-            # text=[name for name in points_dict],
-            # hovertext=[name for name in points_dict],
-            name="Celestial Objects",
-            mode="markers+text",
-            textposition="top center",
-            # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
-        )
-    )
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=[5, 10, 15, 20],
-    #         y=[10, 20, 25, -30],
-    #         # text=[name for name in points_dict],
-    #         # hovertext=[name for name in points_dict],
-    #         # name="Celestial Objects",
-    #         # mode="markers+text",
-    #         # textposition="top center",
-    #         # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
-    #     )
-    # )
 
     # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
 
@@ -343,6 +326,36 @@ def generate_az_el_time_graph(
              max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
     y_vec = [max(el_d, 0), min(el_u, 90), min(
         el_u, 90), min(el_d, 90), max(el_d, 0)]
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                type='buttons',
+                direction='left',
+                buttons=list([
+                     dict(
+                         args=[{'visible': [True, False]}, {
+                               'title': 'Az and Time', "yaxis.title.text": "Az"}],
+                         label="Azimuth",
+                         method='update',
+                     ),
+                    dict(
+                         args=[{'visible': [False, True]}, {
+                               'title': 'Elevation and Time', "yaxis.title.text": "Elevation"}],
+                         label="Elevation",
+                         method='update',
+                     ),
+
+                ]),
+                pad={"r": 50, "t": 0},
+                showactive=True,
+                x=0.05,
+                xanchor="left",
+                y=1.3,
+                yanchor="top"
+            )
+
+        ],
+    )
 
     # fig.add_trace(
     #     go.Scatter(
@@ -492,42 +505,12 @@ def generate_az_el_time_graph(
             pad=4,
         ),
         xaxis_title="Time",
-        yaxis_title="Elevation",
+        # yaxis_title="Elevation",
         legend=dict(orientation="h", yanchor="bottom",
                     y=1.02, xanchor="right", x=1),
     )
     fig.update_xaxes(range=[time_lower_display_lim, time_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
-
-    # fig.update_layout(
-    #     updatemenus=[
-    #         dict(
-    #             type='buttons',
-    #             direction='left',
-    #             buttons=list([
-    #                 dict(
-    #                     args=[{}, {
-    #                         'title': 'Elevation and Time', "yaxis.title.text": "Elevation"}],
-    #                     label="Elevation",
-    #                     method='update',
-    #                 ),
-    #                 dict(
-    #                     args=[{}, {
-    #                         'title': 'Az and Time', "yaxis.title.text": "Az"}],
-    #                     label="Azimuth",
-    #                     method='update',
-    #                 )
-    #             ]),
-    #             pad={"r": 50, "t": 0},
-    #             showactive=True,
-    #             x=0.05,
-    #             xanchor="left",
-    #             y=1.3,
-    #             yanchor="top"
-    #         )
-
-    #     ],
-    # )
 
     return fig
 

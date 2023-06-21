@@ -778,6 +778,7 @@ def register_callbacks(
             return generate_az_el_time_graph(
                 status["az_limits"],
                 status["el_limits"],
+                status["object_locs"],
                 status["object_time_locs"],
                 status["motor_azel"],
                 status["stow_loc"],

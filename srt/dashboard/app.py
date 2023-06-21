@@ -87,7 +87,7 @@ def generate_app(config_dir, config_dict):
     pio.templates.default = "seaborn"  # Style Choice for Graphs
     curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects
-    side_title = "Small Radio Telescope"
+    side_title = "Very Small Radio Telescope"
 
     image_filename = curfold.joinpath(
         "images", "MIT_HO_logo_landscape.png"
