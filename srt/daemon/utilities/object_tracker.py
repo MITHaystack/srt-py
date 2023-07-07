@@ -254,6 +254,10 @@ class EphemerisTracker:
                     transformed.az[index].degree,
                     transformed.alt[index].degree,
                 )
+            self.time_interval_dict[time_passed]["Sun"] = self.calculate_az_el(
+                "Sun", time, frame)
+            self.time_interval_dict[time_passed]["Moon"] = self.calculate_az_el(
+                "Moon", time, frame)
 
         self.latest_time = time
 
