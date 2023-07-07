@@ -445,11 +445,6 @@ def generate_layout():
             dbc.DropdownMenuItem("Select Object", id="btn-obs-obj"),
             dbc.DropdownMenuItem("Enter Coordinates", id="btn-obs-coords"),
         ],
-        # "Antenna": [
-        #     dbc.DropdownMenuItem("Stow", id="btn-stow"),
-        #     dbc.DropdownMenuItem("Set AzEl", id="btn-point-azel"),
-        #     dbc.DropdownMenuItem("Set Offsets", id="btn-set-offset"),
-        # ],
         "Radio": [
             dbc.DropdownMenuItem("Set Frequency", id="btn-set-freq"),
             dbc.DropdownMenuItem("Set Bandwidth", id="btn-set-samp"),
@@ -471,33 +466,6 @@ def generate_layout():
             generate_first_row(),
             generate_second_row(),
             generate_third_row(),
-            # html.Div([
-            #     html.Div(
-            #         [
-            #          html.Label("Select Time Range in Minutes", style={
-            #                     "color": "darkgray", "margin-top": "10px", "margin-left": "20px"}),
-            #          dcc.Slider(5, 60, 5, id="timeinput"),
-            #          dbc.Button("Azimuth", id="graphaz",
-            #                     className="ml-auto",
-            #                     color="secondary",
-            #                     style={"margin-top": "10px",
-            #                            "margin-left": "20px"}
-            #                     ),
-            #          dbc.Button("Elevation", id="graphel",
-            #                     className="ml-auto",
-            #                     color="secondary",
-            #                     style={"margin-top": "10px",
-            #                            "margin-left": "10px"}
-            #                     ),
-
-            #          dcc.Graph(id="az-el-elevation")],
-            #         className="pretty_container twelve columns",
-            #     ),
-            # ],
-            #     className="flex-display",
-            #     style={"margin": dict(l=10, r=5, t=5, b=5)},
-            # ),
-            # generate_fig_row(),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
         ]
