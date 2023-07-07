@@ -113,6 +113,41 @@ def generate_second_row():
     )
 
 
+def generate_third_row():
+    """Generates Third Row (AzEl Time) Display
+
+    Returns
+    -------
+    Div Containing Second Row Objects
+    """
+    return html.Div([
+        html.Div(
+                    [
+                        html.Label("Select Time Range in Minutes", style={
+                            "color": "darkgray", "margin-top": "10px", "margin-left": "20px"}),
+                        dcc.Slider(5, 60, 5, id="timeinput"),
+                        dbc.Button("Azimuth", id="graphaz",
+                                   className="ml-auto",
+                                   color="secondary",
+                                   style={"margin-top": "10px",
+                                          "margin-left": "20px"}
+                                   ),
+                        dbc.Button("Elevation", id="graphel",
+                                   className="ml-auto",
+                                   color="secondary",
+                                   style={"margin-top": "10px",
+                                          "margin-left": "10px"}
+                                   ),
+
+                        dcc.Graph(id="az-el-elevation")],
+                    className="pretty_container twelve columns",
+                    ),
+    ],
+        className="flex-display",
+        style={"margin": dict(l=10, r=5, t=5, b=5)},
+    )
+
+
 def generate_popups():
     """Generates all 'Pop-up' Modal Components
 
@@ -390,167 +425,6 @@ def generate_popups():
                 ],
                 id="samp-modal",
             ),
-            # dbc.Modal(
-            #     [
-            #         dbc.ModalHeader("Enter the Motor Offsets"),
-            #         dbc.ModalBody(
-            #             [
-            #                 dcc.Input(
-            #                     id="offset-azimuth",
-            #                     type="number",
-            #                     debounce=True,
-            #                     placeholder="Azimuth Offset (deg)",
-            #                 ),
-            #                 dcc.Input(
-            #                     id="offset-elevation",
-            #                     type="number",
-            #                     debounce=True,
-            #                     placeholder="Elevation Offset (deg)",
-            #                 ),
-            #             ]
-            #         ),
-            #         dbc.ModalFooter(
-            #             [
-            #                 dbc.Button(
-            #                     "Yes",
-            #                     id="offset-btn-yes",
-            #                     className="ml-auto",
-            #                     # block=True,
-            #                     color="primary",
-            #                 ),
-            #                 dbc.Button(
-            #                     "No",
-            #                     id="offset-btn-no",
-            #                     className="ml-auto",
-            #                     # block=True,
-            #                     color="secondary",
-            #                 ),
-            #             ]
-            #         ),
-            #     ],
-            #     id="offset-modal",
-            # ),
-            # dbc.Modal(
-            #     [
-            #         dbc.ModalHeader("Start Recording"),
-            #         dbc.ModalBody(
-            #             [
-            #                 html.H5("Select a File Type"),
-            #                 dcc.RadioItems(
-            #                     options=[
-            #                         {"label": "Digital RF (Raw Data)",
-            #                          "value": ""},
-            #                         {
-            #                             "label": ".rad Format (Spectrum)",
-            #                             "value": "*.rad",
-            #                         },
-            #                         {
-            #                             "label": ".fits Format (Spectrum)",
-            #                             "value": "*.fits",
-            #                         },
-            #                     ],
-            #                     id="record-options",
-            #                     value="",
-            #                 ),
-            #             ]
-            #         ),
-            #         dbc.ModalFooter(
-            #             [
-            #                 dbc.Button(
-            #                     "Yes",
-            #                     id="record-btn-yes",
-            #                     className="ml-auto",
-            #                     # block=True,
-            #                     color="primary",
-            #                 ),
-            #                 dbc.Button(
-            #                     "No",
-            #                     id="record-btn-no",
-            #                     className="ml-auto",
-            #                     # block=True,
-            #                     color="secondary",
-            #                 ),
-            #             ]
-            #         ),
-            #     ],
-            #     id="record-modal",
-            # ),
-            # dbc.Modal(
-            #     [
-            #         dbc.ModalHeader("Command File"),
-            #         dbc.ModalBody(
-            #             [
-            #                 html.H4("Upload Command File"),
-            #                 dcc.Upload(
-            #                     id="upload-data",
-            #                     children=html.Div(
-            #                         ["Drag and Drop or ",
-            #                             html.A("Select Files")]
-            #                     ),
-            #                     style={
-            #                         "width": "95%",
-            #                         "hSystemeight": "60px",
-            #                         "lineHeight": "60px",
-            #                         "borderWidth": "1px",
-            #                         "borderStyle": "dashed",
-            #                         "borderRadius": "5px",
-            #                         "textAlign": "center",
-            #                         "margin": "10px",
-            #                     },
-            #                     # Allow multiple files to be uploaded
-            #                     multiple=False,
-            #                 ),
-            #                 html.Div(
-            #                     id="output-data-upload", style={"text-align": "center"}
-            #                 ),
-            #             ]
-            #         ),
-            #     ],
-            #     id="cmd-file-modal",
-            # ),
-            # dbc.Modal(
-            #     [
-            #         dbc.ModalHeader("Start Daemon"),
-            #         dbc.ModalBody(
-            #             [
-            #                 html.H6(
-            #                     "Are you sure you want to try to start the background SRT Process?"
-            #                 ),
-            #                 html.H6(
-            #                     "If the process is already running, this may fail"),
-            #                 html.H5(
-            #                     "Process is Already Running",
-            #                     id="start-warning",
-            #                     style={"text-align": "center"},
-            #                 ),
-            #                 dcc.Dropdown(
-            #                     options=[],
-            #                     placeholder="Select a Config File",
-            #                     id="start-config-file",
-            #                 ),
-            #             ]
-            #         ),
-            #         dbc.ModalFooter(
-            #             [
-            #                 dbc.Button(
-            #                     "Yes",
-            #                     id="start-btn-yes",
-            #                     className="ml-auto",
-            #                     # block=True,
-            #                     color="primary",
-            #                 ),
-            #                 dbc.Button(
-            #                     "No",
-            #                     id="start-btn-no",
-            #                     className="ml-auto",
-            #                     # block=True,
-            #                     color="secondary",
-            #                 ),
-            #             ]
-            #         ),
-            #     ],
-            #     id="start-modal",
-            # ),
         ]
     )
 
@@ -596,32 +470,33 @@ def generate_layout():
             generate_navbar(drop_down_buttons),
             generate_first_row(),
             generate_second_row(),
-            html.Div([
-                html.Div(
-                    [
-                     html.Label("Select Time Range in Minutes", style={
-                                "color": "darkgray", "margin-top": "10px", "margin-left": "20px"}),
-                     dcc.Slider(5, 60, 5, id="timeinput"),
-                     dbc.Button("Azimuth", id="graphaz",
-                                className="ml-auto",
-                                color="secondary",
-                                style={"margin-top": "10px",
-                                       "margin-left": "20px"}
-                                ),
-                     dbc.Button("Elevation", id="graphel",
-                                className="ml-auto",
-                                color="secondary",
-                                style={"margin-top": "10px",
-                                       "margin-left": "10px"}
-                                ),
+            generate_third_row(),
+            # html.Div([
+            #     html.Div(
+            #         [
+            #          html.Label("Select Time Range in Minutes", style={
+            #                     "color": "darkgray", "margin-top": "10px", "margin-left": "20px"}),
+            #          dcc.Slider(5, 60, 5, id="timeinput"),
+            #          dbc.Button("Azimuth", id="graphaz",
+            #                     className="ml-auto",
+            #                     color="secondary",
+            #                     style={"margin-top": "10px",
+            #                            "margin-left": "20px"}
+            #                     ),
+            #          dbc.Button("Elevation", id="graphel",
+            #                     className="ml-auto",
+            #                     color="secondary",
+            #                     style={"margin-top": "10px",
+            #                            "margin-left": "10px"}
+            #                     ),
 
-                     dcc.Graph(id="az-el-elevation")],
-                    className="pretty_container twelve columns",
-                ),
-            ],
-                className="flex-display",
-                style={"margin": dict(l=10, r=5, t=5, b=5)},
-            ),
+            #          dcc.Graph(id="az-el-elevation")],
+            #         className="pretty_container twelve columns",
+            #     ),
+            # ],
+            #     className="flex-display",
+            #     style={"margin": dict(l=10, r=5, t=5, b=5)},
+            # ),
             # generate_fig_row(),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
