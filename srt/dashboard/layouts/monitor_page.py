@@ -47,7 +47,7 @@ root_folder = Path(__file__).parent.parent.parent.parent
 
 def get_all_objects(config_file="config/sky_coords.csv",):
     table = Table.read(Path(root_folder, config_file), format="ascii.csv")
-    all_objects = []
+    all_objects = ["Sun", "Moon"]
     for index, row in enumerate(table):
         name = row["name"]
         all_objects.append(name)
@@ -595,21 +595,6 @@ def generate_layout():
         [
             generate_navbar(drop_down_buttons),
             generate_first_row(),
-            # html.Div(
-            #     [
-            #         html.Div(
-            #             [dcc.Graph(id="az-el-graph")],
-            #             className="pretty_container six columns",
-            #         ),
-
-            #         html.Div(
-            #             [dcc.Graph(id="az-el-elevation")],
-            #             className="pretty_container six columns",
-            #         ),
-            #     ],
-            #     className="flex-display",
-            #     style={"margin": dict(l=10, r=5, t=5, b=5)},
-            # ),
             generate_second_row(),
             html.Div([
                 html.Div(
