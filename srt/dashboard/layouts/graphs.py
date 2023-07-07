@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from datetime import datetime
 import numpy as np
 from dash import Dash, dcc, html, Input, Output, callback
+import pandas as pd
 
 
 def generate_az_el_graph(
@@ -238,7 +239,103 @@ def generate_az_el_graph(
     return fig
 
 
-def generate_az_el_time_graph(
+def generate_zoom_graph(
+    az_limits,
+    el_limits,
+    points_dict,
+    current_location,
+    stow_position,
+    cal_position,
+    horizon_points,
+    beam_width
+):
+    """Generates Figure for Displaying AzEl Locations
+
+    Parameters
+    ----------
+    az_limits : (float, float)
+        Minimum and Maximum Azimuth Limits
+    el_limits : (float, float)
+        Minimum and Maximum Elevation Limits
+    points_dict : dict
+        Dictionary of All Points Azimuth and Elevation
+    current_location : (float, float)
+        Current Antenna Azimuth and Elevation
+    stow_position : (float, float)
+        Location of the Antenna in Stow
+    cal_position : (float, float)
+        Location of the Antenna for Comparative Calibration
+    horizon_points : list((float, float))
+        Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
+    beam_width : float
+        Beamwidth of the antenna
+
+    Returns
+    -------
+    Plotly Figure of Azimuth and Elevation Graph
+    """
+    fig = go.Figure()
+
+    az_lower_display_lim = current_location[0]-beam_width*2
+    az_upper_display_lim = current_location[0]+beam_width*2
+    el_lower_display_lim = current_location[1]-beam_width*2
+    el_upper_display_lim = current_location[1]+beam_width*2
+
+    # Markers for celestial objects
+    fig.add_trace(
+        go.Scatter(
+            x=[points_dict[name][0] for name in points_dict],
+            y=[points_dict[name][1] for name in points_dict],
+            text=[name for name in points_dict],
+            # hovertext=[name for name in points_dict],
+            name="Celestial Objects",
+            mode="markers+text",
+            textposition="top center",
+            marker_color=["rgba(152, 0, 0, .8)" for _ in points_dict],
+        )
+    )
+    fig.add_shape(
+        type="rect",
+        xref="x",
+        yref="y",
+        x0=current_location[0]-beam_width,
+        y0=current_location[1]-beam_width,
+        x1=current_location[0]+beam_width,
+        y1=current_location[1]+beam_width,
+        fillcolor="lightgrey",
+        layer="below",
+        label=dict(text="Beamwidth", textposition="top center",
+                   font=dict(color="White"))
+    )
+
+    fig.update_layout(
+        title={
+            # "text": "Click to Track an Object",
+            "y": 0.97,
+            "x": 0.25,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+        margin=dict(
+            l=20,
+            r=20,
+            b=20,
+            t=50,
+            pad=4,
+        ),
+        xaxis_title="Azimuth",
+        yaxis_title="Elevation",
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
+    )
+
+    fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
+    fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
+
+    return fig
+
+
+def generate_az_time_graph(
     az_limits,
     el_limits,
     points_dict,
@@ -247,7 +344,8 @@ def generate_az_el_time_graph(
     stow_position,
     cal_position,
     horizon_points,
-    beam_width
+    beam_width,
+    timerange
 ):
 
     # """Generates Figure for Displaying AzEl Locations
@@ -275,40 +373,35 @@ def generate_az_el_time_graph(
     # -------
     # Plotly Figure of Azimuth and Elevation Graph
     # """
+    if not timerange:
+        timerange = 5
+
     fig = go.Figure()
 
-    time_lower_display_lim = 0
-    time_upper_display_lim = 60
-    az_lower_display_lim = 0
-    az_upper_display_lim = 360
-    el_lower_display_lim = -90
-    el_upper_display_lim = 90
-
-    time_dict = [x for x in range(0, 61, 5)]  # hard coded time interval array
+    time_lower_display_lim = 0-0.1
+    time_upper_display_lim = timerange+0.99
+    az_lower_display_lim = current_location[0]-beam_width
+    az_upper_display_lim = current_location[0]+beam_width
 
     # Markers for celestial objects
-
-    # new_list = []
-    # for time in points_time_dict:
-    #     for name in points_time_dict[time]:
-    #         new_list.append(points_time_dict[time][name][1])
 
     for name in points_time_dict['0']:
         fig.add_trace(
             go.Scatter(
                 x=[float(time) for time in points_time_dict],
 
-                y=[points_time_dict[time][name][1]
+                y=[points_time_dict[time][name][0]
                     for time in points_time_dict],
+
+                text=str(name),
 
                 hovertext=['(Azimuth: %s, Elevation: %s)' % (round(points_time_dict[time][name][0], 2), round(points_time_dict[time][name][1], 2))
                            for time in points_time_dict],
 
-
-                name="Celestial Objects",
+                name=str(name),
                 mode="markers+text",
-                showlegend=False
-                # textposition="top center",
+                showlegend=False,
+                textposition="top right",
                 # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
             )
         )
@@ -326,167 +419,6 @@ def generate_az_el_time_graph(
              max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
     y_vec = [max(el_d, 0), min(el_u, 90), min(
         el_u, 90), min(el_d, 90), max(el_d, 0)]
-    fig.update_layout(
-        updatemenus=[
-            dict(
-                type='buttons',
-                direction='left',
-                buttons=list([
-                     dict(
-                         args=[{'visible': [True, False]}, {
-                               'title': 'Az and Time', "yaxis.title.text": "Az"}],
-                         label="Azimuth",
-                         method='update',
-                     ),
-                    dict(
-                         args=[{'visible': [False, True]}, {
-                               'title': 'Elevation and Time', "yaxis.title.text": "Elevation"}],
-                         label="Elevation",
-                         method='update',
-                     ),
-
-                ]),
-                pad={"r": 50, "t": 0},
-                showactive=True,
-                x=0.05,
-                xanchor="left",
-                y=1.3,
-                yanchor="top"
-            )
-
-        ],
-    )
-
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=x_vec,
-    #         y=y_vec,
-    #         fill="toself",
-    #         fillcolor="rgba(147,112,219,0.1)",
-    #         text=["Visability"],
-    #         name='Visability',
-    #         mode="markers",
-    #         marker_color=["rgba(147,112,219, .8)" for _ in x_vec]
-    #     )
-    # )
-
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=[az_l],
-    #         y=[el_l],
-    #         text=["Antenna Location"],
-    #         name="Current Location",
-    #         mode="markers+text",
-    #         textposition="bottom center",
-    #         marker_color=["rgba(0, 0, 152, .8)"],
-    #     )
-    # )
-
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=[stow_position[0], cal_position[0]],
-    #         y=[stow_position[1], cal_position[1]],
-    #         text=["Stow", "Cal"],
-    #         name="Other Locations",
-    #         mode="markers+text",
-    #         textposition="top center",
-    #         marker_color=["rgba(0, 152, 0, .8)", "rgba(0, 152, 0, .8)"],
-    #     )
-    # )
-
-    # if horizon_points is not None and len(horizon_points) > 0:
-    #     fig.add_trace(
-    #         go.Scatter(
-    #             x=[point[0] for point in horizon_points],
-    #             y=[point[1] for point in horizon_points],
-    #             name="Horizon",
-    #             mode="lines",
-    #             textposition="top center",
-    #             marker_color=["rgba(0, 152, 0, .8)"],
-    #         )
-    #     )
-
-    # if az_limits[0] < az_limits[1]:
-    #     fig.add_shape(
-    #         type="rect",
-    #         xref="x",
-    #         yref="y",
-    #         x0=0,
-    #         y0=-90,
-    #         x1=az_limits[0],
-    #         y1=90,
-    #         fillcolor="lightgrey",
-    #     )
-    #     fig.add_shape(
-    #         type="rect",
-    #         xref="x",
-    #         yref="y",
-    #         x0=360,
-    #         y0=-90,
-    #         x1=az_limits[1],
-    #         y1=90,
-    #         fillcolor="lightgrey",
-    #     )
-    # else:
-    #     fig.add_shape(
-    #         type="rect",
-    #         xref="x",
-    #         yref="y",
-    #         x0=az_limits[1],
-    #         y0=-90,
-    #         x1=az_limits[0],
-    #         y1=90,
-    #         fillcolor="lightgrey",
-    #     )
-
-    # fig.add_shape(
-    #     type="rect",
-    #     xref="x",
-    #     yref="y",
-    #     x0=0,
-    #     y0=-90,
-    #     x1=360,
-    #     y1=el_limits[0],
-    #     fillcolor="lightgrey",
-    # )
-    # fig.add_shape(
-    #     type="rect",
-    #     xref="x",
-    #     yref="y",
-    #     x0=0,
-    #     y0=90,
-    #     x1=360,
-    #     y1=el_limits[1],
-    #     fillcolor="lightgrey",
-    # )
-
-    # for val in az_limits:
-    #     fig.add_shape(
-    #         type="line",
-    #         x0=val,
-    #         y0=el_lower_display_lim,
-    #         x1=val,
-    #         y1=el_upper_display_lim,
-    #         line=dict(
-    #             color="LightBlue",
-    #             width=4,
-    #             dash="dashdot",
-    #         ),
-    #     )
-
-    # for val in el_limits:
-    #     fig.add_shape(
-    #         type="line",
-    #         x0=az_lower_display_lim,
-    #         y0=val,
-    #         x1=az_upper_display_lim,
-    #         y1=val,
-    #         line=dict(
-    #             color="LightBlue",
-    #             width=4,
-    #             dash="dashdot",
-    #         ),
-    #     )
 
     # Set axes ranges
     fig.update_layout(
@@ -505,7 +437,120 @@ def generate_az_el_time_graph(
             pad=4,
         ),
         xaxis_title="Time",
-        # yaxis_title="Elevation",
+        yaxis_title="Azimuth",
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
+    )
+    fig.update_xaxes(range=[time_lower_display_lim, time_upper_display_lim])
+    fig.update_yaxes(range=[az_lower_display_lim, az_upper_display_lim])
+
+    return fig
+
+
+def generate_el_time_graph(
+    az_limits,
+    el_limits,
+    points_dict,
+    points_time_dict,
+    current_location,
+    stow_position,
+    cal_position,
+    horizon_points,
+    beam_width,
+    timerange
+):
+
+    # """Generates Figure for Displaying AzEl Locations
+
+    # Parameters
+    # ----------
+    # az_limits : (float, float)
+    #     Minimum and Maximum Azimuth Limits
+    # el_limits : (float, float)
+    #     Minimum and Maximum Elevation Limits
+    # points_time_dict : dict
+    #     Dictionary with keys as time and values as Dictionaries of azel of each object
+    # current_location : (float, float)
+    #     Current Antenna Azimuth and Elevation
+    # stow_position : (float, float)
+    #     Location of the Antenna in Stow
+    # cal_position : (float, float)
+    #     Location of the Antenna for Comparative Calibration
+    # horizon_points : list((float, float))
+    #     Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
+    # beam_width : float
+    #     Beamwidth of the antenna
+
+    # Returns
+    # -------
+    # Plotly Figure of Azimuth and Elevation Graph
+    # """
+
+    fig = go.Figure()
+
+    if not timerange:
+        timerange = 5
+
+    time_lower_display_lim = 0-0.1
+    time_upper_display_lim = timerange+0.99
+    el_lower_display_lim = current_location[1]-beam_width
+    el_upper_display_lim = current_location[1]+beam_width
+
+    # Markers for celestial objects
+
+    for name in points_time_dict['0']:
+        fig.add_trace(
+            go.Scatter(
+                x=[float(time) for time in points_time_dict],
+
+                y=[points_time_dict[time][name][1]
+                    for time in points_time_dict],
+
+                text=str(name),
+
+                hovertext=['(Azimuth: %s, Elevation: %s)' % (round(points_time_dict[time][name][0], 2), round(points_time_dict[time][name][1], 2))
+                           for time in points_time_dict],
+
+                name=str(name),
+                mode="markers+text",
+                showlegend=False,
+                textposition="top right",
+                # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
+            )
+        )
+
+    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
+
+    az_l = current_location[0]
+    el_l = current_location[1]
+    el_u = el_l + .5*beam_width
+    el_d = el_l - .5*beam_width
+
+    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
+    azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
+    x_vec = [max(az_l-azd, 0), min(az_l-azu, 360),
+             max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
+    y_vec = [max(el_d, 0), min(el_u, 90), min(
+        el_u, 90), min(el_d, 90), max(el_d, 0)]
+
+    # Set axes ranges
+    fig.update_layout(
+        title={
+            # "text": "Click to Track an Object",
+            "y": 0.97,
+            "x": 0.25,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+        margin=dict(
+            l=20,
+            r=20,
+            b=20,
+            t=50,
+            pad=4,
+        ),
+        xaxis_title="Time",
+        yaxis_title="Elevation",
         legend=dict(orientation="h", yanchor="bottom",
                     y=1.02, xanchor="right", x=1),
     )
@@ -704,86 +749,3 @@ def sinc_interp2d(x, y, values, dx, dy, xout, yout):
         val_out += float(v_c) * np.sinc(x_1) * np.sinc(y_1)
 
     return val_out
-
-# def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
-#     """Creates the n-point graph image.
-
-#     Parameters
-#     ----------
-#     az_in : array_like
-#         List of azimuth locations.
-#     el_in : array_like
-#         List of elevation locations.
-#     d_az : float
-#         Resolution of power measurements in the azimuth direction.
-#     d_el : float
-#         REsolution of power measurements in elevation direction.
-#     pow_in : array_like
-#         List of power measurements for the given locations of the antenna.
-#     cent : array_like
-#         Center point of the object being imaged.
-#     sides : list
-#         Number of pointers per side.
-
-#     Returns
-#     -------
-#     fig : plotly.fig
-#         Figure object.
-#     """
-
-#     # create the output grid
-#     az_in = np.array(az_in)
-#     el_in = np.array(el_in)
-#     az_a = np.linspace(az_in.min(), az_in.max(), 100)
-#     el_a = np.linspace(el_in.min(), el_in.max(), 100)
-
-#     azout, elout = np.meshgrid(az_a, el_a)
-#     pow_in = np.array(pow_in)
-#     pmin = pow_in.min()
-#     p_in = pow_in - pmin
-#     x_l = np.linspace(-0.5, 0.5, sides[0])
-#     y_l = np.linspace(-0.5, 0.5, sides[1])
-#     xm, ym = np.meshgrid(x_l, y_l)
-#     xf = xm.flatten()
-#     yf = ym.flatten()
-#     xaout = np.linspace(-0.5, 0.5, 100)
-#     xo, yo = np.meshgrid(xaout, xaout)
-#     # Interpolate the data
-#     interp_data = sinc_interp2d(xf, yf, p_in, d_az, d_el, xo, yo)
-#     # Determine center of the object and compare to desired center.
-#     pow_tot = np.sum(np.sum(interp_data))
-#     az_center = np.sum(np.sum(interp_data * azout)) / pow_tot
-#     el_center = np.sum(np.sum(interp_data * elout)) / pow_tot
-#     az_off = az_center - cent[0]
-#     el_off = el_center - cent[1]
-#     antext0 = "Az Center {0:.2f} deg".format(az_off)
-#     antext1 = "El Center {0:.2f} deg".format(el_off)
-#     # Make the contour plot
-#     d1 = go.Contour(z=interp_data, x=xaout, y=xaout, colorscale="Viridis")
-#     fig = go.Figure(
-#         data=d1,
-#         layout={
-#             "title": "N-Point Scan",
-#             "xaxis_title": "Normalized x",
-#             "yaxis_title": "Normalized y",
-#             "uirevision": True,
-#         },
-#     )
-#     fig.add_annotation(
-#         x=xaout[10],
-#         y=xaout[20],
-#         xanchor="left",
-#         text=antext0,
-#         showarrow=False,
-#         font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
-#     )
-
-#     fig.add_annotation(
-#         x=xaout[10],
-#         y=xaout[10],
-#         text=antext1,
-#         xanchor="left",
-#         showarrow=False,
-#         font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
-#     )
-#     return fig

@@ -486,8 +486,8 @@ class SmallRadioTelescopeDaemon:
         self.ephemeris_tracker = EphemerisTracker(
             self.station["latitude"],
             self.station["longitude"],
-            config_file=str(
-                Path(config_directory, "sky_coords.csv").absolute()),
+            # config_file=str(
+            #     Path(config_directory, "sky_coords.csv").absolute()),
         )
         # self.radio_queue.put((""))
 
@@ -519,6 +519,19 @@ class SmallRadioTelescopeDaemon:
         """
         self.keep_running = False
         self.radio_queue.put(("is_running", self.keep_running))
+
+    def find_object_location(self, name):
+        """Get azel location of given object and sets as rotor location. 
+
+        Returns
+        -------
+        None
+        """
+        if name in self.ephemeris_tracker.az_el_dict:
+            az, el = self.ephemeris_tracker.az_el_dict[name][0], self.ephemeris_tracker.az_el_dict[name][1]
+            self.log_message(f"here {az,el}")
+
+        self.rotor_location = (az, el)
 
     def update_ephemeris_location(self):
         """Periodically Updates Object Locations for Tracking Sky Objects
@@ -586,7 +599,7 @@ class SmallRadioTelescopeDaemon:
                         )
                     ) and (time() - start_time) < 10:
                         past_rotor_location = self.rotor_location
-                        self.rotor_location = self.rotor.get_azimuth_elevation()
+                        # self.rotor_location = self.rotor.get_azimuth_elevation()
                         if not self.rotor_location == past_rotor_location:
                             g_lat, g_lon = self.ephemeris_tracker.convert_to_gal_coord(
                                 self.rotor_location
@@ -810,6 +823,12 @@ class SmallRadioTelescopeDaemon:
                         command_parts[1]) * pow(10, 6))
                 elif command_name == "coords":
                     self.set_coords(
+                        float(command_parts[1]), float(command_parts[2]))
+                elif command_name == "object":
+                    if command_parts[-1] in self.ephemeris_locations:
+                        self.find_object_location(command_parts[-1])
+                elif command_name == "obj_coords":
+                    self.rotor_location = (
                         float(command_parts[1]), float(command_parts[2]))
                 elif command_name == "azel":
                     self.point_at_azel(

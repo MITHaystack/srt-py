@@ -266,6 +266,7 @@ def generate_app(config_dir, config_dict):
         """
         status = status_thread.get_status()
         if status is None:
+            lat = lon = np.nan
             az = el = np.nan
             az_offset = el_offset = np.nan
             cf = np.nan
@@ -273,6 +274,8 @@ def generate_app(config_dir, config_dict):
             status_string = "SRT Not Connected"
             vlsr = np.nan
         else:
+            lat = status["location"]["latitude"]
+            lon = status["location"]["longitude"]
             az = status["motor_azel"][0]
             el = status["motor_azel"][1]
             az_offset = status["motor_offsets"][0]
@@ -290,8 +293,8 @@ def generate_app(config_dir, config_dict):
 
         status_string = f"""
          #### {status_string}
+         - Location Lat, Long: {lat:.1f}, {lon:.1f} deg
          - Motor Az, El: {az:.1f}, {el:.1f} deg
-         - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
          - Center Frequency: {cf / pow(10, 6)} MHz
          - Bandwidth: {bandwidth / pow(10, 6)} MHz
          - VLSR: {vlsr:.1f} km/s
@@ -311,6 +314,7 @@ def generate_app(config_dir, config_dict):
         -------
         Content of page-content
         """
+
         if pathname in ["/", f"/{pages['Monitor Page']}"]:
             return monitor_page.generate_layout()
         elif pathname == f"/{pages['System Page']}":
