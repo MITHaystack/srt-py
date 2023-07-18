@@ -425,6 +425,167 @@ def generate_popups():
                 ],
                 id="samp-modal",
             ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Enter the Motor Offsets"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(
+                                id="offset-azimuth",
+                                type="number",
+                                debounce=True,
+                                placeholder="Azimuth Offset (deg)",
+                            ),
+                            dcc.Input(
+                                id="offset-elevation",
+                                type="number",
+                                debounce=True,
+                                placeholder="Elevation Offset (deg)",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="offset-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="offset-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="offset-modal",
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Start Recording"),
+                    dbc.ModalBody(
+                        [
+                            html.H5("Select a File Type"),
+                            dcc.RadioItems(
+                                options=[
+                                    {"label": "Digital RF (Raw Data)",
+                                     "value": ""},
+                                    {
+                                        "label": ".rad Format (Spectrum)",
+                                        "value": "*.rad",
+                                    },
+                                    {
+                                        "label": ".fits Format (Spectrum)",
+                                        "value": "*.fits",
+                                    },
+                                ],
+                                id="record-options",
+                                value="",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="record-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="record-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="record-modal",
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Command File"),
+                    dbc.ModalBody(
+                        [
+                            html.H4("Upload Command File"),
+                            dcc.Upload(
+                                id="upload-data",
+                                children=html.Div(
+                                    ["Drag and Drop or ",
+                                        html.A("Select Files")]
+                                ),
+                                style={
+                                    "width": "95%",
+                                    "hSystemeight": "60px",
+                                    "lineHeight": "60px",
+                                    "borderWidth": "1px",
+                                    "borderStyle": "dashed",
+                                    "borderRadius": "5px",
+                                    "textAlign": "center",
+                                    "margin": "10px",
+                                },
+                                # Allow multiple files to be uploaded
+                                multiple=False,
+                            ),
+                            html.Div(
+                                id="output-data-upload", style={"text-align": "center"}
+                            ),
+                        ]
+                    ),
+                ],
+                id="cmd-file-modal",
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Start Daemon"),
+                    dbc.ModalBody(
+                        [
+                            html.H6(
+                                "Are you sure you want to try to start the background SRT Process?"
+                            ),
+                            html.H6(
+                                "If the process is already running, this may fail"),
+                            html.H5(
+                                "Process is Already Running",
+                                id="start-warning",
+                                style={"text-align": "center"},
+                            ),
+                            dcc.Dropdown(
+                                options=[],
+                                placeholder="Select a Config File",
+                                id="start-config-file",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="start-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="start-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="start-modal",
+            ),
         ]
     )
 
@@ -1010,14 +1171,14 @@ def register_callbacks(
     @ app.callback(
         Output("signal", "children"),
         [
-            Input("btn-stow", "n_clicks"),
+            # Input("btn-stow", "n_clicks"),
             Input("btn-stop-record", "n_clicks"),
             Input("btn-quit", "n_clicks"),
             Input("btn-calibrate", "n_clicks"),
         ],
     )
     def cmd_button_pressed(
-        n_clicks_stow,
+        # n_clicks_stow,
         n_clicks_stop_record,
         n_clicks_shutdown,
         n_clicks_calibrate,
@@ -1027,9 +1188,9 @@ def register_callbacks(
             return ""
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-            if button_id == "btn-stow":
-                command_thread.add_to_queue("stow")
-            elif button_id == "btn-stop-record":
+            # if button_id == "btn-stow":
+            #     command_thread.add_to_queue("stow")
+            if button_id == "btn-stop-record":
                 command_thread.add_to_queue("roff")
             elif button_id == "btn-quit":
                 command_thread.add_to_queue("quit")
