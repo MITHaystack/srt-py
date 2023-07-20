@@ -291,14 +291,26 @@ def generate_app(config_dir, config_dict):
             else:
                 status_string = "SRT In Use!"
 
-        status_string = f"""
-         #### {status_string}
-         - Location Lat, Long: {lat:.1f}, {lon:.1f} deg
-         - Motor Az, El: {az:.1f}, {el:.1f} deg
-         - Center Frequency: {cf / pow(10, 6)} MHz
-         - Bandwidth: {bandwidth / pow(10, 6)} MHz
-         - VLSR: {vlsr:.1f} km/s
-        """
+        if config_dict["SOFTWARE"] == "Very Small Radio Telescope":
+            status_string = f"""
+            #### {status_string}
+            - Location Lat, Long: {lat:.1f}, {lon:.1f} deg
+            - Motor Az, El: {az:.1f}, {el:.1f} deg
+            - Center Frequency: {cf / pow(10, 6)} MHz
+            - Bandwidth: {bandwidth / pow(10, 6)} MHz
+            - VLSR: {vlsr:.1f} km/s
+            """
+        else:
+            status_string = f"""
+            #### {status_string}
+            - Location Lat, Long: {lat:.1f}, {lon:.1f} deg
+            - Motor Az, El: {az:.1f}, {el:.1f} deg
+            - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
+            - Center Frequency: {cf / pow(10, 6)} MHz
+            - Bandwidth: {bandwidth / pow(10, 6)} MHz
+            - VLSR: {vlsr:.1f} km/s
+            """
+
         return status_string
 
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
