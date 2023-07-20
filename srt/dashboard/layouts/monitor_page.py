@@ -36,7 +36,7 @@ from .graphs import (
     generate_power_history_graph,
     generate_spectrum_graph,
     generate_zoom_graph,
-    # generate_npoint,
+    generate_npoint,
     emptygraph,
 )
 
@@ -80,6 +80,37 @@ def generate_first_row():
                 className="flex-display",
                 style={
                     "justify-content": "center",
+                    "margin": "5px",
+                },
+            ),
+        ]
+    )
+
+
+def generate_npointlayout():
+    """Generates N Point Display
+
+    Returns
+    -------
+    Div containing n point graph if srt
+    """
+    return html.Div(
+        [
+            html.Div(
+                [
+                    dcc.Store(id="npoint_info", storage_type="session"),
+                    html.Div(
+                        [dcc.Graph(id="npoint-graph")],
+                        className="pretty_container six columns",
+                    ),
+                    # html.Div(
+                    #     [dcc.Graph(id="beamsswitch-graph")],
+                    #     className="pretty_container six columns",
+                    # ),
+                ],
+                className="flex-display",
+                style={
+                    "justify-content": "left",
                     "margin": "5px",
                 },
             ),
@@ -666,6 +697,7 @@ def generate_layout(software):
                 dbc.Alert("Recording", color="danger",
                           id="recording-alert", is_open=False),
                 generate_first_row(),
+                generate_npointlayout(),
                 generate_second_row(),
                 generate_third_row(),
                 generate_popups(),
@@ -786,6 +818,47 @@ def register_callbacks(
                 return npdata
         else:
             raise PreventUpdate
+
+    @app.callback(
+        Output("npoint-graph", "figure"),
+        [Input("npoint_info", "modified_timestamp")],
+        [State("npoint_info", "data")],
+    )
+    def update_n_point(ts, npdata):
+        """Update the npoint track info
+
+        Parameters
+        ----------
+        ts : int
+            modified time stamp
+        npdata : dict
+            will hold N- point data.
+
+        Returns
+        -------
+        ofig : plotly.fig
+            Plotly figure
+        """
+
+        if ts is None:
+            raise PreventUpdate
+        if npdata is None:
+            return emptygraph("x", "y", "N-Point Scan")
+
+        if npdata.get("scan_center", [1, 1])[0] == 0:
+            return emptygraph("x", "y", "N-Point Scan")
+
+        az_a = []
+        el_a = []
+        for irot in npdata["rotor_loc"]:
+            az_a.append(irot[0])
+            el_a.append(irot[1])
+        mdiff = npdata["maxdiff"]
+        sc = npdata["scan_center"]
+        plist = npdata["pwr"]
+        sd = npdata["sides"]
+        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc, sd)
+        return ofig
 
     @app.callback(
         Output("start-warning", "children"),
@@ -1254,8 +1327,8 @@ def register_callbacks(
             return ""
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-            # if button_id == "btn-stow":
-            #     command_thread.add_to_queue("stow")
+            if button_id == "btn-stow":
+                command_thread.add_to_queue("stow")
             if button_id == "btn-stop-record":
                 command_thread.add_to_queue("roff")
                 return not is_open
