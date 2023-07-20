@@ -45,11 +45,14 @@ class SmallRadioTelescopeDaemon:
         """
 
         # Store Individual Settings In Object
+        print(config_dict)
         self.config_directory = config_directory
-        # self.station = config_dict["STATION"]
-        self.station = {"latitude": 0.0,
-                        "longitude": 0.0,
-                        "name": None}
+        if "STATION" in config_dict:
+            self.station = config_dict["STATION"]
+        else:
+            self.station = {"latitude": 0.0,
+                            "longitude": 0.0,
+                            "name": None}
         self.contact = config_dict["EMERGENCY_CONTACT"]
         self.az_limits = (
             config_dict["AZLIMITS"]["lower_bound"],

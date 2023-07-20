@@ -590,7 +590,7 @@ def generate_popups():
     )
 
 
-def generate_layout():
+def generate_layout(software):
     """Generates the Basic Layout for the Monitor Page
 
     Returns
@@ -598,7 +598,7 @@ def generate_layout():
     layout: html.div
         Monitor Page Layout
     """
-    drop_down_buttons = {
+    drop_down_buttons_vsrt = {
         "Coordinates": [
             dbc.DropdownMenuItem("Set Location", id="btn-set-coords"),
         ],
@@ -621,18 +621,57 @@ def generate_layout():
             dbc.DropdownMenuItem("Shutdown", id="btn-quit"),
         ],
     }
-    layout = html.Div(
-        [
-            generate_navbar(drop_down_buttons),
-            dbc.Alert("Recording", color="danger",
-                      id="recording-alert", is_open=False),
-            generate_first_row(),
-            generate_second_row(),
-            generate_third_row(),
-            generate_popups(),
-            html.Div(id="signal", style={"display": "none"}),
-        ]
-    )
+    drop_down_buttons_srt = {
+        # "Observe": [
+        #     dbc.DropdownMenuItem("Select Object", id="btn-obs-obj"),
+        #     dbc.DropdownMenuItem("Enter Coordinates", id="btn-obs-coords"),
+        # ],
+        "Antenna": [
+            dbc.DropdownMenuItem("Stow", id="btn-stow"),
+            dbc.DropdownMenuItem("Set AzEl", id="btn-point-azel"),
+            dbc.DropdownMenuItem("Set Offsets", id="btn-set-offset"),
+        ],
+        "Radio": [
+            dbc.DropdownMenuItem("Set Frequency", id="btn-set-freq"),
+            dbc.DropdownMenuItem("Set Bandwidth", id="btn-set-samp"),
+        ],
+        "Routine": [
+            dbc.DropdownMenuItem("Start Recording", id="btn-start-record"),
+            dbc.DropdownMenuItem("Stop Recording", id="btn-stop-record"),
+            dbc.DropdownMenuItem("Calibrate", id="btn-calibrate"),
+            dbc.DropdownMenuItem("Upload CMD File", id="btn-cmd-file"),
+        ],
+        "Power": [
+            dbc.DropdownMenuItem("Start Daemon", id="btn-start"),
+            dbc.DropdownMenuItem("Shutdown", id="btn-quit"),
+        ],
+    }
+    if software == "Very Small Radio Telescope":
+        layout = html.Div(
+            [
+                generate_navbar(drop_down_buttons_vsrt),
+                dbc.Alert("Recording", color="danger",
+                          id="recording-alert", is_open=False),
+                generate_first_row(),
+                generate_second_row(),
+                generate_third_row(),
+                generate_popups(),
+                html.Div(id="signal", style={"display": "none"}),
+            ]
+        )
+    else:
+        layout = html.Div(
+            [
+                generate_navbar(drop_down_buttons_srt),
+                dbc.Alert("Recording", color="danger",
+                          id="recording-alert", is_open=False),
+                generate_first_row(),
+                generate_second_row(),
+                generate_third_row(),
+                generate_popups(),
+                html.Div(id="signal", style={"display": "none"}),
+            ]
+        )
     return layout
 
 

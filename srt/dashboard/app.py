@@ -59,7 +59,7 @@ def generate_app(config_dir, config_dict):
             {"name": "viewport", "content": "width=device-width, initial-scale=1"}
         ],
     )
-    app.title = "SRT Dashboard"
+    app.title = config_dict["SOFTWARE"]
 
     # Start Listening for Radio and Status Data
     status_thread = StatusThread(port=5555)
@@ -87,7 +87,7 @@ def generate_app(config_dir, config_dict):
     pio.templates.default = "seaborn"  # Style Choice for Graphs
     curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects
-    side_title = "Very Small Radio Telescope"
+    side_title = config_dict["SOFTWARE"]
 
     image_filename = curfold.joinpath(
         "images", "MIT_HO_logo_landscape.png"
@@ -159,7 +159,7 @@ def generate_app(config_dir, config_dict):
     app.validation_layout = html.Div(
         [
             layout,
-            monitor_page.generate_layout(),
+            monitor_page.generate_layout(config_dict["SOFTWARE"]),
             system_page.generate_layout(),
             #    figure_page.generate_layout()
         ]
@@ -316,7 +316,7 @@ def generate_app(config_dir, config_dict):
         """
 
         if pathname in ["/", f"/{pages['Monitor Page']}"]:
-            return monitor_page.generate_layout()
+            return monitor_page.generate_layout(config_dict["SOFTWARE"])
         elif pathname == f"/{pages['System Page']}":
             return system_page.generate_layout()
         # elif pathname == f"/{pages['Figure Page']}":
