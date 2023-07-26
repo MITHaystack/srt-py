@@ -1,0 +1,44 @@
+SOFTWARE: str()
+EMERGENCY_CONTACT: include('contact_info')
+AZLIMITS: include('limit')
+ELLIMITS: include('limit')
+STOW_LOCATION: include('az_el_point')
+CAL_LOCATION: include('az_el_point')
+HORIZON_POINTS: list(include('az_el_point'), min=0)
+MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT', 'PUSHROD', 'NONE')
+MOTOR_BAUDRATE: int()
+MOTOR_PORT: str()
+RADIO_CF: int()
+RADIO_SF: int()
+RADIO_FREQ_CORR: int()
+RADIO_NUM_BINS: int()
+RADIO_INTEG_CYCLES: int()
+RADIO_AUTOSTART: bool()
+NUM_BEAMSWITCHES: int()
+BEAMWIDTH: num()
+TSYS: num()
+TCAL: num()
+SAVE_DIRECTORY: str()
+RUN_HEADLESS: bool()
+DASHBOARD_PORT: int()
+DASHBOARD_HOST: ip()
+DASHBOARD_DOWNLOADS: bool()
+DASHBOARD_REFRESH_MS: int()
+---
+location:
+    latitude: num()
+    longitude: num()
+    name: str()
+---
+limit:
+    lower_bound: num()
+    upper_bound: num()
+---
+az_el_point:
+    azimuth: num()
+    elevation: num()
+---
+contact_info:
+    name: str()
+    email: str()
+    phone_number: str()

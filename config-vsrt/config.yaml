@@ -1,0 +1,45 @@
+SOFTWARE: Very Small Radio Telescope
+EMERGENCY_CONTACT:
+  name: John Doe
+  email: test@example.com
+  phone_number: 555-555-5555
+AZLIMITS:
+  lower_bound: 38.0
+  upper_bound: 355.0
+ELLIMITS:
+  lower_bound: 0.0
+  upper_bound: 89.0
+STOW_LOCATION:
+  azimuth: 38.0
+  elevation: 0.0
+CAL_LOCATION:
+  azimuth: 120.0
+  elevation: 7.0
+HORIZON_POINTS:
+  - azimuth: 0
+    elevation: 0
+  - azimuth: 120
+    elevation: 5
+  - azimuth: 240
+    elevation: 5
+  - azimuth: 360
+    elevation: 0
+MOTOR_TYPE: NONE
+MOTOR_PORT: /dev/ttyUSB0
+MOTOR_BAUDRATE: 600
+RADIO_CF: 1420000000
+RADIO_SF: 2400000
+RADIO_FREQ_CORR: -50000
+RADIO_NUM_BINS: 256
+RADIO_INTEG_CYCLES: 100000
+RADIO_AUTOSTART: Yes
+NUM_BEAMSWITCHES: 25
+BEAMWIDTH: 7.0
+TSYS: 171
+TCAL: 290
+SAVE_DIRECTORY: ~/Desktop/SRT-Saves
+RUN_HEADLESS: No
+DASHBOARD_PORT: 8080
+DASHBOARD_HOST: 0.0.0.0
+DASHBOARD_DOWNLOADS: Yes
+DASHBOARD_REFRESH_MS: 3000
