@@ -41,6 +41,8 @@ from .graphs import (
 )
 
 from astropy.table import Table
+from srt import config_loader
+
 
 root_folder = Path(__file__).parent.parent.parent.parent
 
@@ -179,7 +181,52 @@ def generate_third_row():
     )
 
 
-def generate_popups():
+# def generate_point_popup():
+
+#     return html.Div(
+#         [dbc.Modal(
+#             [
+#                 dbc.ModalHeader("Point at Object"),
+#                 dbc.ModalBody(
+#                     [
+#                         html.H5("Confirm Pointing to This Object?"),
+#                         dcc.RadioItems(
+#                             options=[
+#                                 {"label": "Direct Point", "value": ""},
+#                                 {"label": "N-Point Scan", "value": " n"},
+#                                 {"label": "Beam-switch", "value": " b"},
+#                             ],
+#                             id="point-options",
+#                             value="",
+#                         ),
+#                     ]
+#                 ),
+#                 dbc.ModalFooter(
+#                     [
+#                         dbc.Button(
+#                             "Yes",
+#                             id="az-el-graph-btn-yes",
+#                             className="ml-auto",
+#                             # block=True,
+#                             color="primary",
+#                         ),
+#                         dbc.Button(
+#                             "No",
+#                             id="az-el-graph-btn-no",
+#                             className="ml-auto",
+#                             # block=True,
+#                             color="secondary",
+#                         ),
+#                     ]
+#                 ),
+#             ],
+#             id="az-el-graph-modal",
+
+#         ),]
+#     )
+
+
+def generate_popups(software):
     """Generates all 'Pop-up' Modal Components
 
     Returns
@@ -188,46 +235,84 @@ def generate_popups():
     """
     all_objects = get_all_objects()
 
+    if software == "Very Small Radio Telescope":
+        vsrt_open = True
+        srt_open = False
+    else:
+        vsrt_open = False
+        srt_open = True
+
     return html.Div(
-        [
+        [dbc.Modal(
+            [
+                dbc.ModalHeader("Point at Object"),
+                dbc.ModalBody(
+                    [
+                        html.H5("Confirm Pointing to This Object?"),
+                        dcc.RadioItems(
+                            options=[
+                                {"label": "Direct Point", "value": ""},
+                                {"label": "N-Point Scan", "value": " n"},
+                                {"label": "Beam-switch", "value": " b"},
+                            ],
+                            id="point-options",
+                            value="",
+                        ),
+                    ]
+                ),
+                dbc.ModalFooter(
+                    [
+                        dbc.Button(
+                            "Yes",
+                            id="az-el-graph-btn-yes",
+                            className="ml-auto",
+                            # block=True,
+                            color="primary",
+                        ),
+                        dbc.Button(
+                            "No",
+                            id="az-el-graph-btn-no",
+                            className="ml-auto",
+                            # block=True,
+                            color="secondary",
+                        ),
+                    ]
+                ),
+            ],
+            id="az-el-graph-modal",
+            # is_open=srt_open,
+        ),
+
             dbc.Modal(
-                [
-                    dbc.ModalHeader("Point at Object"),
-                    dbc.ModalBody(
-                        [
-                            html.H5("Confirm Pointing to This Object?"),
-                            dcc.RadioItems(
-                                options=[
-                                    {"label": "Direct Point", "value": ""},
-                                    {"label": "N-Point Scan", "value": " n"},
-                                    {"label": "Beam-switch", "value": " b"},
-                                ],
-                                id="point-options",
-                                value="",
-                            ),
-                        ]
-                    ),
-                    dbc.ModalFooter(
-                        [
-                            dbc.Button(
-                                "Yes",
-                                id="az-el-graph-btn-yes",
-                                className="ml-auto",
-                                # block=True,
-                                color="primary",
-                            ),
-                            dbc.Button(
-                                "No",
-                                id="az-el-graph-btn-no",
-                                className="ml-auto",
-                                # block=True,
-                                color="secondary",
-                            ),
-                        ]
-                    ),
-                ],
-                id="az-el-graph-modal",
-            ),
+            [
+                dbc.ModalHeader("Point at Object"),
+                dbc.ModalBody(
+                    [
+                        html.H5("Confirm Pointing to This Object?"),
+                    ]
+                ),
+                dbc.ModalFooter(
+                    [
+                        dbc.Button(
+                            "Yes",
+                            id="az-el-vsrt-btn-yes",
+                            className="ml-auto",
+                            # block=True,
+                            color="primary",
+                        ),
+                        dbc.Button(
+                            "No",
+                            id="az-el-vsrt-btn-no",
+                            className="ml-auto",
+                            # block=True,
+                            color="secondary",
+                        ),
+                    ]
+                ),
+            ],
+            id="az-el-vsrt-modal",
+            # is_open=vsrt_open,
+        ),
 
             dbc.Modal(
                 [
@@ -259,7 +344,8 @@ def generate_popups():
                     ),
                 ],
                 id="obs-obj-modal",
-            ),
+
+        ),
 
             dbc.Modal(
                 [
@@ -300,7 +386,7 @@ def generate_popups():
                     ),
                 ],
                 id="obs-coords-modal",
-            ),
+        ),
 
 
 
@@ -343,7 +429,7 @@ def generate_popups():
                     ),
                 ],
                 id="coords-modal",
-            ),
+        ),
 
 
             dbc.Modal(
@@ -385,7 +471,7 @@ def generate_popups():
                     ),
                 ],
                 id="point-modal",
-            ),
+        ),
             dbc.Modal(
                 [
                     dbc.ModalHeader("Enter the New Center Frequency"),
@@ -420,7 +506,7 @@ def generate_popups():
                     ),
                 ],
                 id="freq-modal",
-            ),
+        ),
             dbc.Modal(
                 [
                     dbc.ModalHeader("Enter the New Sample Frequency"),
@@ -455,7 +541,7 @@ def generate_popups():
                     ),
                 ],
                 id="samp-modal",
-            ),
+        ),
             dbc.Modal(
                 [
                     dbc.ModalHeader("Enter the Motor Offsets"),
@@ -495,7 +581,7 @@ def generate_popups():
                     ),
                 ],
                 id="offset-modal",
-            ),
+        ),
             dbc.Modal(
                 [
                     dbc.ModalHeader("Start Recording"),
@@ -540,7 +626,7 @@ def generate_popups():
                     ),
                 ],
                 id="record-modal",
-            ),
+        ),
             dbc.Modal(
                 [
                     dbc.ModalHeader("Command File"),
@@ -573,7 +659,7 @@ def generate_popups():
                     ),
                 ],
                 id="cmd-file-modal",
-            ),
+        ),
             dbc.Modal(
                 [
                     dbc.ModalHeader("Start Daemon"),
@@ -616,7 +702,7 @@ def generate_popups():
                     ),
                 ],
                 id="start-modal",
-            ),
+        ),
         ]
     )
 
@@ -686,7 +772,7 @@ def generate_layout(software):
                 generate_first_row(),
                 generate_second_row(),
                 generate_third_row(),
-                generate_popups(),
+                generate_popups(software),
                 html.Div(id="signal", style={"display": "none"}),
             ]
         )
@@ -700,7 +786,7 @@ def generate_layout(software):
                 generate_npointlayout(),
                 generate_second_row(),
                 generate_third_row(),
-                generate_popups(),
+                generate_popups(software),
                 html.Div(id="signal", style={"display": "none"}),
             ]
         )
@@ -708,7 +794,7 @@ def generate_layout(software):
 
 
 def register_callbacks(
-    app, config, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread
+    app, config, status_thread, command_thread, raw_spectrum_thread, cal_spectrum_thread, software
 ):
     """Registers the Callbacks for the Monitor Page
 
@@ -731,6 +817,13 @@ def register_callbacks(
     -------
     None
     """
+    # config_path = Path(config["CONFIG_DIR"], config_file)
+    # config_dict = config_loader.load_yaml(config_path)
+
+    if software == "Very Small Radio Telescope":
+        vsrt = True
+    else:
+        vsrt = False
 
     @app.callback(
         Output("cal-spectrum-histogram", "figure"),
@@ -1017,8 +1110,12 @@ def register_callbacks(
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "az-el-graph-btn-yes":
-                command_thread.add_to_queue(
-                    f"{clickData['points'][0]['text']}{mode}")
+                if not vsrt:
+                    command_thread.add_to_queue(
+                        f"{clickData['points'][0]['text']}{mode}")
+                elif vsrt:
+                    command_thread.add_to_queue(
+                        f"object {clickData['points'][0]['text']}")
             if (
                 n_clicks_yes
                 or n_clicks_no
@@ -1029,6 +1126,36 @@ def register_callbacks(
             ):
                 return not is_open
             return is_open
+
+    # @ app.callback(
+    #     Output("az-el-vsrt-modal", "is_open"),
+    #     [
+    #         Input("az-el-graph", "clickData"),
+    #         Input("az-el-vsrt-btn-yes", "n_clicks"),
+    #         Input("az-el-vsrt-btn-no", "n_clicks"),
+    #     ],
+    #     [State("az-el-vsrt-modal", "is_open"),
+    #      State("point-options", "value"),],
+    # )
+    # def az_el_click_vsrt_func(clickData, n_clicks_yes, n_clicks_no, is_open, mode):
+
+    #     ctx = dash.callback_context
+    #     if not ctx.triggered:
+    #         return is_open
+    #     else:
+    #         button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    #         if button_id == "az-el-graph-btn-yes":
+    #             command_thread.add_to_queue(f"object {object}")
+    #         if (
+    #             n_clicks_yes
+    #             or n_clicks_no
+    #             or (
+    #                 clickData
+    #                 and not clickData["points"][0]["text"] == "Antenna Location"
+    #             )
+    #         ):
+    #             return not is_open
+    #         return is_open
 
     @ app.callback(
         Output("obs-obj-modal", "is_open"),

@@ -127,6 +127,7 @@ class SmallRadioTelescopeDaemon:
             self.az_limits,
             self.el_limits,
         )
+        print("test", self.stow_location)
         self.rotor_location = self.stow_location
         self.rotor_destination = self.stow_location
         self.rotor_offsets = (0.0, 0.0)
@@ -536,6 +537,19 @@ class SmallRadioTelescopeDaemon:
 
         self.rotor_location = (az, el)
 
+        self.rotor_offsets = (0.0, 0.0)
+
+        new_rotor_cmd_location = (az, el)
+        if self.rotor.angles_within_bounds(*new_rotor_cmd_location):
+            self.ephemeris_cmd_location = name
+            self.rotor_destination = new_rotor_cmd_location
+            self.rotor_cmd_location = new_rotor_cmd_location
+            while not azel_within_range(self.rotor_location, self.rotor_cmd_location):
+                sleep(0.1)
+        else:
+            self.log_message(f"Object {name} Not in Motor Bounds")
+            self.ephemeris_cmd_location = None
+
     def update_ephemeris_location(self):
         """Periodically Updates Object Locations for Tracking Sky Objects
 
@@ -602,7 +616,8 @@ class SmallRadioTelescopeDaemon:
                         )
                     ) and (time() - start_time) < 10:
                         past_rotor_location = self.rotor_location
-                        # self.rotor_location = self.rotor.get_azimuth_elevation()
+                        self.rotor_location = self.rotor.get_azimuth_elevation()
+                        print(past_rotor_location, self.rotor_location)
                         if not self.rotor_location == past_rotor_location:
                             g_lat, g_lon = self.ephemeris_tracker.convert_to_gal_coord(
                                 self.rotor_location
@@ -619,6 +634,7 @@ class SmallRadioTelescopeDaemon:
                 else:
                     past_rotor_location = self.rotor_location
                     self.rotor_location = self.rotor.get_azimuth_elevation()
+                    print(self.rotor_location)
                     if not self.rotor_location == past_rotor_location:
                         g_lat, g_lon = self.ephemeris_tracker.convert_to_gal_coord(
                             self.rotor_location

@@ -48,6 +48,7 @@ def generate_app(config_dir, config_dict):
     (server, app)
     """
     config_dict["CONFIG_DIR"] = config_dir
+    software = config_dict["SOFTWARE"]
 
     # Set Up Flash and Dash Objects
     server = flask.Flask(__name__)
@@ -59,7 +60,7 @@ def generate_app(config_dir, config_dict):
             {"name": "viewport", "content": "width=device-width, initial-scale=1"}
         ],
     )
-    app.title = config_dict["SOFTWARE"]
+    app.title = software
 
     # Start Listening for Radio and Status Data
     status_thread = StatusThread(port=5555)
@@ -87,7 +88,7 @@ def generate_app(config_dir, config_dict):
     pio.templates.default = "seaborn"  # Style Choice for Graphs
     curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects
-    side_title = config_dict["SOFTWARE"]
+    side_title = software
 
     image_filename = curfold.joinpath(
         "images", "MIT_HO_logo_landscape.png"
@@ -179,6 +180,7 @@ def generate_app(config_dir, config_dict):
         command_thread,
         raw_spectrum_thread,
         cal_spectrum_thread,
+        software
     )
     # Create Callbacks for System Page Objects
     system_page.register_callbacks(app, config_dict, status_thread)
