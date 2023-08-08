@@ -1,5 +1,4 @@
 SOFTWARE: str()
-STATION: include('location')
 EMERGENCY_CONTACT: include('contact_info')
 AZLIMITS: include('limit')
 ELLIMITS: include('limit')

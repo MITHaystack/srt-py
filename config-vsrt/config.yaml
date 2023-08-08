@@ -1,8 +1,4 @@
-SOFTWARE: Small Radio Telescope
-STATION:
-  latitude: 42.5
-  longitude: -71.5
-  name: Haystack
+SOFTWARE: Very Small Radio Telescope
 EMERGENCY_CONTACT:
   name: John Doe
   email: test@example.com
