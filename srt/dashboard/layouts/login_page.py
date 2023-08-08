@@ -46,36 +46,15 @@ def generate_layout() -> html.Div:
     )
     bg_encoded = base64.b64encode(open(bg_fname, "rb").read())
     logo_encoded = base64.b64encode(open(logo_fname, "rb").read())
-    img_style = {
-        "display": "block",
-        "min-width": "100%",
-        "height": "100%",
-        "object-fit": "cover"
-    }
-    img_div_style = {
-        "width": "50%",
-        "height": "100vh",
-        "overflow": "hidden"
-    }
-    right_style = {
-        "width": "50%",
-        "display": "flex",
-        "align-items": "center",
-        "justify-content": "center",
-        "flex-direction": "column"
-    }
+
+
     logo_style = {
         "display": "block",
         "max-width": "80%",
-        "position": "relative",
+        "position": 'relative',
         "bottom": 220,
         "left": 15
     }
-    container_style = {
-        "display": "flex",
-        "width": "100%"
-    }
-
 
     layout = html.Div([dcc.Location(id="url_login", refresh=True),
                 html.Div(id="hidden_for_redirect"),
@@ -84,30 +63,36 @@ def generate_layout() -> html.Div:
                         html.Img(src="data:image/png;base64,{}".format(
                                             bg_encoded.decode()
                                         ),
-                                style=img_style),
+                                className="img_style"),
                         html.Img(src="data:image/png;base64,{}".format(
                                             logo_encoded.decode()
                                         ),
                                 style=logo_style),
-                    ], id="img-div", style=img_div_style),
+                    ], id="img-div", className="img_div_style"),
                     html.Div([
-                        html.H2("Tufts Radio Telescope"),
+                        html.H2("Tufts Radio Telescope", className="login-title"),
                         dcc.Input(placeholder="Email",
                             type="text",
-                            id="email-box"),
+                            id="email-box",
+                            className="form-item"),
                         dcc.Input(placeholder="Password",
                             type="password",
-                            id="pw-box"),
-                        html.Button(children="Launch",
-                            n_clicks=0,
-                            type="submit",
-                            id="login-button"),
-                        html.Div(id="status-div"),
-                        html.Div([html.P("New?"), 
-                                dcc.Link("Create Account", 
-                                            href="/create")])
-                    ], style=right_style)
-                    ], style=container_style)
+                            id="pw-box",
+                            className="form-item"),
+                        html.Div([
+                            html.Div([html.P("New?"), 
+                                    dcc.Link("Create Account", 
+                                                href="/create",
+                                                className="create-button")],
+                                    className="form-text-left"),
+                            html.Button(children="Launch",
+                                n_clicks=0,
+                                type="submit",
+                                id="login-button",
+                                className="launch")], className="form-bottom"),
+                        html.Div(id="status-div")
+                    ], className="right_style")
+                    ], className="container_style")
                 ])
 
     return layout
