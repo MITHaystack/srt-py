@@ -6,6 +6,9 @@ Dash Small Radio Telescope Web App Dashboard
 
 import dash
 
+from flask_login import LoginManager
+
+
 try:
     from dash import dcc
 except:
@@ -25,12 +28,21 @@ import numpy as np
 from time import time
 from pathlib import Path
 import base64
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Table, create_engine
+import sqlite3
+from flask_login import login_user, logout_user, current_user, LoginManager, UserMixin
 
-from .layouts import monitor_page, system_page  # , figure_page
+
+from .layouts import monitor_page, system_page, login_page, create_page  # , figure_page
 from .layouts.sidebar import generate_sidebar
 from .messaging.status_fetcher import StatusThread
 from .messaging.command_dispatcher import CommandThread
 from .messaging.spectrum_fetcher import SpectrumThread
+# from .messaging.user_data_handler import UserDatabase
+from .messaging.user import User
+
+from ..dashboard import db
 
 
 def generate_app(config_dir, config_dict):
@@ -49,6 +61,8 @@ def generate_app(config_dir, config_dict):
     """
     config_dict["CONFIG_DIR"] = config_dir
 
+    # TODO Serve bootstrap css locally
+
     # Set Up Flash and Dash Objects
     server = flask.Flask(__name__)
     app = dash.Dash(
@@ -60,6 +74,17 @@ def generate_app(config_dir, config_dict):
         ],
     )
     app.title = "SRT Dashboard"
+
+    # Configure database
+    server.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///../../data.sqlite"
+    server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    server.secret_key = b'_5#y2L"F4Q8z\n\xec]/' #! TESTING ONLY - CHANGE IN PROD
+    # db = SQLAlchemy()
+    db.init_app(server)
+
+    # Setup Flask-login
+    login_manager = LoginManager()
+    login_manager.init_app(server)
 
     # Start Listening for Radio and Status Data
     status_thread = StatusThread(port=5555)
@@ -78,8 +103,11 @@ def generate_app(config_dir, config_dict):
     pages = {
         "Monitor Page": "monitor-page",
         "System Page": "system-page",
+        #? TODO
+        "Login Page": "login"
         #    "Figure Page": "figure-page"
     }
+
     if "DASHBOARD_REFRESH_MS" in config_dict.keys():
         refresh_time = config_dict["DASHBOARD_REFRESH_MS"]  # ms
     else:
@@ -92,6 +120,7 @@ def generate_app(config_dir, config_dict):
     image_filename = curfold.joinpath(
         "images", "tufts_logo_banner.png"
     )  # replace with your own image
+
     encoded_image = base64.b64encode(open(image_filename, "rb").read())
     side_content = {
         "Status": dcc.Markdown(id="sidebar-status"),
@@ -134,7 +163,7 @@ def generate_app(config_dir, config_dict):
     content = html.Div(id="page-content")
     layout = html.Div(
         [
-            dcc.Location(id="url"),
+            dcc.Location(id="url", refresh=False),
             sidebar,
             content,
             dcc.Interval(id="interval-component", interval=refresh_time, n_intervals=0),
@@ -153,8 +182,10 @@ def generate_app(config_dir, config_dict):
     app.validation_layout = html.Div(
         [
             layout,
-            monitor_page.generate_layout(),
+            monitor_page.generate_layout(current_user),
             system_page.generate_layout(),
+            login_page.generate_layout(),
+            create_page.generate_layout()
             #    figure_page.generate_layout()
         ]
     )  # Necessary for Allowing Other Files to Create Callbacks
@@ -168,6 +199,7 @@ def generate_app(config_dir, config_dict):
     # Create Callbacks for Monitoring Page Objects
     monitor_page.register_callbacks(
         app,
+        current_user,
         config_dict,
         status_thread,
         command_thread,
@@ -176,6 +208,8 @@ def generate_app(config_dir, config_dict):
     )
     # Create Callbacks for System Page Objects
     system_page.register_callbacks(app, config_dict, status_thread)
+    login_page.register_callbacks(app)
+    create_page.register_callbacks(app, db)
 
     # # Create Callbacks for figure page callbacks
     # figure_page.register_callbacks(app,config_dict, status_thread)
@@ -191,6 +225,11 @@ def generate_app(config_dir, config_dict):
                 as_attachment=True,
             )
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        """ Returns User object from ID """
+        return User.query.get(user_id)
+    
     @app.callback(
         [Output(f"{pages[page_name]}-link", "active") for page_name in pages],
         [Input("url", "pathname")],
@@ -289,6 +328,18 @@ def generate_app(config_dir, config_dict):
         """
         return status_string
 
+    @app.callback(Output("sidebar", "style"), [Input("url", "pathname")])
+    def hide_sidebar_on_login(pathname):
+        if pathname == "/login":
+            return {"display": "none",
+                    "width": 0 }
+    
+    @app.callback(Output("page-content", "style"), [Input("url", "pathname")])
+    def remove_padding_on_login(pathname):
+        if pathname == "/login":
+            return {"margin": 0}
+                    
+
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def render_page_content(pathname):
         """Renders the Correct Content of the Page Portion
@@ -302,12 +353,32 @@ def generate_app(config_dir, config_dict):
         -------
         Content of page-content
         """
+
         if pathname in ["/", f"/{pages['Monitor Page']}"]:
-            return monitor_page.generate_layout()
+            if current_user.is_authenticated:
+                return monitor_page.generate_layout(current_user)
+            else:
+                return dcc.Location(pathname="/login", id="to-login")
         elif pathname == f"/{pages['System Page']}":
-            return system_page.generate_layout()
+            if current_user.is_authenticated:
+                return system_page.generate_layout()
+            else:
+                return dcc.Location(pathname="/login", id="to-login")
+        elif pathname == "/login":
+            if not current_user.is_authenticated:
+                return login_page.generate_layout()
+            else:
+                return dcc.Location(pathname="/", id="to-root")
+        elif pathname == "/create":
+            if not current_user.is_authenticated:
+                return create_page.generate_layout()
+            else:
+                return dcc.Location(pathname="/", id="to-root")
+            
         # elif pathname == f"/{pages['Figure Page']}":
         #     return figure_page.generate_layout()
+
+        
         # If the user tries to reach a different page, return a 404 message
         return dbc.Jumbotron(
             [

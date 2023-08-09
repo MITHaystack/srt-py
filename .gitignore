@@ -111,3 +111,6 @@ rever/
 
 # DS Store
 .DS_Store
+
+# Database
+data.sqlite
