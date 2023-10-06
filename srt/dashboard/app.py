@@ -48,6 +48,7 @@ def generate_app(config_dir, config_dict):
     (server, app)
     """
     config_dict["CONFIG_DIR"] = config_dir
+    software = config_dict["SOFTWARE"]
 
     # Set Up Flash and Dash Objects
     server = flask.Flask(__name__)
@@ -59,7 +60,7 @@ def generate_app(config_dir, config_dict):
             {"name": "viewport", "content": "width=device-width, initial-scale=1"}
         ],
     )
-    app.title = "SRT Dashboard"
+    app.title = software
 
     # Start Listening for Radio and Status Data
     status_thread = StatusThread(port=5555)
@@ -87,8 +88,7 @@ def generate_app(config_dir, config_dict):
     pio.templates.default = "seaborn"  # Style Choice for Graphs
     curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects
-    side_title = "Small Radio Telescope"
-
+    side_title = software
     image_filename = curfold.joinpath(
         "images", "MIT_HO_logo_landscape.png"
     )  # replace with your own image
@@ -142,7 +142,8 @@ def generate_app(config_dir, config_dict):
             dcc.Location(id="url"),
             sidebar,
             content,
-            dcc.Interval(id="interval-component", interval=refresh_time, n_intervals=0),
+            dcc.Interval(id="interval-component",
+                         interval=refresh_time, n_intervals=0),
             html.Div(id="output-clientside"),
         ],
         id="mainContainer",
@@ -158,7 +159,7 @@ def generate_app(config_dir, config_dict):
     app.validation_layout = html.Div(
         [
             layout,
-            monitor_page.generate_layout(),
+            monitor_page.generate_layout(config_dict["SOFTWARE"]),
             system_page.generate_layout(),
             #    figure_page.generate_layout()
         ]
@@ -178,6 +179,7 @@ def generate_app(config_dir, config_dict):
         command_thread,
         raw_spectrum_thread,
         cal_spectrum_thread,
+        software
     )
     # Create Callbacks for System Page Objects
     system_page.register_callbacks(app, config_dict, status_thread)
@@ -265,6 +267,7 @@ def generate_app(config_dir, config_dict):
         """
         status = status_thread.get_status()
         if status is None:
+            lat = lon = np.nan
             az = el = np.nan
             az_offset = el_offset = np.nan
             cf = np.nan
@@ -272,6 +275,8 @@ def generate_app(config_dir, config_dict):
             status_string = "SRT Not Connected"
             vlsr = np.nan
         else:
+            lat = status["location"]["latitude"]
+            lon = status["location"]["longitude"]
             az = status["motor_azel"][0]
             el = status["motor_azel"][1]
             az_offset = status["motor_offsets"][0]
@@ -287,14 +292,26 @@ def generate_app(config_dir, config_dict):
             else:
                 status_string = "SRT In Use!"
 
-        status_string = f"""
-         #### {status_string}
-         - Motor Az, El: {az:.1f}, {el:.1f} deg
-         - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
-         - Center Frequency: {cf / pow(10, 6)} MHz
-         - Bandwidth: {bandwidth / pow(10, 6)} MHz
-         - VLSR: {vlsr:.1f} km/s
-        """
+        if config_dict["SOFTWARE"] == "Very Small Radio Telescope":
+            status_string = f"""
+            #### {status_string}
+            - Location Lat, Long: {lat:.1f}, {lon:.1f} deg
+            - Motor Az, El: {az:.1f}, {el:.1f} deg
+            - Center Frequency: {cf / pow(10, 6)} MHz
+            - Bandwidth: {bandwidth / pow(10, 6)} MHz
+            - VLSR: {vlsr:.1f} km/s
+            """
+        else:
+            status_string = f"""
+            #### {status_string}
+            - Location Lat, Long: {lat:.1f}, {lon:.1f} deg
+            - Motor Az, El: {az:.1f}, {el:.1f} deg
+            - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
+            - Center Frequency: {cf / pow(10, 6)} MHz
+            - Bandwidth: {bandwidth / pow(10, 6)} MHz
+            - VLSR: {vlsr:.1f} km/s
+            """
+
         return status_string
 
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
@@ -310,8 +327,9 @@ def generate_app(config_dir, config_dict):
         -------
         Content of page-content
         """
+
         if pathname in ["/", f"/{pages['Monitor Page']}"]:
-            return monitor_page.generate_layout()
+            return monitor_page.generate_layout(config_dict["SOFTWARE"])
         elif pathname == f"/{pages['System Page']}":
             return system_page.generate_layout()
         # elif pathname == f"/{pages['Figure Page']}":

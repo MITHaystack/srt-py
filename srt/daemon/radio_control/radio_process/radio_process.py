@@ -23,9 +23,9 @@ from gnuradio import eng_notation
 from gnuradio import zeromq
 
 try:
-   import SimpleXMLRPCServer
+    import SimpleXMLRPCServer
 except ModuleNotFoundError:
-   import xmlrpc.server as SimpleXMLRPCServer
+    import xmlrpc.server as SimpleXMLRPCServer
 
 import threading
 from . import add_clock_tags
@@ -51,7 +51,8 @@ class radio_process(gr.top_block):
         self.sinc_sample_locations = sinc_sample_locations = np.arange(
             -np.pi * 4 / 2.0, np.pi * 4 / 2.0, np.pi / num_bins
         )
-        self.sinc_samples = sinc_samples = np.sinc(sinc_sample_locations / np.pi)
+        self.sinc_samples = sinc_samples = np.sinc(
+            sinc_sample_locations / np.pi)
         self.vlsr = vlsr = np.nan
         self.tsys = tsys = 171
         self.tcal = tcal = 290
@@ -65,7 +66,8 @@ class radio_process(gr.top_block):
         self.glat = glat = np.nan
         self.freq = freq = 1420000000
         self.fft_window = fft_window = window.blackmanharris(num_bins)
-        self.custom_window = custom_window = sinc_samples * np.hamming(4 * num_bins)
+        self.custom_window = custom_window = sinc_samples * \
+            np.hamming(4 * num_bins)
         self.cal_values = cal_values = np.repeat(np.nan, num_bins)
         self.cal_pwr = cal_pwr = 1
         self.beam_switch = beam_switch = 0
@@ -113,7 +115,8 @@ class radio_process(gr.top_block):
         self.osmosdr_source_0.set_antenna("", 0)
         self.osmosdr_source_0.set_bandwidth(0, 0)
         self.fft_vxx_0 = fft.fft_vcc(num_bins, True, fft_window, True, 3)
-        self.dc_blocker_xx_0 = filter.dc_blocker_cc(num_bins * num_integrations, False)
+        self.dc_blocker_xx_0 = filter.dc_blocker_cc(
+            num_bins * num_integrations, False)
         self.blocks_tags_strobe_0_0 = blocks.tags_strobe(
             gr.sizeof_gr_complex * 1,
             pmt.to_pmt(
@@ -158,7 +161,8 @@ class radio_process(gr.top_block):
         self.blocks_skiphead_0 = blocks.skiphead(
             gr.sizeof_gr_complex * 1, num_bins * num_integrations
         )
-        self.blocks_selector_0 = blocks.selector(gr.sizeof_gr_complex * 1, 0, 0)
+        self.blocks_selector_0 = blocks.selector(
+            gr.sizeof_gr_complex * 1, 0, 0)
         self.blocks_selector_0.set_enabled(True)
         self.blocks_multiply_const_xx_0 = blocks.multiply_const_ff(
             1.0 / float(num_integrations), num_bins
@@ -170,10 +174,10 @@ class radio_process(gr.top_block):
             custom_window[0:num_bins]
         )
         self.blocks_multiply_const_vxx_0_0_0 = blocks.multiply_const_vcc(
-            custom_window[num_bins : 2 * num_bins]
+            custom_window[num_bins: 2 * num_bins]
         )
         self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_vcc(
-            custom_window[2 * num_bins : 3 * num_bins]
+            custom_window[2 * num_bins: 3 * num_bins]
         )
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vcc(
             custom_window[-num_bins:]
@@ -181,11 +185,16 @@ class radio_process(gr.top_block):
         self.blocks_message_strobe_0 = blocks.message_strobe(
             pmt.to_pmt(is_running), 100
         )
-        self.blocks_integrate_xx_0 = blocks.integrate_ff(num_integrations, num_bins)
-        self.blocks_delay_0_1 = blocks.delay(gr.sizeof_gr_complex * 1, num_bins)
-        self.blocks_delay_0_0 = blocks.delay(gr.sizeof_gr_complex * 1, num_bins * 2)
-        self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex * 1, num_bins * 3)
-        self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(num_bins)
+        self.blocks_integrate_xx_0 = blocks.integrate_ff(
+            num_integrations, num_bins)
+        self.blocks_delay_0_1 = blocks.delay(
+            gr.sizeof_gr_complex * 1, num_bins)
+        self.blocks_delay_0_0 = blocks.delay(
+            gr.sizeof_gr_complex * 1, num_bins * 2)
+        self.blocks_delay_0 = blocks.delay(
+            gr.sizeof_gr_complex * 1, num_bins * 3)
+        self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(
+            num_bins)
         self.blocks_add_xx_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(num_bins)
         self.add_clock_tags = add_clock_tags.clk(nsamps=tag_period)
@@ -197,42 +206,54 @@ class radio_process(gr.top_block):
         self.connect((self.blocks_add_xx_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.blocks_add_xx_0_0, 0), (self.blocks_selector_0, 0))
         self.connect(
-            (self.blocks_complex_to_mag_squared_0, 0), (self.blocks_integrate_xx_0, 0)
+            (self.blocks_complex_to_mag_squared_0,
+             0), (self.blocks_integrate_xx_0, 0)
         )
-        self.connect((self.blocks_delay_0, 0), (self.blocks_stream_to_vector_0_2, 0))
-        self.connect((self.blocks_delay_0_0, 0), (self.blocks_stream_to_vector_0_0, 0))
-        self.connect((self.blocks_delay_0_1, 0), (self.blocks_stream_to_vector_0_1, 0))
+        self.connect((self.blocks_delay_0, 0),
+                     (self.blocks_stream_to_vector_0_2, 0))
+        self.connect((self.blocks_delay_0_0, 0),
+                     (self.blocks_stream_to_vector_0_0, 0))
+        self.connect((self.blocks_delay_0_1, 0),
+                     (self.blocks_stream_to_vector_0_1, 0))
         self.connect(
             (self.blocks_integrate_xx_0, 0), (self.blocks_multiply_const_xx_0, 0)
         )
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_xx_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_0, 0),
+                     (self.blocks_add_xx_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0, 0),
+                     (self.blocks_add_xx_0, 1))
         self.connect(
             (self.blocks_multiply_const_vxx_0_0_0, 0), (self.blocks_add_xx_0, 2)
         )
         self.connect(
             (self.blocks_multiply_const_vxx_0_0_0_0, 0), (self.blocks_add_xx_0, 3)
         )
-        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.zeromq_pub_sink_1, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0),
+                     (self.zeromq_pub_sink_1, 0))
         self.connect(
             (self.blocks_multiply_const_vxx_1, 0), (self.zeromq_pub_sink_1_0, 0)
         )
         self.connect(
-            (self.blocks_multiply_const_xx_0, 0), (self.blocks_multiply_const_vxx_1, 0)
+            (self.blocks_multiply_const_xx_0,
+             0), (self.blocks_multiply_const_vxx_1, 0)
         )
-        self.connect((self.blocks_multiply_const_xx_0, 0), (self.zeromq_pub_sink_2, 0))
+        self.connect((self.blocks_multiply_const_xx_0, 0),
+                     (self.zeromq_pub_sink_2, 0))
         self.connect(
             (self.blocks_multiply_const_xx_0, 0), (self.zeromq_pub_sink_2_0, 0)
         )
         self.connect((self.blocks_selector_0, 0), (self.dc_blocker_xx_0, 0))
         self.connect((self.blocks_selector_0, 0), (self.zeromq_pub_sink_0, 0))
-        self.connect((self.blocks_selector_0, 0), (self.zeromq_pub_sink_0_0, 0))
+        self.connect((self.blocks_selector_0, 0),
+                     (self.zeromq_pub_sink_0_0, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.blocks_delay_0_0, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.blocks_delay_0_1, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_stream_to_vector_0, 0))
+        self.connect((self.blocks_skiphead_0, 0),
+                     (self.blocks_stream_to_vector_0, 0))
         self.connect(
-            (self.blocks_stream_to_vector_0, 0), (self.blocks_multiply_const_vxx_0, 0)
+            (self.blocks_stream_to_vector_0,
+             0), (self.blocks_multiply_const_vxx_0, 0)
         )
         self.connect(
             (self.blocks_stream_to_vector_0_0, 0),
@@ -246,10 +267,13 @@ class radio_process(gr.top_block):
             (self.blocks_stream_to_vector_0_2, 0),
             (self.blocks_multiply_const_vxx_0_0_0_0, 0),
         )
-        self.connect((self.blocks_tags_strobe_0, 0), (self.blocks_add_xx_0_0, 0))
-        self.connect((self.blocks_tags_strobe_0_0, 0), (self.blocks_add_xx_0_0, 2))
+        self.connect((self.blocks_tags_strobe_0, 0),
+                     (self.blocks_add_xx_0_0, 0))
+        self.connect((self.blocks_tags_strobe_0_0, 0),
+                     (self.blocks_add_xx_0_0, 2))
         self.connect((self.dc_blocker_xx_0, 0), (self.blocks_skiphead_0, 0))
-        self.connect((self.fft_vxx_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
+        self.connect((self.fft_vxx_0, 0),
+                     (self.blocks_complex_to_mag_squared_0, 0))
         self.connect((self.osmosdr_source_0, 0), (self.add_clock_tags, 0))
 
     def get_num_bins(self):
@@ -258,7 +282,8 @@ class radio_process(gr.top_block):
     def set_num_bins(self, num_bins):
         self.num_bins = num_bins
         self.set_cal_values(np.repeat(np.nan, self.num_bins))
-        self.set_custom_window(self.sinc_samples * np.hamming(4 * self.num_bins))
+        self.set_custom_window(self.sinc_samples *
+                               np.hamming(4 * self.num_bins))
         self.set_fft_window(window.blackmanharris(self.num_bins))
         self.set_sinc_sample_locations(
             np.arange(-np.pi * 4 / 2.0, np.pi * 4 / 2.0, np.pi / self.num_bins)
@@ -267,15 +292,16 @@ class radio_process(gr.top_block):
         self.blocks_delay_0.set_dly(self.num_bins * 3)
         self.blocks_delay_0_0.set_dly(self.num_bins * 2)
         self.blocks_delay_0_1.set_dly(self.num_bins)
-        self.blocks_multiply_const_vxx_0.set_k(self.custom_window[-self.num_bins :])
+        self.blocks_multiply_const_vxx_0.set_k(
+            self.custom_window[-self.num_bins:])
         self.blocks_multiply_const_vxx_0_0.set_k(
-            self.custom_window[2 * self.num_bins : 3 * self.num_bins]
+            self.custom_window[2 * self.num_bins: 3 * self.num_bins]
         )
         self.blocks_multiply_const_vxx_0_0_0.set_k(
-            self.custom_window[self.num_bins : 2 * self.num_bins]
+            self.custom_window[self.num_bins: 2 * self.num_bins]
         )
         self.blocks_multiply_const_vxx_0_0_0_0.set_k(
-            self.custom_window[0 : self.num_bins]
+            self.custom_window[0: self.num_bins]
         )
         self.blocks_tags_strobe_0_0.set_value(
             pmt.to_pmt(
@@ -304,7 +330,8 @@ class radio_process(gr.top_block):
     def set_num_integrations(self, num_integrations):
         self.num_integrations = num_integrations
         self.set_tag_period(self.num_bins * self.num_integrations)
-        self.blocks_multiply_const_xx_0.set_k(1.0 / float(self.num_integrations))
+        self.blocks_multiply_const_xx_0.set_k(
+            1.0 / float(self.num_integrations))
         self.blocks_tags_strobe_0_0.set_value(
             pmt.to_pmt(
                 {
@@ -338,7 +365,8 @@ class radio_process(gr.top_block):
 
     def set_sinc_samples(self, sinc_samples):
         self.sinc_samples = sinc_samples
-        self.set_custom_window(self.sinc_samples * np.hamming(4 * self.num_bins))
+        self.set_custom_window(self.sinc_samples *
+                               np.hamming(4 * self.num_bins))
 
     def get_vlsr(self):
         return self.vlsr
@@ -642,15 +670,16 @@ class radio_process(gr.top_block):
 
     def set_custom_window(self, custom_window):
         self.custom_window = custom_window
-        self.blocks_multiply_const_vxx_0.set_k(self.custom_window[-self.num_bins :])
+        self.blocks_multiply_const_vxx_0.set_k(
+            self.custom_window[-self.num_bins:])
         self.blocks_multiply_const_vxx_0_0.set_k(
-            self.custom_window[2 * self.num_bins : 3 * self.num_bins]
+            self.custom_window[2 * self.num_bins: 3 * self.num_bins]
         )
         self.blocks_multiply_const_vxx_0_0_0.set_k(
-            self.custom_window[self.num_bins : 2 * self.num_bins]
+            self.custom_window[self.num_bins: 2 * self.num_bins]
         )
         self.blocks_multiply_const_vxx_0_0_0_0.set_k(
-            self.custom_window[0 : self.num_bins]
+            self.custom_window[0: self.num_bins]
         )
 
     def get_cal_values(self):

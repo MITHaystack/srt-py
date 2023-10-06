@@ -94,7 +94,8 @@ if __name__ == "__main__":
     sp = parser.add_subparsers()
 
     # Add the Status Parser
-    sp_status = sp.add_parser("status", help="Gets the Current Status of the SRT")
+    sp_status = sp.add_parser(
+        "status", help="Gets the Current Status of the SRT")
     sp_status.add_argument(
         "--status_parameter",
         metavar="status_parameter",

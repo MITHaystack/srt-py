@@ -7,6 +7,8 @@ Contains the Code for Generating Complicated Graphs
 import plotly.graph_objects as go
 from datetime import datetime
 import numpy as np
+from dash import Dash, dcc, html, Input, Output, callback
+import pandas as pd
 
 
 def generate_az_el_graph(
@@ -51,13 +53,13 @@ def generate_az_el_graph(
     el_lower_display_lim = 0
     el_upper_display_lim = 90
 
-
     # Markers for celestial objects
     fig.add_trace(
         go.Scatter(
             x=[points_dict[name][0] for name in points_dict],
             y=[points_dict[name][1] for name in points_dict],
             text=[name for name in points_dict],
+            # hovertext=[name for name in points_dict],
             name="Celestial Objects",
             mode="markers+text",
             textposition="top center",
@@ -65,22 +67,24 @@ def generate_az_el_graph(
         )
     )
 
-    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles. 
+    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
 
     az_l = current_location[0]
     el_l = current_location[1]
     el_u = el_l + .5*beam_width
     el_d = el_l - .5*beam_width
 
-    azu= .5*beam_width/np.cos(el_u * np.pi / 180.0)
+    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
     azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
-    x_vec = [max(az_l-azd,0),min(az_l-azu,360), max(az_l+azu,0),min(az_l+azd,360),max(az_l-azd,0)]
-    y_vec = [max(el_d,0),min(el_u,90), min(el_u,90),min(el_d,90),max(el_d,0)]
+    x_vec = [max(az_l-azd, 0), min(az_l-azu, 360),
+             max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
+    y_vec = [max(el_d, 0), min(el_u, 90), min(
+        el_u, 90), min(el_d, 90), max(el_d, 0)]
 
     fig.add_trace(
         go.Scatter(
-            x=x_vec, 
-            y=y_vec, 
+            x=x_vec,
+            y=y_vec,
             fill="toself",
             fillcolor="rgba(147,112,219,0.1)",
             text=["Visability"],
@@ -100,7 +104,7 @@ def generate_az_el_graph(
             textposition="bottom center",
             marker_color=["rgba(0, 0, 152, .8)"],
         )
-    )        
+    )
 
     fig.add_trace(
         go.Scatter(
@@ -211,7 +215,7 @@ def generate_az_el_graph(
     # Set axes ranges
     fig.update_layout(
         title={
-            "text": "Click to Track an Object",
+            # "text": "Click to Track an Object",
             "y": 0.97,
             "x": 0.25,
             "xanchor": "center",
@@ -221,14 +225,336 @@ def generate_az_el_graph(
             l=20,
             r=20,
             b=20,
-            t=30,
+            t=50,
             pad=4,
         ),
         xaxis_title="Azimuth",
         yaxis_title="Elevation",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
     )
     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
+    fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
+
+    return fig
+
+
+def generate_zoom_graph(
+    az_limits,
+    el_limits,
+    points_dict,
+    current_location,
+    stow_position,
+    cal_position,
+    horizon_points,
+    beam_width
+):
+    """Generates Figure for Displaying AzEl Locations
+
+    Parameters
+    ----------
+    az_limits : (float, float)
+        Minimum and Maximum Azimuth Limits
+    el_limits : (float, float)
+        Minimum and Maximum Elevation Limits
+    points_dict : dict
+        Dictionary of All Points Azimuth and Elevation
+    current_location : (float, float)
+        Current Antenna Azimuth and Elevation
+    stow_position : (float, float)
+        Location of the Antenna in Stow
+    cal_position : (float, float)
+        Location of the Antenna for Comparative Calibration
+    horizon_points : list((float, float))
+        Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
+    beam_width : float
+        Beamwidth of the antenna
+
+    Returns
+    -------
+    Plotly Figure of Azimuth and Elevation Graph
+    """
+    fig = go.Figure()
+
+    az_lower_display_lim = current_location[0]-beam_width*2
+    az_upper_display_lim = current_location[0]+beam_width*2
+    el_lower_display_lim = current_location[1]-beam_width*2
+    el_upper_display_lim = current_location[1]+beam_width*2
+
+    # Markers for celestial objects
+    fig.add_trace(
+        go.Scatter(
+            x=[points_dict[name][0] for name in points_dict],
+            y=[points_dict[name][1] for name in points_dict],
+            text=[name for name in points_dict],
+            # hovertext=[name for name in points_dict],
+            name="Celestial Objects",
+            mode="markers+text",
+            textposition="top center",
+            marker_color=["rgba(152, 0, 0, .8)" for _ in points_dict],
+        )
+    )
+    fig.add_shape(
+        type="rect",
+        xref="x",
+        yref="y",
+        x0=current_location[0]-beam_width,
+        y0=current_location[1]-beam_width,
+        x1=current_location[0]+beam_width,
+        y1=current_location[1]+beam_width,
+        fillcolor="lightgrey",
+        layer="below",
+        label=dict(text="Beamwidth", textposition="top center",
+                   font=dict(color="White"))
+    )
+
+    fig.update_layout(
+        title={
+            # "text": "Click to Track an Object",
+            "y": 0.97,
+            "x": 0.25,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+        margin=dict(
+            l=20,
+            r=20,
+            b=20,
+            t=50,
+            pad=4,
+        ),
+        xaxis_title="Azimuth",
+        yaxis_title="Elevation",
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
+    )
+
+    fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
+    fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
+
+    return fig
+
+
+def generate_az_time_graph(
+    az_limits,
+    el_limits,
+    points_dict,
+    points_time_dict,
+    current_location,
+    stow_position,
+    cal_position,
+    horizon_points,
+    beam_width,
+    timerange
+):
+
+    # """Generates Figure for Displaying AzEl Locations
+
+    # Parameters
+    # ----------
+    # az_limits : (float, float)
+    #     Minimum and Maximum Azimuth Limits
+    # el_limits : (float, float)
+    #     Minimum and Maximum Elevation Limits
+    # points_time_dict : dict
+    #     Dictionary with keys as time and values as Dictionaries of azel of each object
+    # current_location : (float, float)
+    #     Current Antenna Azimuth and Elevation
+    # stow_position : (float, float)
+    #     Location of the Antenna in Stow
+    # cal_position : (float, float)
+    #     Location of the Antenna for Comparative Calibration
+    # horizon_points : list((float, float))
+    #     Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
+    # beam_width : float
+    #     Beamwidth of the antenna
+
+    # Returns
+    # -------
+    # Plotly Figure of Azimuth and Elevation Graph
+    # """
+    if not timerange:
+        timerange = 5
+
+    fig = go.Figure()
+
+    time_lower_display_lim = 0-0.1
+    time_upper_display_lim = timerange+0.99
+    az_lower_display_lim = current_location[0]-beam_width
+    az_upper_display_lim = current_location[0]+beam_width
+
+    # Markers for celestial objects
+
+    for name in points_time_dict['0']:
+        fig.add_trace(
+            go.Scatter(
+                x=[float(time) for time in points_time_dict],
+
+                y=[points_time_dict[time][name][0]
+                    for time in points_time_dict],
+
+                text=str(name),
+
+                hovertext=['(Azimuth: %s, Elevation: %s)' % (round(points_time_dict[time][name][0], 2), round(points_time_dict[time][name][1], 2))
+                           for time in points_time_dict],
+
+                name=str(name),
+                mode="markers+text",
+                showlegend=False,
+                textposition="top right",
+                # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
+            )
+        )
+
+    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
+
+    az_l = current_location[0]
+    el_l = current_location[1]
+    el_u = el_l + .5*beam_width
+    el_d = el_l - .5*beam_width
+
+    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
+    azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
+    x_vec = [max(az_l-azd, 0), min(az_l-azu, 360),
+             max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
+    y_vec = [max(el_d, 0), min(el_u, 90), min(
+        el_u, 90), min(el_d, 90), max(el_d, 0)]
+
+    # Set axes ranges
+    fig.update_layout(
+        title={
+            # "text": "Click to Track an Object",
+            "y": 0.97,
+            "x": 0.25,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+        margin=dict(
+            l=20,
+            r=20,
+            b=20,
+            t=50,
+            pad=4,
+        ),
+        xaxis_title="Time",
+        yaxis_title="Azimuth",
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
+    )
+    fig.update_xaxes(range=[time_lower_display_lim, time_upper_display_lim])
+    fig.update_yaxes(range=[az_lower_display_lim, az_upper_display_lim])
+
+    return fig
+
+
+def generate_el_time_graph(
+    az_limits,
+    el_limits,
+    points_dict,
+    points_time_dict,
+    current_location,
+    stow_position,
+    cal_position,
+    horizon_points,
+    beam_width,
+    timerange
+):
+
+    # """Generates Figure for Displaying AzEl Locations
+
+    # Parameters
+    # ----------
+    # az_limits : (float, float)
+    #     Minimum and Maximum Azimuth Limits
+    # el_limits : (float, float)
+    #     Minimum and Maximum Elevation Limits
+    # points_time_dict : dict
+    #     Dictionary with keys as time and values as Dictionaries of azel of each object
+    # current_location : (float, float)
+    #     Current Antenna Azimuth and Elevation
+    # stow_position : (float, float)
+    #     Location of the Antenna in Stow
+    # cal_position : (float, float)
+    #     Location of the Antenna for Comparative Calibration
+    # horizon_points : list((float, float))
+    #     Points to Build Outline of Horizon of Interfering Objects (i.e. Skyline in AzEl)
+    # beam_width : float
+    #     Beamwidth of the antenna
+
+    # Returns
+    # -------
+    # Plotly Figure of Azimuth and Elevation Graph
+    # """
+
+    fig = go.Figure()
+
+    if not timerange:
+        timerange = 5
+
+    time_lower_display_lim = 0-0.1
+    time_upper_display_lim = timerange+0.99
+    el_lower_display_lim = current_location[1]-beam_width
+    el_upper_display_lim = current_location[1]+beam_width
+
+    # Markers for celestial objects
+
+    for name in points_time_dict['0']:
+        fig.add_trace(
+            go.Scatter(
+                x=[float(time) for time in points_time_dict],
+
+                y=[points_time_dict[time][name][1]
+                    for time in points_time_dict],
+
+                text=str(name),
+
+                hovertext=['(Azimuth: %s, Elevation: %s)' % (round(points_time_dict[time][name][0], 2), round(points_time_dict[time][name][1], 2))
+                           for time in points_time_dict],
+
+                name=str(name),
+                mode="markers+text",
+                showlegend=False,
+                textposition="top right",
+                # marker_color=["rgba(152, 0, 0, .8)" for _ in points_time_dict],
+            )
+        )
+
+    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
+
+    az_l = current_location[0]
+    el_l = current_location[1]
+    el_u = el_l + .5*beam_width
+    el_d = el_l - .5*beam_width
+
+    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
+    azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
+    x_vec = [max(az_l-azd, 0), min(az_l-azu, 360),
+             max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
+    y_vec = [max(el_d, 0), min(el_u, 90), min(
+        el_u, 90), min(el_d, 90), max(el_d, 0)]
+
+    # Set axes ranges
+    fig.update_layout(
+        title={
+            # "text": "Click to Track an Object",
+            "y": 0.97,
+            "x": 0.25,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+        margin=dict(
+            l=20,
+            r=20,
+            b=20,
+            t=50,
+            pad=4,
+        ),
+        xaxis_title="Time",
+        yaxis_title="Elevation",
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
+    )
+    fig.update_xaxes(range=[time_lower_display_lim, time_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
 
     return fig
@@ -334,7 +660,8 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
             "uirevision": True,
         },
     )
-    data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(spectrum)) + cf
+    data_range = np.linspace(-bandwidth / 2, bandwidth /
+                             2, num=len(spectrum)) + cf
     if len(spectrum) > max_histogram_size:
         fig.add_trace(
             go.Scatter(

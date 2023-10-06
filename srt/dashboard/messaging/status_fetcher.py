@@ -15,7 +15,7 @@ class StatusThread(Thread):
     Thread Which Handles Receiving Status Data
     """
 
-    def __init__(self, group=None, target=None, name=None, port=5555):
+    def __init__(self, group=None, target=None, name=None, port=5550):  # 5555
         """Initializer for StatusThread
 
         Parameters
