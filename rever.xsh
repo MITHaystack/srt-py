@@ -13,9 +13,11 @@ $ACTIVITIES = [
                ]
 
 
+$TAG_TEMPLATE = 'v$VERSION'
 $VERSION_BUMP_PATTERNS = [  # These note where/how to find the version numbers
                          ('srt/__init__.py', r'__version__\s*=.*', "__version__ = '$VERSION'"),
-                         ('setup.py', r'version\s*=.*,', "version='$VERSION',")
+                         ('setup.py', r'version\s*=.*,', "version='$VERSION',"),
+                         ('recipe/meta.yaml', r'{%\s*set\s*version\s*=.*', '{% set version = "$VERSION" %}')
                          ]
 $CHANGELOG_FILENAME = 'CHANGELOG.rst'  # Filename for the changelog
 $CHANGELOG_TEMPLATE = 'TEMPLATE.rst'  # Filename for the news template
