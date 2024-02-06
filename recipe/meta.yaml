@@ -1,43 +1,53 @@
-{% set name = "srt-py" %}
-{% set version = "0.0.0" %}
+{% set version = "1.1.1" %}
 
 package:
-  name: "{{ name|lower }}"
+  name: "srt-py"
   version: "{{ version }}"
 
 source:
   path: ../
 
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+
 requirements:
   host:
     - pip
+    - python >=3.6
     - setuptools
-    - python >=3.6
   run:
-    - python >=3.6
-    - numpy
-    - scipy
-    - rtl-sdr
-    - soapysdr
-    - soapysdr-module-rtlsdr
-    - gnuradio-core
-    - gnuradio-zeromq
-    - gnuradio-osmosdr
-    - digital_rf
-    - pyzmq
-    - pyserial
     - astropy
-    - yamale
     - dash
     - dash-bootstrap-components
     - dash-html-components
     - dash-core-components
-    - plotly
+    - digital_rf
+    - gnuradio-core
+    - gnuradio-zeromq
+    - gnuradio-osmosdr
     - pandas
+    - plotly
+    - pyserial
+    - python >=3.6
+    - pyzmq
+    - numpy
+    - rtl-sdr
+    - scipy
+    - soapysdr
+    - soapysdr-module-rtlsdr
     - waitress
+    - yamale
 
 test:
   requires:
     - pytest
   imports:
     - srt
+
+about:
+  home: https://github.com/MITHaystack/srt-py
+  summary: Small Radio Telescope Control Code for Python
+  license: MIT
+  license_file: license
