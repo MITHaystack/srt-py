@@ -349,7 +349,7 @@ class H180Motor(Motor):  # TODO: Test!
         counts_per_step : int
             Maximum number of counts to move per call to function
         """
-        Motor.__init__(self, port, az_limits, el_limits)
+        Motor.__init__(self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate),
         self.serial = serial.Serial(
             port=port,
             baudrate=baudrate,  # 2400,
