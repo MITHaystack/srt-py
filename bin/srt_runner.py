@@ -28,6 +28,7 @@ def run_srt_dashboard(configuration_dir, configuration_dict):
         app_server,
         host=configuration_dict["DASHBOARD_HOST"],
         port=configuration_dict["DASHBOARD_PORT"],
+        threads=6,
     )
 
 
