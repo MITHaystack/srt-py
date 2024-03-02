@@ -383,7 +383,7 @@ class H180Motor(Motor):  # TODO: Test!
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
         for axis in range(2):
-            mm = -1
+            mm = -1 # direction of rotation
             count = 0
             if stow:
                 if axis == 0:
