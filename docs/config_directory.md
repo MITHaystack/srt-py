@@ -124,6 +124,11 @@ SAVE_DIRECTORY: ~/Desktop/SRT-Saves
 ```YAML
 DASHBOARD_REFRESH_MS: 3000
 ```
+
+* DASHBOARD_THREADS - The number of threads for dash. 8 seems to be enought at the host. If also a client is connected and you are getting `WARNING:waitress.queue:Task queue depth is 1`, consider increasing this value.
+```YAML
+DASHBOARD_THREADS: 8
+```
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.
