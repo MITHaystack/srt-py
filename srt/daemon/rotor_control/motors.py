@@ -194,12 +194,12 @@ class Rot2Motor(Motor):
             self.status()
 
     def send_rot2_pkt(self, cmd, az=None, el=None):
-        """Builds and Sends a ROT2 Corot_directionand Packet over Serial
+        """Builds and Sends a ROT2 Command Packet over Serial
 
         Parameters
         ----------
         cmd : int
-            ROT2 Motor Corot_directionand Value (0x2F -> Set, 0x1F -> Get, 0x0F -> Stop)
+            ROT2 Motor Command Value (0x2F -> Set, 0x1F -> Get, 0x0F -> Stop)
         az : float
             Azimuth Coordinate to Point At (If Applicable)
         el : float
@@ -291,7 +291,7 @@ class Rot2Motor(Motor):
         -------
         None
         """
-        cmd = 0x2F  # Rot2 Set Corot_directionand
+        cmd = 0x2F  # Rot2 Set Command
         az_relative = az - self.az_limits[0]
         el_relative = el - self.el_limits[0]
         self.send_rot2_pkt(cmd, az=az_relative, el=el_relative)
@@ -304,7 +304,7 @@ class Rot2Motor(Motor):
         (float, float)
             Current Azimuth and Elevation Coordinate as a Tuple of Floats
         """
-        cmd = 0x1F  # Rot2 Status Corot_directionand
+        cmd = 0x1F  # Rot2 Status Command
         self.send_rot2_pkt(cmd)
         az_relative, el_relative = self.receive_rot2_pkt()
         return az_relative + self.az_limits[0], el_relative + self.el_limits[0]
@@ -316,7 +316,7 @@ class Rot2Motor(Motor):
         -------
         None
         """
-        cmd = 0x0F  # Rot2 Stop Corot_directionand
+        cmd = 0x0F  # Rot2 Stop Command
         self.send_rot2_pkt(cmd)
         # az_relative, el_relative = self.receive_rot2_pkt()
         # return (az_relative + self.az_limits[0], el_relative + self.el_limits[0])
@@ -365,7 +365,7 @@ class H180Motor(Motor):  # TODO: Test!
         self.el_count = 0.0
 
     def send_h180_cmd(self, az, el, stow):
-        """Sends a Corot_directionand to the H180 Motor
+        """Sends a Command to the H180 Motor
 
         Parameters
         ----------
@@ -554,7 +554,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         self.elatstow = 0
 
     def send_pushrod_cmd(self, az, el, stow):
-        """Sends a Corot_directionand to the Pushrod Motor
+        """Sends a Command to the Pushrod Motor
 
         Parameters
         ----------
