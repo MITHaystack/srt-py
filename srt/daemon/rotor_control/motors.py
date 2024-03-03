@@ -424,7 +424,7 @@ class H180Motor(Motor):  # TODO: Test!
                     count = -count
             if rot_direction != "nop" and count:
                 if rot_direction == "counterclockwise":
-                    cmd_string = " move %d %d%1c" % (0, count, 13)
+                    cmd_string = " move %d %d%1c" % (0, count, 13) # 13 = CR (Carriage Return)
                 if rot_direction == "clockwise":
                     cmd_string = " move %d %d%1c" % (1, count, 13)
                 if rot_direction == "down":
