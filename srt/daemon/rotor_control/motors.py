@@ -383,13 +383,13 @@ class H180Motor(Motor):  # TODO: Test!
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
         for axis in range(2):
-            mm = -1   # direction of rotation. o and 1 for one of the axis, 2 and 3 for the other one
+            rot_direction= -1   # direction of rotation. o and 1 for one of the axis, 2 and 3 for the other one
             count = 0
             if stow:
                 if axis == 0:
-                    mm = 0
+                    rot_direction= 0
                 else:
-                    mm = 2
+                    rot_direction= 2
                 count = 8000
             else:
                 if axis == 0:
@@ -403,9 +403,9 @@ class H180Motor(Motor):  # TODO: Test!
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        mm = 1
+                        rot_direction= 1
                     if count < 0:
-                        mm = 0
+                        rot_direction= 0
                 if axis == 1:
                     acount = ell * H180Motor.ELCOUNTS_PER_DEG - self.el_count
                     if self.count_per_step and acount > self.count_per_step:
@@ -417,12 +417,12 @@ class H180Motor(Motor):  # TODO: Test!
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        mm = 3
+                        rot_direction= 3
                     if count < 0:
-                        mm = 2
+                        rot_direction= 2
                 if count < 0:
                     count = -count
-            if mm >= 0 and count:
+            if rot_direction>= 0 and count:
                 cmd_string = " move %d %d%1c" % (mm, count, 13)
                 self.serial.write(cmd_string.encode("ascii"))
                 resp = ""
@@ -444,22 +444,22 @@ class H180Motor(Motor):  # TODO: Test!
                         im = i
                 ccount = int(resp[im:status].split(" ")[-1])
                 if resp[im] == "M":
-                    if mm == 1:
+                    if rot_direction== 1:
                         self.az_count += ccount
-                    if mm == 0:
+                    if rot_direction== 0:
                         self.az_count -= ccount
-                    if mm == 3:
+                    if rot_direction== 3:
                         self.el_count += ccount
-                    if mm == 2:
+                    if rot_direction== 2:
                         self.el_count -= ccount
                 if resp[im] == "T":
-                    if mm == 1:
+                    if rot_direction== 1:
                         self.az_count += count
-                    if mm == 0:
+                    if rot_direction== 0:
                         self.az_count -= count
-                    if mm == 3:
+                    if rot_direction== 3:
                         self.el_count += count
-                    if mm == 2:
+                    if rot_direction== 2:
                         self.el_count -= count
         if stow:
             self.az_count = 0
@@ -569,7 +569,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         -------
         None
         """
-        mm = count = 0
+        rot_direction= count = 0
         lenzero = 0.0
 
         az = az % 360  # put az into reasonable range
@@ -632,27 +632,27 @@ class PushRodMotor(Motor):  # TODO: Test!
         for ax in range(0, 2):
             if axis == 0:
                 if azz * azscale > self.az_count * 0.5 - 0.5:
-                    mm = 1
+                    rot_direction= 1
                     count = int(floor(azz * azscale - self.az_count * 0.5 + 0.5))
                 if azz * azscale <= self.az_count * 0.5 + 0.5:
-                    mm = 0
+                    rot_direction= 0
                     count = int(floor(self.az_count * 0.5 - azz * azscale + 0.5))
             else:
                 if ellcount > self.el_count * 0.5 - 0.5:
-                    mm = 3
+                    rot_direction= 3
                     count = int(floor(ellcount - self.el_count * 0.5 + 0.5))
                 if ellcount <= self.el_count * 0.5 + 0.5:
-                    mm = 2
+                    rot_direction= 2
                     count = int(floor(self.el_count * 0.5 - ellcount + 0.5))
             ccount = count
             if stow == 1:  # drive to stow
                 count = 5000
                 if axis == 0:
-                    mm = 0
+                    rot_direction= 0
                     if self.azatstow == 1:
                         count = 0
                 if axis == 1:
-                    mm = 2  # complete azimuth motion to stow before completely drop in elevation
+                    rot_direction= 2  # complete azimuth motion to stow before completely drop in elevation
                     if self.elatstow == 1 or (
                         ccount <= 2.0 * self.count_per_step and self.azatstow == 0
                     ):
@@ -721,22 +721,22 @@ class PushRodMotor(Motor):  # TODO: Test!
                     )  # add extra 1 / 2 count from motor coast
                 else:
                     fcount = 0
-                if mm == 2 and recv[0] == "T":
+                if rot_direction== 2 and recv[0] == "T":
                     self.elatstow = 1
                     self.el_count = 0
-                if mm == 0 and recv[0] == "T":
+                if rot_direction== 0 and recv[0] == "T":
                     self.azatstow = 1
                     self.az_count = 0
                 if recv[0] == "M":
                     if axis == 0:
                         self.azatstow = 0
-                        if mm == 1:
+                        if rot_direction== 1:
                             self.az_count += fcount
                         else:
                             self.az_count -= fcount
                     if axis == 1:
                         self.elatstow = 0
-                        if mm == 3:
+                        if rot_direction== 3:
                             self.el_count += fcount
                         else:
                             self.el_count -= fcount
