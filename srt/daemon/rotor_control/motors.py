@@ -16,7 +16,7 @@ class Motor(ABC):
     Attributes
     ----------
     port : str
-        Serial Port Identifier String for Corot_directionunicating with the Motor
+        Serial Port Identifier String for Communicating with the Motor
     baudrate : int
         Baudrate for serial connection
     az_limits : (float, float)
@@ -24,7 +24,7 @@ class Motor(ABC):
     el_limits : (float, float)
         Tuple of Lower and Upper Elevation Limits
     serial : serial.Serial
-        Serial Object for Corot_directionunicating with the Motor
+        Serial Object for Communicating with the Motor
 
     See Also
     --------
@@ -37,7 +37,7 @@ class Motor(ABC):
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Corot_directionunicating with the Motor
+            Serial Port Identifier String for Communicating with the Motor
         az_limits : (float, float)
             Tuple of Lower and Upper Azimuth Limits
         el_limits : (float, float)
@@ -165,7 +165,7 @@ class Rot2Motor(Motor):
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Corot_directionunicating with the Motor
+            Serial Port Identifier String for Communicating with the Motor
         baudrate : int
             Baudrate for serial connection
         az_limits : (float, float)
@@ -339,7 +339,7 @@ class H180Motor(Motor):  # TODO: Test!
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Corot_directionunicating with the Motor
+            Serial Port Identifier String for Communicating with the Motor
         baudrate : int
             Baudrate for serial connection
         az_limits : (float, float)
@@ -525,7 +525,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Corot_directionunicating with the Motor
+            Serial Port Identifier String for Communicating with the Motor
         baudrate : int
             Baudrate for serial connection
         az_limits : (float, float)
