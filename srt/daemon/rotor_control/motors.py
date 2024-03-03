@@ -333,6 +333,7 @@ class H180Motor(Motor):  # TODO: Test!
     AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
     ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
+
     def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=100):
         """Initializer for the H180 Motor, baudrate should be 2400.
 
@@ -380,16 +381,23 @@ class H180Motor(Motor):  # TODO: Test!
         -------
         None
         """
+
+        COUNTERCLOCKWISE =  0
+        CLOCKWISE        =  1
+        DOWN             =  2
+        UP               =  3
+        NOP              = -1
+
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
         for axis in ("az", "el"):
-            rot_direction = "nop" # skips sending command to serial port
+            rot_direction = NOP # skips sending command to serial port
             count = 0 # how many impulses
             if stow:
                 if axis == "az":
-                    rot_direction = "counterclockwise"
+                    rot_direction = COUNTERCLOCKWISE
                 else:
-                    rot_direction = "down"
+                    rot_direction = DOWN
                 count = 8000
             else:
                 if axis == "az":
@@ -403,9 +411,9 @@ class H180Motor(Motor):  # TODO: Test!
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        rot_direction = "clockwise"
+                        rot_direction = CLOCKWISE
                     if count < 0:
-                        rot_direction = "counterclockwise"
+                        rot_direction = COUNTERCLOCKWISE
                 if axis == "el":
                     acount = ell * H180Motor.ELCOUNTS_PER_DEG - self.el_count
                     if self.count_per_step and acount > self.count_per_step:
@@ -417,20 +425,13 @@ class H180Motor(Motor):  # TODO: Test!
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        rot_direction = "up"
+                        rot_direction = UP
                     if count < 0:
-                        rot_direction = "down"
+                        rot_direction = DOWN
                 if count < 0:
                     count = -count
-            if rot_direction != "nop" and count:
-                if rot_direction == "counterclockwise":
-                    cmd_string = " move %d %d%1c" % (0, count, 13) # 13 = CR (Carriage Return)
-                if rot_direction == "clockwise":
-                    cmd_string = " move %d %d%1c" % (1, count, 13)
-                if rot_direction == "down":
-                    cmd_string = " move %d %d%1c" % (2, count, 13)
-                if rot_direction == "up":
-                    cmd_string = " move %d %d%1c" % (3, count, 13)
+            if rot_direction != NOP and count:
+                cmd_string = " move %d %d%1c" % (rot_direction, count, 13) # 13 CR (Cariage Return)
                 self.serial.write(cmd_string.encode("ascii"))
                 resp = ""
                 sleep(0.01)
@@ -451,22 +452,22 @@ class H180Motor(Motor):  # TODO: Test!
                         im = i
                 ccount = int(resp[im:status].split(" ")[-1])
                 if resp[im] == "M":
-                    if rot_direction == "clockwise":
+                    if rot_direction == CLOCKWISE:
                         self.az_count += ccount
-                    if rot_direction == "counterclockwise":
+                    if rot_direction == COUNTERCLOCKWISE:
                         self.az_count -= ccount
-                    if rot_direction == "up":
+                    if rot_direction == UP:
                         self.el_count += ccount
-                    if rot_direction == "down":
+                    if rot_direction == DOWN:
                         self.el_count -= ccount
                 if resp[im] == "T":
-                    if rot_direction == "clockwise":
+                    if rot_direction == CLOCKWISE:
                         self.az_count += count
-                    if rot_direction == "counterclockwise":
+                    if rot_direction == COUNTERCLOCKWISE:
                         self.az_count -= count
-                    if rot_direction == "up":
+                    if rot_direction == UP:
                         self.el_count += count
-                    if rot_direction == "down":
+                    if rot_direction == DOWN:
                         self.el_count -= count
         if stow:
             self.az_count = 0
@@ -639,27 +640,27 @@ class PushRodMotor(Motor):  # TODO: Test!
         for ax in range(0, 2):
             if axis == 0:
                 if azz * azscale > self.az_count * 0.5 - 0.5:
-                    rot_direction = "clockwise"
+                    rot_direction = CLOCKWISE
                     count = int(floor(azz * azscale - self.az_count * 0.5 + 0.5))
                 if azz * azscale <= self.az_count * 0.5 + 0.5:
-                    rot_direction = "counterclockwise"
+                    rot_direction = COUNTERCLOCKWISE
                     count = int(floor(self.az_count * 0.5 - azz * azscale + 0.5))
             else:
                 if ellcount > self.el_count * 0.5 - 0.5:
-                    rot_direction = "up"
+                    rot_direction = UP
                     count = int(floor(ellcount - self.el_count * 0.5 + 0.5))
                 if ellcount <= self.el_count * 0.5 + 0.5:
-                    rot_direction = "down"
+                    rot_direction = DOWN
                     count = int(floor(self.el_count * 0.5 - ellcount + 0.5))
             ccount = count
             if stow == 1:  # drive to stow
                 count = 5000
                 if axis == 0:
-                    rot_direction = "counterclockwise"
+                    rot_direction = COUNTERCLOCKWISE
                     if self.azatstow == 1:
                         count = 0
                 if axis == 1:
-                    rot_direction = "down"  # complete azimuth motion to stow before completely drop in elevation
+                    rot_direction = DOWN  # complete azimuth motion to stow before completely drop in elevation
                     if self.elatstow == 1 or (
                         ccount <= 2.0 * self.count_per_step and self.azatstow == 0
                     ):
@@ -728,22 +729,22 @@ class PushRodMotor(Motor):  # TODO: Test!
                     )  # add extra 1 / 2 count from motor coast
                 else:
                     fcount = 0
-                if rot_direction == "down" and recv[0] == "T":
+                if rot_direction == DOWN and recv[0] == "T":
                     self.elatstow = 1
                     self.el_count = 0
-                if rot_direction == "counterclockwise" and recv[0] == "T":
+                if rot_direction == COUNTERCLOCKWISE and recv[0] == "T":
                     self.azatstow = 1
                     self.az_count = 0
                 if recv[0] == "M":
                     if axis == 0:
                         self.azatstow = 0
-                        if rot_direction == "clockwise":
+                        if rot_direction == CLOCKWISE:
                             self.az_count += fcount
                         else:
                             self.az_count -= fcount
                     if axis == 1:
                         self.elatstow = 0
-                        if rot_direction == "up":
+                        if rot_direction == UP:
                             self.el_count += fcount
                         else:
                             self.el_count -= fcount
