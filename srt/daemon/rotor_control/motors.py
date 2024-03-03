@@ -447,7 +447,7 @@ class H180Motor(Motor):  # TODO: Test!
                 status = i
                 sleep(0.1)
                 for i in range(status):
-                    if resp[i] == "M" or resp[i] == "T":
+                    if resp[i] == "M" or resp[i] == "T": # Move, Track?
                         im = i
                 ccount = int(resp[im:status].split(" ")[-1])
                 if resp[im] == "M":
