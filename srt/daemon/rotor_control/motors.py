@@ -16,7 +16,7 @@ class Motor(ABC):
     Attributes
     ----------
     port : str
-        Serial Port Identifier String for Communicating with the Motor
+        Serial Port Identifier String for Corot_directionunicating with the Motor
     baudrate : int
         Baudrate for serial connection
     az_limits : (float, float)
@@ -24,7 +24,7 @@ class Motor(ABC):
     el_limits : (float, float)
         Tuple of Lower and Upper Elevation Limits
     serial : serial.Serial
-        Serial Object for Communicating with the Motor
+        Serial Object for Corot_directionunicating with the Motor
 
     See Also
     --------
@@ -37,7 +37,7 @@ class Motor(ABC):
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Communicating with the Motor
+            Serial Port Identifier String for Corot_directionunicating with the Motor
         az_limits : (float, float)
             Tuple of Lower and Upper Azimuth Limits
         el_limits : (float, float)
@@ -165,7 +165,7 @@ class Rot2Motor(Motor):
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Communicating with the Motor
+            Serial Port Identifier String for Corot_directionunicating with the Motor
         baudrate : int
             Baudrate for serial connection
         az_limits : (float, float)
@@ -194,12 +194,12 @@ class Rot2Motor(Motor):
             self.status()
 
     def send_rot2_pkt(self, cmd, az=None, el=None):
-        """Builds and Sends a ROT2 Command Packet over Serial
+        """Builds and Sends a ROT2 Corot_directionand Packet over Serial
 
         Parameters
         ----------
         cmd : int
-            ROT2 Motor Command Value (0x2F -> Set, 0x1F -> Get, 0x0F -> Stop)
+            ROT2 Motor Corot_directionand Value (0x2F -> Set, 0x1F -> Get, 0x0F -> Stop)
         az : float
             Azimuth Coordinate to Point At (If Applicable)
         el : float
@@ -291,7 +291,7 @@ class Rot2Motor(Motor):
         -------
         None
         """
-        cmd = 0x2F  # Rot2 Set Command
+        cmd = 0x2F  # Rot2 Set Corot_directionand
         az_relative = az - self.az_limits[0]
         el_relative = el - self.el_limits[0]
         self.send_rot2_pkt(cmd, az=az_relative, el=el_relative)
@@ -304,7 +304,7 @@ class Rot2Motor(Motor):
         (float, float)
             Current Azimuth and Elevation Coordinate as a Tuple of Floats
         """
-        cmd = 0x1F  # Rot2 Status Command
+        cmd = 0x1F  # Rot2 Status Corot_directionand
         self.send_rot2_pkt(cmd)
         az_relative, el_relative = self.receive_rot2_pkt()
         return az_relative + self.az_limits[0], el_relative + self.el_limits[0]
@@ -316,7 +316,7 @@ class Rot2Motor(Motor):
         -------
         None
         """
-        cmd = 0x0F  # Rot2 Stop Command
+        cmd = 0x0F  # Rot2 Stop Corot_directionand
         self.send_rot2_pkt(cmd)
         # az_relative, el_relative = self.receive_rot2_pkt()
         # return (az_relative + self.az_limits[0], el_relative + self.el_limits[0])
@@ -339,7 +339,7 @@ class H180Motor(Motor):  # TODO: Test!
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Communicating with the Motor
+            Serial Port Identifier String for Corot_directionunicating with the Motor
         baudrate : int
             Baudrate for serial connection
         az_limits : (float, float)
@@ -349,7 +349,7 @@ class H180Motor(Motor):  # TODO: Test!
         counts_per_step : int
             Maximum number of counts to move per call to function
         """
-        Motor.__init__(self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate),
+        Motor.__init__(self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate), # values are OK
         self.serial = serial.Serial(
             port=port,
             baudrate=baudrate,  # 2400,
@@ -365,7 +365,7 @@ class H180Motor(Motor):  # TODO: Test!
         self.el_count = 0.0
 
     def send_h180_cmd(self, az, el, stow):
-        """Sends a Command to the H180 Motor
+        """Sends a Corot_directionand to the H180 Motor
 
         Parameters
         ----------
@@ -382,17 +382,17 @@ class H180Motor(Motor):  # TODO: Test!
         """
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
-        for axis in range(2):
-            rot_direction= -1   # o and 1 for one of the axis, 2 and 3 for the other one
-            count = 0
+        for axis in ("az", "el"):
+            rot_direction = -1 # o and 1 for az axis, 2 and 3 el axis
+            count = 0 # how many impulses
             if stow:
-                if axis == 0:
-                    rot_direction= 0
+                if axis == "az":
+                    rot_direction = 0
                 else:
-                    rot_direction= 2
+                    rot_direction = 2
                 count = 8000
             else:
-                if axis == 0:
+                if axis == "az":
                     acount = azz * H180Motor.AZCOUNTS_PER_DEG - self.az_count
                     if self.count_per_step and acount > self.count_per_step:
                         acount = self.count_per_step
@@ -403,10 +403,10 @@ class H180Motor(Motor):  # TODO: Test!
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        rot_direction= 1
+                        rot_direction = 1
                     if count < 0:
-                        rot_direction= 0
-                if axis == 1:
+                        rot_direction = 0
+                if axis == "el":
                     acount = ell * H180Motor.ELCOUNTS_PER_DEG - self.el_count
                     if self.count_per_step and acount > self.count_per_step:
                         acount = self.count_per_step
@@ -417,13 +417,13 @@ class H180Motor(Motor):  # TODO: Test!
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        rot_direction= 3
+                        rot_direction = 3
                     if count < 0:
-                        rot_direction= 2
+                        rot_direction = 2
                 if count < 0:
                     count = -count
-            if rot_direction>= 0 and count:
-                cmd_string = " move %d %d%1c" % (mm, count, 13)
+            if rot_direction >= 0 and count:
+                cmd_string = " move %d %d%1c" % (rot_direction, count, 13)
                 self.serial.write(cmd_string.encode("ascii"))
                 resp = ""
                 sleep(0.01)
@@ -444,22 +444,22 @@ class H180Motor(Motor):  # TODO: Test!
                         im = i
                 ccount = int(resp[im:status].split(" ")[-1])
                 if resp[im] == "M":
-                    if rot_direction== 1:
+                    if rot_direction == 1:
                         self.az_count += ccount
-                    if rot_direction== 0:
+                    if rot_direction == 0:
                         self.az_count -= ccount
-                    if rot_direction== 3:
+                    if rot_direction == 3:
                         self.el_count += ccount
-                    if rot_direction== 2:
+                    if rot_direction == 2:
                         self.el_count -= ccount
                 if resp[im] == "T":
-                    if rot_direction== 1:
+                    if rot_direction == 1:
                         self.az_count += count
-                    if rot_direction== 0:
+                    if rot_direction == 0:
                         self.az_count -= count
-                    if rot_direction== 3:
+                    if rot_direction == 3:
                         self.el_count += count
-                    if rot_direction== 2:
+                    if rot_direction == 2:
                         self.el_count -= count
         if stow:
             self.az_count = 0
@@ -525,7 +525,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         Parameters
         ----------
         port : str
-            Serial Port Identifier String for Communicating with the Motor
+            Serial Port Identifier String for Corot_directionunicating with the Motor
         baudrate : int
             Baudrate for serial connection
         az_limits : (float, float)
@@ -554,7 +554,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         self.elatstow = 0
 
     def send_pushrod_cmd(self, az, el, stow):
-        """Sends a Command to the Pushrod Motor
+        """Sends a Corot_directionand to the Pushrod Motor
 
         Parameters
         ----------
@@ -569,7 +569,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         -------
         None
         """
-        rot_direction= count = 0
+        rot_direction = count = 0
         lenzero = 0.0
 
         az = az % 360  # put az into reasonable range
@@ -632,27 +632,27 @@ class PushRodMotor(Motor):  # TODO: Test!
         for ax in range(0, 2):
             if axis == 0:
                 if azz * azscale > self.az_count * 0.5 - 0.5:
-                    rot_direction= 1
+                    rot_direction = 1
                     count = int(floor(azz * azscale - self.az_count * 0.5 + 0.5))
                 if azz * azscale <= self.az_count * 0.5 + 0.5:
-                    rot_direction= 0
+                    rot_direction = 0
                     count = int(floor(self.az_count * 0.5 - azz * azscale + 0.5))
             else:
                 if ellcount > self.el_count * 0.5 - 0.5:
-                    rot_direction= 3
+                    rot_direction = 3
                     count = int(floor(ellcount - self.el_count * 0.5 + 0.5))
                 if ellcount <= self.el_count * 0.5 + 0.5:
-                    rot_direction= 2
+                    rot_direction = 2
                     count = int(floor(self.el_count * 0.5 - ellcount + 0.5))
             ccount = count
             if stow == 1:  # drive to stow
                 count = 5000
                 if axis == 0:
-                    rot_direction= 0
+                    rot_direction = 0
                     if self.azatstow == 1:
                         count = 0
                 if axis == 1:
-                    rot_direction= 2  # complete azimuth motion to stow before completely drop in elevation
+                    rot_direction = 2  # complete azimuth motion to stow before completely drop in elevation
                     if self.elatstow == 1 or (
                         ccount <= 2.0 * self.count_per_step and self.azatstow == 0
                     ):
@@ -662,7 +662,7 @@ class PushRodMotor(Motor):  # TODO: Test!
                 count = self.count_per_step
             if count >= self.count_tol:
                 cmd_str = (
-                    "  move " + str(mm) + " " + str(count) + "\n"
+                    "  move " + str(rot_direction) + " " + str(count) + "\n"
                 )  # need space at start and end
                 n = 0
                 if count < 5000:
@@ -721,22 +721,22 @@ class PushRodMotor(Motor):  # TODO: Test!
                     )  # add extra 1 / 2 count from motor coast
                 else:
                     fcount = 0
-                if rot_direction== 2 and recv[0] == "T":
+                if rot_direction == 2 and recv[0] == "T":
                     self.elatstow = 1
                     self.el_count = 0
-                if rot_direction== 0 and recv[0] == "T":
+                if rot_direction == 0 and recv[0] == "T":
                     self.azatstow = 1
                     self.az_count = 0
                 if recv[0] == "M":
                     if axis == 0:
                         self.azatstow = 0
-                        if rot_direction== 1:
+                        if rot_direction == 1:
                             self.az_count += fcount
                         else:
                             self.az_count -= fcount
                     if axis == 1:
                         self.elatstow = 0
-                        if rot_direction== 3:
+                        if rot_direction == 3:
                             self.el_count += fcount
                         else:
                             self.el_count -= fcount
