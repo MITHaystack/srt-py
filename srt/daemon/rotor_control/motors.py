@@ -386,6 +386,8 @@ class H180Motor(Motor):  # TODO: Test!
         DOWN             =  2
         UP               =  3
         NOP              = -1
+        LINE_FEED        = 10
+        CARIAGE_RETURN   = 13
 
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
@@ -442,7 +444,7 @@ class H180Motor(Motor):  # TODO: Test!
                     if i < 32:
                         resp += chr(ch)
                         i += 1
-                    if ch == 13 or ch == 10:
+                    if ch == CARIAGE_RETURN or ch == LINE_FEED:
                         break
                 status = i
                 sleep(0.1)
