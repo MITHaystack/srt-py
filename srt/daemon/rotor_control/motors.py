@@ -422,7 +422,7 @@ class H180Motor(Motor):  # TODO: Test!
                         rot_direction = 2
                 if count < 0:
                     count = -count
-            if rot_direction >= 0 and count:
+            if rot_direction != -1 and count:
                 cmd_string = " move %d %d%1c" % (rot_direction, count, 13)
                 self.serial.write(cmd_string.encode("ascii"))
                 resp = ""
