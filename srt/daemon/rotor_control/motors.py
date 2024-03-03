@@ -383,7 +383,7 @@ class H180Motor(Motor):  # TODO: Test!
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
         for axis in ("az", "el"):
-            rot_direction = -1 # o and 1 for az axis, 2 and 3 el axis
+            rot_direction = -1 # o (counterclockwise) and 1 for "az" axis, 2 (down) and 3 for "el" axis
             count = 0 # how many impulses
             if stow:
                 if axis == "az":
