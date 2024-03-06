@@ -578,7 +578,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         -------
         None
         """
-        rot_direction = count = 0
+        mm = count = 0
         lenzero = 0.0
 
         az = az % 360  # put az into reasonable range
@@ -641,27 +641,27 @@ class PushRodMotor(Motor):  # TODO: Test!
         for ax in range(0, 2):
             if axis == 0:
                 if azz * azscale > self.az_count * 0.5 - 0.5:
-                    rot_direction = CLOCKWISE
+                    mm = 1
                     count = int(floor(azz * azscale - self.az_count * 0.5 + 0.5))
                 if azz * azscale <= self.az_count * 0.5 + 0.5:
-                    rot_direction = COUNTERCLOCKWISE
+                    mm = 0
                     count = int(floor(self.az_count * 0.5 - azz * azscale + 0.5))
             else:
                 if ellcount > self.el_count * 0.5 - 0.5:
-                    rot_direction = UP
+                    mm = 3
                     count = int(floor(ellcount - self.el_count * 0.5 + 0.5))
                 if ellcount <= self.el_count * 0.5 + 0.5:
-                    rot_direction = DOWN
+                    mm = 2
                     count = int(floor(self.el_count * 0.5 - ellcount + 0.5))
             ccount = count
             if stow == 1:  # drive to stow
                 count = 5000
                 if axis == 0:
-                    rot_direction = COUNTERCLOCKWISE
+                    mm = 0
                     if self.azatstow == 1:
                         count = 0
                 if axis == 1:
-                    rot_direction = DOWN  # complete azimuth motion to stow before completely drop in elevation
+                    mm = 2  # complete azimuth motion to stow before completely drop in elevation
                     if self.elatstow == 1 or (
                         ccount <= 2.0 * self.count_per_step and self.azatstow == 0
                     ):
@@ -671,7 +671,7 @@ class PushRodMotor(Motor):  # TODO: Test!
                 count = self.count_per_step
             if count >= self.count_tol:
                 cmd_str = (
-                    "  move " + str(rot_direction) + " " + str(count) + "\n"
+                    "  move " + str(mm) + " " + str(count) + "\n"
                 )  # need space at start and end
                 n = 0
                 if count < 5000:
@@ -730,22 +730,22 @@ class PushRodMotor(Motor):  # TODO: Test!
                     )  # add extra 1 / 2 count from motor coast
                 else:
                     fcount = 0
-                if rot_direction == DOWN and recv[0] == "T":
+                if mm == 2 and recv[0] == "T":
                     self.elatstow = 1
                     self.el_count = 0
-                if rot_direction == COUNTERCLOCKWISE and recv[0] == "T":
+                if mm == 0 and recv[0] == "T":
                     self.azatstow = 1
                     self.az_count = 0
                 if recv[0] == "M":
                     if axis == 0:
                         self.azatstow = 0
-                        if rot_direction == CLOCKWISE:
+                        if mm == 1:
                             self.az_count += fcount
                         else:
                             self.az_count -= fcount
                     if axis == 1:
                         self.elatstow = 0
-                        if rot_direction == UP:
+                        if mm == 3:
                             self.el_count += fcount
                         else:
                             self.el_count -= fcount
