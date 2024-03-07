@@ -322,7 +322,7 @@ class Rot2Motor(Motor):
         # return (az_relative + self.az_limits[0], el_relative + self.el_limits[0])
 
 
-class H180Motor(Motor):  # TODO: Test!
+class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cyberstore/product.asp?PID=ProForm-H-18045
     """
     Class for Controlling any ROT2 Protocol-Supporting Motor (e.g. SPID Motors)
     Based on the h180 function from the C SRT code
