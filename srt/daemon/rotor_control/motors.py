@@ -333,7 +333,7 @@ class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cybe
     AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
     ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
-    def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=100):
+    def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=0):
         """Initializer for the H180 Motor, baudrate should be 2400.
 
         Parameters
