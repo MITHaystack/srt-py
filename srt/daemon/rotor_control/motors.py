@@ -408,7 +408,7 @@ class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cybe
                     if self.count_per_step and acount < -self.count_per_step:
                         acount = -self.count_per_step
                     if acount > 0:
-                        count = acount + 0.5
+                        count = acount + 0.5 # leftover from previous versions, to prevent rounding down
                     else:
                         count = acount - 0.5
                     if count > 0:
