@@ -321,6 +321,10 @@ class Rot2Motor(Motor):
         # az_relative, el_relative = self.receive_rot2_pkt()
         # return (az_relative + self.az_limits[0], el_relative + self.el_limits[0])
 
+class CassiMotor(Motor):
+    """
+    http://www.ncra.tifr.res.in/rpl/facilities/3m-srt
+    """
 
 class H180Motor(Motor):  # TODO: Test!
     """
