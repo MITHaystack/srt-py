@@ -60,7 +60,7 @@ CAL_LOCATION:
   elevation: 7.0
 ```
 
-* MOTOR_TYPE - The type of motor being used.  Several different types are currently allowed, include NONE (which works for either a fixed antenna or simulating on a system without an antenna), ALFASPID (which works with any ROT2 protocol supporting motor), H180MOUNT (which works with the H180 motor on some SRTs; it does not work properly on CASSI Corp. mount), and PUSHROD (which works with the old custom pushrod system of the SRT).  Currently, since the SRT at Haystack uses a ALFASPID motor, that is the only one which has currently been extensively tested.  Additionally, please refer to the in-code documentation in srt/daemon/rotor_control for more information on adding support for more motors.
+* MOTOR_TYPE - The type of motor being used.  Several different types are currently allowed, include NONE (which works for either a fixed antenna or simulating on a system without an antenna), ALFASPID (which works with any ROT2 protocol supporting motor), H180MOUNT (which works with the H180 motor on some SRTs), CASSI (which works with the CASSI Corp. mount) and PUSHROD (which works with the old custom pushrod system of the SRT).  Currently, since the SRT at Haystack uses a ALFASPID motor, that is the only one which has currently been extensively tested.  Additionally, please refer to the in-code documentation in srt/daemon/rotor_control for more information on adding support for more motors.
 ```YAML
 MOTOR_TYPE: NONE
 ```
