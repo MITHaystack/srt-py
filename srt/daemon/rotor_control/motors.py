@@ -322,7 +322,7 @@ class Rot2Motor(Motor):
         # return (az_relative + self.az_limits[0], el_relative + self.el_limits[0])
 
 
-class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cyberstore/product.asp?PID=ProForm-H-18045
+class H180Motor(Motor):  # TODO: Test!
     """
     Class for Controlling any ROT2 Protocol-Supporting Motor (e.g. SPID Motors)
     Based on the h180 function from the C SRT code
@@ -333,7 +333,7 @@ class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cybe
     AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
     ELCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0
 
-    def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=0):
+    def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=100):
         """Initializer for the H180 Motor, baudrate should be 2400.
 
         Parameters
@@ -349,7 +349,7 @@ class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cybe
         counts_per_step : int
             Maximum number of counts to move per call to function
         """
-        Motor.__init__(self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate), # values are OK
+        Motor.__init__(self, port, az_limits, el_limits)
         self.serial = serial.Serial(
             port=port,
             baudrate=baudrate,  # 2400,
@@ -380,42 +380,33 @@ class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cybe
         -------
         None
         """
-
-        COUNTERCLOCKWISE =  0
-        CLOCKWISE        =  1
-        DOWN             =  2
-        UP               =  3
-        NOP              = -1
-        LINE_FEED        = 10
-        CARIAGE_RETURN   = 13
-
         azz = az - self.az_lower_lim
         ell = el - self.el_lower_lim
-        for axis in ("az", "el"):
-            rot_direction = NOP # skips sending command to serial port
-            count = 0 # how many impulses
+        for axis in range(2):
+            mm = -1
+            count = 0
             if stow:
-                if axis == "az":
-                    rot_direction = COUNTERCLOCKWISE
+                if axis == 0:
+                    mm = 0
                 else:
-                    rot_direction = DOWN
+                    mm = 2
                 count = 8000
             else:
-                if axis == "az":
+                if axis == 0:
                     acount = azz * H180Motor.AZCOUNTS_PER_DEG - self.az_count
                     if self.count_per_step and acount > self.count_per_step:
                         acount = self.count_per_step
                     if self.count_per_step and acount < -self.count_per_step:
                         acount = -self.count_per_step
                     if acount > 0:
-                        count = acount + 0.5 # leftover from previous versions, to prevent rounding down
+                        count = acount + 0.5
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        rot_direction = CLOCKWISE
+                        mm = 1
                     if count < 0:
-                        rot_direction = COUNTERCLOCKWISE
-                if axis == "el":
+                        mm = 0
+                if axis == 1:
                     acount = ell * H180Motor.ELCOUNTS_PER_DEG - self.el_count
                     if self.count_per_step and acount > self.count_per_step:
                         acount = self.count_per_step
@@ -426,49 +417,49 @@ class H180Motor(Motor):  # TODO: Test!   http://www.orbitcommunications.com/cybe
                     else:
                         count = acount - 0.5
                     if count > 0:
-                        rot_direction = UP
+                        mm = 3
                     if count < 0:
-                        rot_direction = DOWN
+                        mm = 2
                 if count < 0:
                     count = -count
-            if rot_direction != NOP and count:
-                cmd_string = " move %d %d%1c" % (rot_direction, count, CARIAGE_RETURN)
+            if mm >= 0 and count:
+                cmd_string = " move %d %d%1c" % (mm, count, 13)
                 self.serial.write(cmd_string.encode("ascii"))
                 resp = ""
                 sleep(0.01)
                 im = 0
                 i = 0
                 while i < 32:
-                    ch = int.from_bytes(self.serial.read(1), byteorder="big") # unit: impulses
+                    ch = int.from_bytes(self.serial.read(1), byteorder="big")
                     sleep(0.01)
                     if i < 32:
                         resp += chr(ch)
                         i += 1
-                    if ch == CARIAGE_RETURN or ch == LINE_FEED:
+                    if ch == 13 or ch == 10:
                         break
                 status = i
                 sleep(0.1)
                 for i in range(status):
-                    if resp[i] == "M" or resp[i] == "T": # Move, Timeout
+                    if resp[i] == "M" or resp[i] == "T":
                         im = i
                 ccount = int(resp[im:status].split(" ")[-1])
                 if resp[im] == "M":
-                    if rot_direction == CLOCKWISE:
+                    if mm == 1:
                         self.az_count += ccount
-                    if rot_direction == COUNTERCLOCKWISE:
+                    if mm == 0:
                         self.az_count -= ccount
-                    if rot_direction == UP:
+                    if mm == 3:
                         self.el_count += ccount
-                    if rot_direction == DOWN:
+                    if mm == 2:
                         self.el_count -= ccount
                 if resp[im] == "T":
-                    if rot_direction == CLOCKWISE:
+                    if mm == 1:
                         self.az_count += count
-                    if rot_direction == COUNTERCLOCKWISE:
+                    if mm == 0:
                         self.az_count -= count
-                    if rot_direction == UP:
+                    if mm == 3:
                         self.el_count += count
-                    if rot_direction == DOWN:
+                    if mm == 2:
                         self.el_count -= count
         if stow:
             self.az_count = 0
