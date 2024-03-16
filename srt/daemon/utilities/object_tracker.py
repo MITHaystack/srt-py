@@ -138,7 +138,7 @@ class EphemerisTracker:
             vlsr in km/s.
         """
         if name == "Sun":
-            tframe = get_sun(time).transform_to(frame)
+            tframe = get_body("sun", time).transform_to(frame)
             vlsr = tframe.radial_velocity_correction(obstime=time)
         elif name == "Moon":
             tframe = get_body("moon", time).transform_to(frame)
