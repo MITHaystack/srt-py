@@ -558,7 +558,6 @@ class CassiMotor(Motor):
         return az, el
 
 
-
 class H180Motor(Motor):  # TODO: Test!
     """
     Class for Controlling any ROT2 Protocol-Supporting Motor (e.g. SPID Motors)
