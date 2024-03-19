@@ -342,8 +342,6 @@ class CassiMotor(Motor):
     ROD4 = 110.0            # angle at horizon
     ROD5 = 30.0             # pushrod counts per inch
 
-    import math
-    PI = math.pi
 
     def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=COUNPERSTEP):
         """Initializer for the Cassi Motor, baudrate should be 2400.
@@ -370,6 +368,8 @@ class CassiMotor(Motor):
             stopbits=serial.STOPBITS_ONE,
             timeout=None,
         )
+        if baudrate != 2400:
+            print(f"The correct baud rate for the Cassi motor is 2400, while {baudrate} is parsed from the config file. Have you forgotten to change it?")
         self.count_per_step = counts_per_step
         self.az_lower_lim = az_limits[0]
         self.el_lower_lim = el_limits[0]
@@ -377,14 +377,14 @@ class CassiMotor(Motor):
         self.el_count = 0.0
 
         # CASSI
-        lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * self.PI / 180.0) - self.ROD3 * self.ROD3
+        lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0) - self.ROD3 * self.ROD3
         if lenzero >= 0.0:
             lenzero = sqrt(lenzero)
         else:
             lenzero = 0
         temp = lenzero - self.el_count / self.ROD5
         temp = (self.ROD1*self.ROD1 + self.ROD2*self.ROD2 - self.ROD3*self.ROD3 - temp*temp) / (2.0*self.ROD1*self.ROD2)
-        self.ell = -acos(temp) * 180/self.PI + self.ROD4 - self.el_lower_lim
+        self.ell = -acos(temp) * 180/pi + self.ROD4 - self.el_lower_lim
         # end CASSI
 
     def send_Cassi_cmd(self, az, el, stow):
@@ -445,12 +445,12 @@ class CassiMotor(Motor):
                     print("D11: axis ==1")
 
                     # CASSI
-                    lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * self.PI / 180.0) - self.ROD3 * self.ROD3
+                    lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0) - self.ROD3 * self.ROD3
                     if lenzero >= 0.0:
                         lenzero = sqrt(lenzero)
                     else:
                         lenzero = 0
-                    acount = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - (ell+self.el_lower_lim)) * self.PI / 180.0) - self.ROD3 * self.ROD3
+                    acount = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - (ell+self.el_lower_lim)) * pi / 180.0) - self.ROD3 * self.ROD3
                     if acount >= 0.0:
                         acount = (-sqrt(acount) + lenzero) * self.ROD5
                     else:
@@ -501,7 +501,7 @@ class CassiMotor(Motor):
                 status = i
                 sleep(0.1)
                 for i in range(status):
-                    if resp[i] == "M" or resp[i] == "T":
+                    if resp[i] == "M" or resp[i] == "T":  # Move, Timeout
                         im = i
                 ccount = int(resp[im:status].split(" ")[-1])
                 if resp[im] == "M":
@@ -554,7 +554,7 @@ class CassiMotor(Motor):
         azz = self.az_count / CassiMotor.AZCOUNTS_PER_DEG
         #ell = self.el_count / CassiMotor.ELCOUNTS_PER_DEG # CASSI
         az = azz + self.az_lower_lim
-        el = self.ell + self.el_lower_lim # na pewno tak?
+        el = self.ell + self.el_lower_lim # kolo frazy azel w Javie jest to wyswietlane ze zmiennej ell. W sport.java jest też wyliczana ellnow
         return az, el
 
 
@@ -595,6 +595,8 @@ class H180Motor(Motor):  # TODO: Test!
             stopbits=serial.STOPBITS_ONE,
             timeout=None,
         )
+        if baudrate != 2400:
+            print(f"The correct baud rate for the H180 motor is 2400, while {baudrate} is parsed from the config file. Have you forgotten to change it?")
         self.count_per_step = counts_per_step
         self.az_lower_lim = az_limits[0]
         self.el_lower_lim = el_limits[0]
