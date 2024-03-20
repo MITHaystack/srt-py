@@ -16,7 +16,7 @@ If the user wants to add configuration options within these files they must upda
 
 The config.yaml file contains the following settings:
 
-* STATION - The latitude, longitude, and name of the location of the SRT.
+* STATION - The latitude, longitude, and name of the location of the SRT. Note that the convention differs from SRT Java and C versions, where e.g. Eastern Europe had a negative longitude, whereas now it should be positive.
 ```YAML
 STATION:
   latitude: 42.5
