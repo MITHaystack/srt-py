@@ -52,10 +52,14 @@ class SmallRadioTelescopeDaemon:
             config_dict["AZLIMITS"]["lower_bound"],
             config_dict["AZLIMITS"]["upper_bound"],
         )
+        if abs(self.az_limits[0] - self.az_limits[1]) > 360:
+            print("Distance between AZLIMITS if greater than 360 deg. Consider lowering the upper limit.")
         self.el_limits = (
             config_dict["ELLIMITS"]["lower_bound"],
             config_dict["ELLIMITS"]["upper_bound"],
         )
+        if abs(self.el_limits[0] - self.el_limits[1]) > 90:
+            print("Distance between ELLIMITS if greater than 90 deg. Consider lowering the upper limit.")
         self.stow_location = (
             config_dict["STOW_LOCATION"]["azimuth"],
             config_dict["STOW_LOCATION"]["elevation"],
