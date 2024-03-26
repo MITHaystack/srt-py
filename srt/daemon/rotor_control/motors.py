@@ -375,33 +375,8 @@ class CassiMotor(Motor):
         self.count_per_step = counts_per_step
         self.az_lower_lim = az_limits[0]
         self.el_lower_lim = el_limits[0]
-        # try:
-        #     self.az_count
-        #     print("self.az_count istnieje: ", self.az_count)
-        # except AttributeError:
-        #     self.az_count = 0.0
-        # try:
-        #     self.el_count
-        #     print("self.el_count istnieje: ", self.el_count)
-        # except AttributeError:
-        #     self.el_count = 0.0
         self.az_count = 0.0
         self.el_count = 0.0
-
-        # # CASSI
-        # lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0) - self.ROD3 * self.ROD3
-        # print("D0_0: ", self.el_lower_lim)
-        # print("D0_1: ", lenzero)
-        # if lenzero >= 0.0:
-        #     lenzero = sqrt(lenzero)
-        # else:
-        #     lenzero = 0
-        # temp = lenzero - self.el_count / self.ROD5
-        # temp = (self.ROD1*self.ROD1 + self.ROD2*self.ROD2 - self.ROD3*self.ROD3 - temp*temp) / (2.0*self.ROD1*self.ROD2)
-        # print("D0_2: ", temp)
-        # self.ell = -acos(temp) * 180/pi + self.ROD4 - self.el_lower_lim
-        # print("D0_3: ", self.ell)
-        # # end CASSI
 
     def send_Cassi_cmd(self, az, el, stow):
         """Sends a Command to the Cassi Motor
@@ -595,8 +570,6 @@ class CassiMotor(Motor):
         azz = self.az_count / CassiMotor.AZCOUNTS_PER_DEG
         #ell = self.el_count / CassiMotor.ELCOUNTS_PER_DEG # CASSI
 
-
-
         # CASSI
         lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0) - self.ROD3 * self.ROD3
         print("D0_0: ", self.el_lower_lim)
@@ -611,7 +584,6 @@ class CassiMotor(Motor):
         ell = -acos(temp) * 180/pi + self.ROD4 - self.el_lower_lim
         print("D0_3: ", ell)
         # end CASSI
-
 
         az = azz + self.az_lower_lim
         el = ell + self.el_lower_lim # kolo frazy azel w Javie jest to wyswietlane ze zmiennej ell. W Co to sie chyba w ogole nie wyswietla. W sport.java jest też wyliczana ellnow
