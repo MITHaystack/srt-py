@@ -741,7 +741,7 @@ class H180Motor(Motor):  # TODO: Test!
                 for i in range(status):
                     if resp[i] == "M" or resp[i] == "T":
                         im = i
-                ccount = int(resp[im:status].split(" ")[-1])
+                ccount = int(resp[im:status].split(" ")[-1]) # for Cassi motor correct value here is -3
                 if resp[im] == "M":
                     if mm == 1:
                         self.az_count += ccount
@@ -763,6 +763,7 @@ class H180Motor(Motor):  # TODO: Test!
         if stow:
             self.az_count = 0
             self.el_count = 0
+    # return self.az_count, self.el_count # for Cassi motor this needs to be here
 
     def point(self, az, el):
         """Points an H180 Motor at a Certain Az, El
