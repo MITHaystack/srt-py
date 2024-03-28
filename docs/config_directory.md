@@ -120,6 +120,11 @@ TCAL: 290
 SAVE_DIRECTORY: ~/Desktop/SRT-Saves
 ```
 
+* NPOINT_INTEG_TIME - The integration time in seconds at each point of an n-point scan
+```YAML
+NPOINT_INTEG_TIME: 5.0
+```
+
 * DASHBOARD_REFRESH_MS - The number of milliseconds for dashboard refresh.
 ```YAML
 DASHBOARD_REFRESH_MS: 3000
