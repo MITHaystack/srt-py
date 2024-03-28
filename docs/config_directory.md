@@ -16,7 +16,7 @@ If the user wants to add configuration options within these files they must upda
 
 The config.yaml file contains the following settings:
 
-* STATION - The latitude, longitude, and name of the location of the SRT.
+* STATION - The latitude, longitude, and name of the location of the SRT. Note that the convention differs from SRT Java and C versions, where e.g. Eastern Europe had a negative longitude, whereas now it should be positive.
 ```YAML
 STATION:
   latitude: 42.5
@@ -60,7 +60,7 @@ CAL_LOCATION:
   elevation: 7.0
 ```
 
-* MOTOR_TYPE - The type of motor being used.  Several different types are currently allowed, include NONE (which works for either a fixed antenna or simulating on a system without an antenna), ALFASPID (which works with any ROT2 protocol supporting motor), H180MOUNT (which works with the H180 motor on some SRTs), and PUSHROD (which works with the old custom pushrod system of the SRT).  Currently, since the SRT at Haystack uses a ALFASPID motor, that is the only one which has currently been extensively tested.  Additionally, please refer to the in-code documentation in srt/daemon/rotor_control for more information on adding support for more motors.
+* MOTOR_TYPE - The type of motor being used.  Several different types are currently allowed, include NONE (which works for either a fixed antenna or simulating on a system without an antenna), ALFASPID (which works with any ROT2 protocol supporting motor), H180MOUNT (which works with the Kaul-Tronics Inc. H180 motor on some SRTs), CASSI (which works with the CASSI Corp. mount) and PUSHROD (which works with the old custom pushrod system of the SRT).  Currently, since the SRT at Haystack uses a ALFASPID motor, that is the only one which has currently been extensively tested.  Additionally, please refer to the in-code documentation in srt/daemon/rotor_control for more information on adding support for more motors. See also https://ui.adsabs.harvard.edu/abs/2005AAS...20717301C/abstract.
 ```YAML
 MOTOR_TYPE: NONE
 ```
@@ -123,6 +123,11 @@ SAVE_DIRECTORY: ~/Desktop/SRT-Saves
 * DASHBOARD_REFRESH_MS - The number of milliseconds for dashboard refresh.
 ```YAML
 DASHBOARD_REFRESH_MS: 3000
+```
+
+* DASHBOARD_THREADS - The number of threads for dash. 8 seems to be enought at the host. If also a client is connected and you are getting `WARNING:waitress.queue:Task queue depth is 1`, consider increasing this value.
+```YAML
+DASHBOARD_THREADS: 8
 ```
 ##### sky_coords.csv
 

@@ -28,10 +28,12 @@ def run_srt_dashboard(configuration_dir, configuration_dict):
         app_server,
         host=configuration_dict["DASHBOARD_HOST"],
         port=configuration_dict["DASHBOARD_PORT"],
+        threads=configuration_dict["DASHBOARD_THREADS"],
     )
 
 
 if __name__ == "__main__":
+    from os.path import expanduser
     # Create the parser
     my_parser = argparse.ArgumentParser(description="Runs the SRT Control Application")
 
@@ -41,7 +43,7 @@ if __name__ == "__main__":
         metavar="config_dir",
         type=str,
         help="The Path to the SRT Config Directory",
-        default="~/.srt-config",
+        default=expanduser("~/.srt-config"),
     )
     my_parser.add_argument(
         "--config_file_name",
