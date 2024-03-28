@@ -247,7 +247,7 @@ class SmallRadioTelescopeDaemon:
                 self.rotor_destination = new_rotor_destination
                 self.point_at_offset(*new_rotor_offsets)
             rotor_loc.append(self.rotor_location)
-            sleep(5)
+            sleep(self.npoint_integration_time)
             raw_spec = get_spectrum(port=5561)
             p = np.sum(raw_spec)
             a = len(raw_spec)
