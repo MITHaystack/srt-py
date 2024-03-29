@@ -44,7 +44,9 @@ def generate_az_el_graph(
     -------
     Plotly Figure of Azimuth and Elevation Graph
     """
-    fig = go.Figure()
+    fig = go.Figure(
+        layout={"uirevision": True,}
+    )
 
     az_lower_display_lim = 0
     az_upper_display_lim = 360
