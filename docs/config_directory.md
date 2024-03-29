@@ -120,7 +120,7 @@ TCAL: 290
 SAVE_DIRECTORY: ~/Desktop/SRT-Saves
 ```
 
-* NPOINT_INTEG_TIME - The integration time in seconds at each point of an n-point scan
+* NPOINT_INTEG_TIME - The integration time in seconds at each point of an n-point scan. In the case of the Cassi mount, this should not be less than 4s.
 ```YAML
 NPOINT_INTEG_TIME: 5.0
 ```
