@@ -210,51 +210,14 @@ def generate_az_el_graph(
             ),
         )
 
+    x_pos = [0, 90, 180, 270, 360]
+    rose_lettter = ['<b>N</b>', '<b>E</b>', '<b>S</b>', '<b>W</b>', '<b>N</b>']
+    for (a, b) in zip(x_pos ,rose_lettter):
         fig.add_annotation(dict(font=dict(color="darkgray",size=14),
-                                    x=0,
+                                    x=a,
                                     y=1.0,
                                     showarrow=False,
-                                    text='<b>N</b>',
-                                    textangle=0,
-                                    xref="x",
-                                    yref="paper"
-                                ))
-
-        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
-                                    x=90,
-                                    y=1.0,
-                                    showarrow=False,
-                                    text='<b>E</b>',
-                                    textangle=0,
-                                    xref="x",
-                                    yref="paper"
-                                ))
-
-        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
-                                    x=180,
-                                    y=1.0,
-                                    showarrow=False,
-                                    text='<b>S</b>',
-                                    textangle=0,
-                                    xref="x",
-                                    yref="paper"
-                                ))
-
-        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
-                                    x=270,
-                                    y=1.0,
-                                    showarrow=False,
-                                    text='<b>W</b>',
-                                    textangle=0,
-                                    xref="x",
-                                    yref="paper"
-                                ))
-
-        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
-                                    x=360,
-                                    y=1.0,
-                                    showarrow=False,
-                                    text='<b>N</b>',
+                                    text=b,
                                     textangle=0,
                                     xref="x",
                                     yref="paper"
