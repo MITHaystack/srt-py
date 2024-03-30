@@ -260,6 +260,45 @@ def generate_az_el_graph(
                                     yref="paper"
                                 ))
 
+        fig.add_shape(
+            type="line",
+            x0=90,
+            y0=-90,
+            x1=90,
+            y1=90,
+            line=dict(
+                color="LightBlue",
+                width=1,
+                dash="dashdot",
+            ),
+        )
+
+        fig.add_shape(
+            type="line",
+            x0=180,
+            y0=-90,
+            x1=180,
+            y1=90,
+            line=dict(
+                color="LightBlue",
+                width=1,
+                dash="dashdot",
+            ),
+        )
+
+        fig.add_shape(
+            type="line",
+            x0=270,
+            y0=-90,
+            x1=270,
+            y1=90,
+            line=dict(
+                color="LightBlue",
+                width=1,
+                dash="dashdot",
+            ),
+        )
+
     # Set axes ranges
     fig.update_layout(
         title={
