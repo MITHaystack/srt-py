@@ -260,37 +260,12 @@ def generate_az_el_graph(
                                     yref="paper"
                                 ))
 
+    for val in [90, 180, 270]:
         fig.add_shape(
             type="line",
-            x0=90,
+            x0=val,
             y0=-90,
-            x1=90,
-            y1=90,
-            line=dict(
-                color="LightBlue",
-                width=1,
-                dash="dashdot",
-            ),
-        )
-
-        fig.add_shape(
-            type="line",
-            x0=180,
-            y0=-90,
-            x1=180,
-            y1=90,
-            line=dict(
-                color="LightBlue",
-                width=1,
-                dash="dashdot",
-            ),
-        )
-
-        fig.add_shape(
-            type="line",
-            x0=270,
-            y0=-90,
-            x1=270,
+            x1=val,
             y1=90,
             line=dict(
                 color="LightBlue",
