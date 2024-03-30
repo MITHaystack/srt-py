@@ -67,7 +67,7 @@ def generate_az_el_graph(
         )
     )
 
-    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles. 
+    # Marker for visability, basicaslly beamwidth with azimuth stretched out for high elevation angles. 
 
     az_l = current_location[0]
     el_l = current_location[1]
@@ -209,6 +209,47 @@ def generate_az_el_graph(
                 dash="dashdot",
             ),
         )
+
+        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
+                                    x=0,
+                                    y=1.0,
+                                    showarrow=False,
+                                    text='<b>N</b>',
+                                    textangle=0,
+                                    xref="x",
+                                    yref="paper"
+                                ))
+
+        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
+                                    x=90,
+                                    y=1.0,
+                                    showarrow=False,
+                                    text='<b>E</b>',
+                                    textangle=0,
+                                    xref="x",
+                                    yref="paper"
+                                ))
+
+        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
+                                    x=180,
+                                    y=1.0,
+                                    showarrow=False,
+                                    text='<b>S</b>',
+                                    textangle=0,
+                                    xref="x",
+                                    yref="paper"
+                                ))
+
+        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
+                                    x=270,
+                                    y=1.0,
+                                    showarrow=False,
+                                    text='<b>W</b>',
+                                    textangle=0,
+                                    xref="x",
+                                    yref="paper"
+                                ))
+
 
     # Set axes ranges
     fig.update_layout(
