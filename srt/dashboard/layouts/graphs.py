@@ -250,6 +250,15 @@ def generate_az_el_graph(
                                     yref="paper"
                                 ))
 
+        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
+                                    x=360,
+                                    y=1.0,
+                                    showarrow=False,
+                                    text='<b>N</b>',
+                                    textangle=0,
+                                    xref="x",
+                                    yref="paper"
+                                ))
 
     # Set axes ranges
     fig.update_layout(
