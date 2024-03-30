@@ -265,7 +265,8 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     power_time, power_vals = zip(*power_history)
     fig = go.Figure(
         data=go.Scatter(
-            x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals
+            x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals # deprecated since Python 3.12
+            # x=[datetime.fromtimestamp(t, tz=timezone.utc) for t in power_time], y=power_vals # https://blog.ganssle.io/articles/2019/11/utcnow.html
         ),
         layout={
             "title": "Power vs Time",
