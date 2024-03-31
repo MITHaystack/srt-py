@@ -187,7 +187,7 @@ class SmallRadioTelescopeDaemon:
         scan_center = self.ephemeris_locations[object_id]
         np_sides = [5, 5]
         for scan in range(N_pnt_default):
-            self.log_message("{0} of {1} point scan.".format(scan, N_pnt_default))
+            self.log_message("{0} of {1} point scan.".format(scan + 1, N_pnt_default))
             i = (scan // 5) - 2
             j = (scan % 5) - 2
             el_dif = i * self.beamwidth * 0.5
