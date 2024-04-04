@@ -26,7 +26,7 @@ from .radio_control.radio_task_starter import (
 )
 from .utilities.object_tracker import EphemerisTracker
 from .utilities.functions import azel_within_range, get_spectrum
-
+import os
 
 class SmallRadioTelescopeDaemon:
     """
@@ -86,6 +86,7 @@ class SmallRadioTelescopeDaemon:
         self.temp_sys = config_dict["TSYS"]
         self.temp_cal = config_dict["TCAL"]
         self.save_dir = config_dict["SAVE_DIRECTORY"]
+        self.npoint_integration_time = config_dict["NPOINT_INTEG_TIME"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -183,15 +184,33 @@ class SmallRadioTelescopeDaemon:
         N_pnt_default = 25
         rotor_loc = []
         pwr_list = []
-        #
+        scan_center_list = []
         scan_center = self.ephemeris_locations[object_id]
+        # print("first scan_center: ", scan_center) # usunac import io po skonczonych pracach
+    
+        fname_big = '/home/alex/Desktop/nscan_big.txt'
+        if os.path.exists(fname_big):
+            os.remove(fname_big)
+        f_big = open(fname_big, 'a')
+
+        # fname_small = '/home/alex/Desktop/nscan_drifts_only.txt'
+        # if os.path.exists(fname_small):
+        #     os.remove(fname_small)
+        # f_small = open(fname_small, 'a')
+
+        # drift = []
+        # current_drift = [0, 0]
+        # f.write("first scan_center: " + str(scan_center) + "\n")
+        # f.write("new_rotor_offsets = (az_dif, el_dif)")
         np_sides = [5, 5]
         for scan in range(N_pnt_default):
+            current_scan_center = self.ephemeris_locations[object_id]
+            scan_center_list.append(current_scan_center)
             self.log_message("{0} of {1} point scan.".format(scan + 1, N_pnt_default))
             i = (scan // 5) - 2
             j = (scan % 5) - 2
             el_dif = i * self.beamwidth * 0.5
-            az_dif_scalar = np.cos((scan_center[1] + el_dif) * np.pi / 180.0)
+            az_dif_scalar = np.cos((current_scan_center[1] + el_dif) * np.pi / 180.0)
             # Avoid issues where you get close to the zenith
             if np.abs(az_dif_scalar)<1e-4:
                 az_dif = 0
@@ -200,17 +219,62 @@ class SmallRadioTelescopeDaemon:
     
             new_rotor_offsets = (az_dif, el_dif)
 
-            if self.rotor.angles_within_bounds(*scan_center):
-                self.rotor_destination = scan_center
+            if self.rotor.angles_within_bounds(*current_scan_center):
+                self.rotor_destination = current_scan_center
+                # print("current ephemeris_locations: ", self.ephemeris_locations[object_id])
+                # print("self.rotor_location BEFORE: ", self.rotor_location)
+                # print("new_rotor_offsets: ", new_rotor_offsets)
+                # print("Actual offsets BEFORE: ", self.ephemeris_locations[object_id][0] - self.rotor_location[0], ", " ,
+                    #   self.ephemeris_locations[object_id][1] - self.rotor_location[1])
+                # f.write("self.ephemeris_locations[object_id]: " + str(self.ephemeris_locations[object_id]) + "\n")
+                # f.write("self.rotor_location BEFORE: " + str(self.rotor_location) + "\n")
+                # f_big.write("new_rotor_offsets: " + str(new_rotor_offsets[0]) + ", " + str(new_rotor_offsets[1]) + "\n")
+                # f.write("Actual offsets BEFORE: " + str(self.ephemeris_locations[object_id][0] - self.rotor_location[0]) + ", " +
+                        # str(self.ephemeris_locations[object_id][1] - self.rotor_location[1]) + "\n")
                 self.point_at_offset(*new_rotor_offsets)
+                # print("self.rotor_location AFTER: ", self.rotor_location)
+                az_actual = self.rotor_location[0] - self.ephemeris_locations[object_id][0]
+                el_actual = self.rotor_location[1] - self.ephemeris_locations[object_id][1]
+                # print("Actual offsets AFTER: ", az_actual, ", " , el_actual)
+                az_drift = new_rotor_offsets[0] - az_actual
+                el_drift = new_rotor_offsets[1] - el_actual
+                # print("drift: " , az_drift, ", ", el_drift)
+                # f_big.write("Actual offsets AFTER: " + str(az_actual) + ", " + str(el_actual) + "\n")
+                # f_big.write("drift: " + str(az_drift) + ", " + str(el_drift) + "\n")
+                f_big.write(str(az_drift) + ", " + str(el_drift) + "\n") # drift
+                f_big.flush()
             rotor_loc.append(self.rotor_location)
-            sleep(5)
+            # print("rotor_loc (list): ", rotor_loc)
+            # current_drift[0] = az_drift
+            # current_drift[1] = el_drift
+            # drift.append(current_drift)
+            sleep(self.npoint_integration_time)
             raw_spec = get_spectrum(port=5561)
             p = np.sum(raw_spec)
             a = len(raw_spec)
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
         maxdiff = (az_dif, el_dif)
+        # f_small.write(str(drift))
+        # f_small.close()
+        f_big.close()
+
+        sc_az = [t[0] for t in scan_center_list]
+        sc_el = [t[1] for t in scan_center_list]
+        sc_az_mean = sum(sc_az)/len(sc_az)
+        sc_el_mean = sum(sc_el)/len(sc_el)
+        scan_center = (sc_az_mean, sc_el_mean)
+
+        print("Scan center list: ", scan_center_list)
+        print("Scan center mean: ", scan_center)
+        # print("Scan center AFTER: ", self.ephemeris_locations[object_id])
+        print("rotor_loc: ", rotor_loc)
+        rotor_az = [t[0] for t in rotor_loc]
+        rotor_el = [t[1] for t in rotor_loc]
+        rotor_az_mean = sum(rotor_az)/len(rotor_az)
+        rotor_el_mean = sum(rotor_el)/len(rotor_el)
+        rotor_loc_center = (rotor_az_mean, rotor_el_mean)
+        print("rotor_loc_center: ", rotor_loc_center)
         self.n_point_data = [scan_center, maxdiff, rotor_loc, pwr_list, np_sides]
 
         # add code to collect spectrum data.
@@ -247,7 +311,7 @@ class SmallRadioTelescopeDaemon:
                 self.rotor_destination = new_rotor_destination
                 self.point_at_offset(*new_rotor_offsets)
             rotor_loc.append(self.rotor_location)
-            sleep(self.npoint_integration_time)
+            sleep(5)
             raw_spec = get_spectrum(port=5561)
             p = np.sum(raw_spec)
             a = len(raw_spec)
