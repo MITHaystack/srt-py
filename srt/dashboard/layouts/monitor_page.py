@@ -50,13 +50,13 @@ def generate_first_row():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="power-graph", config= {'displaylogo': False})],
+                        [dcc.Graph(id="power-graph", config= {'displaylogo': False, 'scrollZoom': True})],
                         className="pretty_container six columns",
                     ),
                     html.Div(
                         [
-                            dcc.Graph(id="cal-spectrum-histogram", config= {'displaylogo': False}),
-                            dcc.Graph(id="raw-spectrum-histogram", config= {'displaylogo': False}),
+                            dcc.Graph(id="cal-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True}),
+                            dcc.Graph(id="raw-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True}),
                         ],
                         className="pretty_container six columns",
                     ),
@@ -84,11 +84,11 @@ def generate_fig_row():
                 [
                     dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="npoint-graph", config= {'displaylogo': False})],
+                        [dcc.Graph(id="npoint-graph", config= {'displaylogo': False, 'scrollZoom': True})],
                         className="pretty_container six columns",
                     ),
                     # html.Div(
-                    #     [dcc.Graph(id="beamsswitch-graph", config= {'displaylogo': False})],
+                    #     [dcc.Graph(id="beamsswitch-graph", config= {'displaylogo': False, 'scrollZoom': True})],
                     #     className="pretty_container six columns",
                     # ),
                 ],
@@ -457,7 +457,7 @@ def generate_layout():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="az-el-graph", config= {'displaylogo': False})],
+                        [dcc.Graph(id="az-el-graph", config= {'displaylogo': False, 'scrollZoom': True})],
                         className="pretty_container twelve columns",
                     ),
                 ],
