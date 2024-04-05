@@ -74,10 +74,12 @@ def generate_az_el_graph(
     el_u = el_l + .5*beam_width
     el_d = el_l - .5*beam_width
 
-    azu= .5*beam_width/np.cos(el_u * np.pi / 180.0)
+    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
     azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
-    x_vec = [max(az_l-azd,0),min(az_l-azu,360), max(az_l+azu,0),min(az_l+azd,360),max(az_l-azd,0)]
-    y_vec = [max(el_d,0),min(el_u,90), min(el_u,90),min(el_d,90),max(el_d,0)]
+    second_el = min(az_l-azu,360) # relevant when STOW is negative
+    if second_el < 0: second_el = 0
+    x_vec = [max(az_l-azd,0), second_el, max(az_l+azu,0), min(az_l+azd,360), max(az_l-azd,0)]
+    y_vec = [max(el_d,0), min(el_u,90), min(el_u,90), min(el_d,90), max(el_d,0)]
 
     fig.add_trace(
         go.Scatter(
@@ -102,7 +104,7 @@ def generate_az_el_graph(
             textposition="bottom center",
             marker_color=["rgba(0, 0, 152, .8)"],
         )
-    )        
+    )
 
     fig.add_trace(
         go.Scatter(
@@ -430,7 +432,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     d_az : float
         Resolution of power measurements in the azimuth direction.
     d_el : float
-        REsolution of power measurements in elevation direction.
+        Resolution of power measurements in elevation direction.
     pow_in : array_like
         List of power measurements for the given locations of the antenna.
     cent : array_like
@@ -445,6 +447,9 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     """
 
     # create the output grid
+    # print("azimuth locations (from generate_npoint): ", az_in)
+    # print("elevation locations (from generate_npoint): ", el_in)
+    # print("center passed to drawing (from generate_npoint): ", cent)
     az_in = np.array(az_in)
     el_in = np.array(el_in)
     az_a = np.linspace(az_in.min(), az_in.max(), 100)
