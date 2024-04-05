@@ -50,13 +50,13 @@ def generate_first_row():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="power-graph")],
+                        [dcc.Graph(id="power-graph", config= {'displaylogo': False})],
                         className="pretty_container six columns",
                     ),
                     html.Div(
                         [
-                            dcc.Graph(id="cal-spectrum-histogram"),
-                            dcc.Graph(id="raw-spectrum-histogram"),
+                            dcc.Graph(id="cal-spectrum-histogram", config= {'displaylogo': False}),
+                            dcc.Graph(id="raw-spectrum-histogram", config= {'displaylogo': False}),
                         ],
                         className="pretty_container six columns",
                     ),
@@ -84,11 +84,11 @@ def generate_fig_row():
                 [
                     dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="npoint-graph")],
+                        [dcc.Graph(id="npoint-graph", config= {'displaylogo': False})],
                         className="pretty_container six columns",
                     ),
                     # html.Div(
-                    #     [dcc.Graph(id="beamsswitch-graph")],
+                    #     [dcc.Graph(id="beamsswitch-graph", config= {'displaylogo': False})],
                     #     className="pretty_container six columns",
                     # ),
                 ],
@@ -457,7 +457,7 @@ def generate_layout():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="az-el-graph")],
+                        [dcc.Graph(id="az-el-graph", config= {'displaylogo': False})],
                         className="pretty_container twelve columns",
                     ),
                 ],
@@ -551,7 +551,7 @@ def register_callbacks(
         n : int
             number of Update intervals
         npdata : dict
-            will hold N- point data.
+            will hold N-point data.
 
         Returns
         -------
@@ -595,7 +595,7 @@ def register_callbacks(
         ts : int
             modified time stamp
         npdata : dict
-            will hold N- point data.
+            will hold N-point data.
 
         Returns
         -------
@@ -687,6 +687,7 @@ def register_callbacks(
                 status["cal_loc"],
                 status["horizon_points"],
                 status["beam_width"],
+                status["n_point_data"]
             )
         return ""
 
