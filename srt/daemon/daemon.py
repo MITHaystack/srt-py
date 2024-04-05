@@ -26,7 +26,7 @@ from .radio_control.radio_task_starter import (
 )
 from .utilities.object_tracker import EphemerisTracker
 from .utilities.functions import azel_within_range, get_spectrum
-import os
+
 
 class SmallRadioTelescopeDaemon:
     """
