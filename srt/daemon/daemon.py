@@ -147,6 +147,7 @@ class SmallRadioTelescopeDaemon:
         # List for data that will be plotted in the app
         self.n_point_data = []
         self.beam_switch_data = []
+        self.rotor_loc_live_npoint_live = []
 
     def log_message(self, message):
         """Writes Contents to a Logging List and Prints
@@ -206,6 +207,7 @@ class SmallRadioTelescopeDaemon:
                 self.rotor_destination = current_scan_center
                 self.point_at_offset(*new_rotor_offsets)
             rotor_loc.append(self.rotor_location)
+            self.rotor_loc_live_npoint_live = rotor_loc
             sleep(self.npoint_integration_time)
             raw_spec = get_spectrum(port=5561)
             p = np.sum(raw_spec)
@@ -632,6 +634,7 @@ class SmallRadioTelescopeDaemon:
                 "temp_sys": self.temp_sys,
                 "cal_power": self.cal_power,
                 "n_point_data": self.n_point_data,
+                "rotor_loc_live_npoint_live": self.rotor_loc_live_npoint_live,
                 "beam_switch_data": self.beam_switch_data,
                 "time": time(),
             }
