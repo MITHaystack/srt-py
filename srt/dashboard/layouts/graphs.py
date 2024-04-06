@@ -17,7 +17,8 @@ def generate_az_el_graph(
     stow_position,
     cal_position,
     horizon_points,
-    beam_width
+    beam_width,
+    rotor_loc_live_npoint_live,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -67,7 +68,19 @@ def generate_az_el_graph(
         )
     )
 
-    # Marker for visability, basicaslly beamwidth with azimuth stretched out for high elevation angles. 
+    if rotor_loc_live_npoint_live:
+        fig.add_trace(
+            go.Scatter(
+                x=[i[0] for i in rotor_loc_live_npoint_live],
+                y=[i[1] for i in rotor_loc_live_npoint_live],
+                name="N-point scan positions",
+                mode="markers",
+                # marker_color=["lightgreen"],
+                marker=dict(size=3, color="lightgreen"),
+            )
+        )
+
+    # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles. 
 
     az_l = current_location[0]
     el_l = current_location[1]
