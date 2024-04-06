@@ -18,7 +18,7 @@ def generate_az_el_graph(
     cal_position,
     horizon_points,
     beam_width,
-    rotor_loc_live_npoint_live,
+    rotor_loc_npoint_live,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -68,11 +68,11 @@ def generate_az_el_graph(
         )
     )
 
-    if rotor_loc_live_npoint_live:
+    if rotor_loc_npoint_live:
         fig.add_trace(
             go.Scatter(
-                x=[i[0] for i in rotor_loc_live_npoint_live],
-                y=[i[1] for i in rotor_loc_live_npoint_live],
+                x=[i[0] for i in rotor_loc_npoint_live],
+                y=[i[1] for i in rotor_loc_npoint_live],
                 name="N-point scan positions",
                 mode="markers",
                 # marker_color=["lightgreen"],
