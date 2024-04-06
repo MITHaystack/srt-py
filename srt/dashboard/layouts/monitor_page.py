@@ -687,7 +687,7 @@ def register_callbacks(
                 status["cal_loc"],
                 status["horizon_points"],
                 status["beam_width"],
-                status["n_point_data"]
+                status["rotor_loc_live_npoint_live"],
             )
         return ""
 
