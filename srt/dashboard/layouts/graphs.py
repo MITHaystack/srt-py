@@ -7,6 +7,7 @@ Contains the Code for Generating Complicated Graphs
 import plotly.graph_objects as go
 from datetime import datetime
 import numpy as np
+from math import dist
 
 
 def generate_az_el_graph(
@@ -19,6 +20,7 @@ def generate_az_el_graph(
     horizon_points,
     beam_width,
     rotor_loc_npoint_live,
+    motor_cmd_azel,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -78,6 +80,25 @@ def generate_az_el_graph(
                 marker_color=["greenyellow" for _ in rotor_loc_npoint_live],
             )
         )
+
+    if dist(current_location, motor_cmd_azel) > 5:
+        fig.add_annotation(
+            ax = current_location[0],
+            axref = 'x',
+            ay = current_location[1],
+            ayref = 'y',
+            x = motor_cmd_azel[0],
+            arrowcolor='red',
+            xref = 'x',
+            y = motor_cmd_azel[1],
+            yref='y',
+            arrowwidth=2.5,
+            arrowside='end',
+            arrowsize=1,
+            arrowhead = 4,
+            # text="Sleewing direction", # https://plotly.com/python/text-and-annotations/
+            opacity=0.4,
+            )
 
     # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles. 
 
@@ -459,6 +480,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     """
 
     # create the output grid
+
     az_in = np.array(az_in)
     el_in = np.array(el_in)
     az_a = np.linspace(az_in.min(), az_in.max(), 100)
