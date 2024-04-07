@@ -739,6 +739,9 @@ class SmallRadioTelescopeDaemon:
                 # Await Command for the SRT
                 self.current_queue_item = "None"
                 command = self.command_queue.get()
+                # Make n-point scan markers disappear on next command
+                if (command != "None"):
+                    self.rotor_loc_npoint_live = []
                 self.log_message(f"Running Command '{command}'")
                 self.current_queue_item = command
                 if len(command) < 2 or command[0] == "*":
