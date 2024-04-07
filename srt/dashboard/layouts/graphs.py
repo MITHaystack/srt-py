@@ -19,6 +19,7 @@ def generate_az_el_graph(
     horizon_points,
     beam_width,
     rotor_loc_npoint_live,
+    queued_item,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -75,8 +76,7 @@ def generate_az_el_graph(
                 y=[i[1] for i in rotor_loc_npoint_live],
                 name="N-point scan positions",
                 mode="markers",
-                # marker_color=["lightgreen"],
-                marker=dict(size=3, color="lightgreen"),
+                marker_color=["greenyellow" for _ in rotor_loc_npoint_live],
             )
         )
 
