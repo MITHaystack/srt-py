@@ -459,9 +459,6 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     """
 
     # create the output grid
-    # print("azimuth locations (from generate_npoint): ", az_in)
-    # print("elevation locations (from generate_npoint): ", el_in)
-    # print("center passed to drawing (from generate_npoint): ", cent)
     az_in = np.array(az_in)
     el_in = np.array(el_in)
     az_a = np.linspace(az_in.min(), az_in.max(), 100)
