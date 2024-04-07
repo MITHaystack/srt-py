@@ -19,7 +19,6 @@ def generate_az_el_graph(
     horizon_points,
     beam_width,
     rotor_loc_npoint_live,
-    queued_item,
 ):
     """Generates Figure for Displaying AzEl Locations
 
