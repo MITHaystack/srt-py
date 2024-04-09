@@ -190,6 +190,7 @@ Adding a new antenna motor therefore requires:
 MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT', 'PUSHROD', 'NONE')
 ```
 - Changing the MOTOR_TYPE in your own configuration YAML to the new motor type
+- Adding the string name to the condition in `generate_az_el_graph` method in [graphs.py](https://github.com/AlexKurek/srt-py/blob/master/srt/dashboard/layouts/graphs.py).
 
 ## Further Documentation
 
