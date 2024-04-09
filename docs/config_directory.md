@@ -125,6 +125,11 @@ SAVE_DIRECTORY: ~/Desktop/SRT-Saves
 NPOINT_INTEG_TIME: 5.0
 ```
 
+* MINIMAL_ARROWS_DISTANCE - The minimum Euclidean distance between the current motor position and the coordinates of the object to be moved to. If it is not exceeded, the arrows representing the movement of the telescope will not be displayed.
+```YAML
+MINIMAL_ARROWS_DISTANCE: 5.0
+```
+
 * DASHBOARD_REFRESH_MS - The number of milliseconds for dashboard refresh.
 ```YAML
 DASHBOARD_REFRESH_MS: 3000
