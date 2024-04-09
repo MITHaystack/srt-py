@@ -21,6 +21,7 @@ def generate_az_el_graph(
     beam_width,
     rotor_loc_npoint_live,
     motor_cmd_azel,
+    minimal_arrows_distance,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -81,7 +82,7 @@ def generate_az_el_graph(
             )
         )
 
-    if dist(current_location, motor_cmd_azel) > 5:
+    if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
         fig.add_annotation(
             ax = current_location[0],
             axref = 'x',
