@@ -689,6 +689,7 @@ def register_callbacks(
                 status["beam_width"],
                 status["rotor_loc_npoint_live"],
                 status["motor_cmd_azel"],
+                status["minimal_arrows_distance"],
             )
         return ""
 
