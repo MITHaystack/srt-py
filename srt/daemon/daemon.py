@@ -87,6 +87,7 @@ class SmallRadioTelescopeDaemon:
         self.temp_cal = config_dict["TCAL"]
         self.save_dir = config_dict["SAVE_DIRECTORY"]
         self.npoint_integration_time = config_dict["NPOINT_INTEG_TIME"]
+        self.minimal_arrows_distance = config_dict["NPOINT_INTEG_TIME"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -636,6 +637,7 @@ class SmallRadioTelescopeDaemon:
                 "n_point_data": self.n_point_data,
                 "rotor_loc_npoint_live": self.rotor_loc_npoint_live,
                 "beam_switch_data": self.beam_switch_data,
+                "minimal_arrows_distance": self.minimal_arrows_distance,
                 "time": time(),
             }
             status_socket.send_json(status)
