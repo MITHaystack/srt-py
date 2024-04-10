@@ -140,7 +140,7 @@ DASHBOARD_REFRESH_MS: 3000
 DASHBOARD_THREADS: 8
 ```
 
-* PLAY_SOUNDS - Whether to use Ubuntu's speech dispatcher to say when the N-point scan is finished.
+* PLAY_SOUNDS - Whether to use Ubuntu's [speech dispatcher](https://manpages.ubuntu.com/manpages/trusty/man1/speech-dispatcher.1.html) to say when the N-point scan is finished.
 ```YAML
 PLAY_SOUNDS: Yes
 ```
