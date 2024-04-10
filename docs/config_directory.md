@@ -139,6 +139,12 @@ DASHBOARD_REFRESH_MS: 3000
 ```YAML
 DASHBOARD_THREADS: 8
 ```
+
+* PLAY_SOUNDS - Whether to use Ubuntu's speech dispatcher to say when the N-point scan is finished.
+```YAML
+PLAY_SOUNDS: Yes
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.
