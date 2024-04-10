@@ -27,6 +27,7 @@ from .radio_control.radio_task_starter import (
 from .utilities.object_tracker import EphemerisTracker
 from .utilities.functions import azel_within_range, get_spectrum
 
+import subprocess
 
 class SmallRadioTelescopeDaemon:
     """
@@ -88,6 +89,7 @@ class SmallRadioTelescopeDaemon:
         self.save_dir = config_dict["SAVE_DIRECTORY"]
         self.npoint_integration_time = config_dict["NPOINT_INTEG_TIME"]
         self.minimal_arrows_distance = config_dict["NPOINT_INTEG_TIME"]
+        self.play_sounds = config_dict["PLAY_SOUNDS"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -228,6 +230,13 @@ class SmallRadioTelescopeDaemon:
         # add code to collect spectrum data.
         self.rotor_offsets = (0.0, 0.0)
         self.ephemeris_cmd_location = object_id
+
+        if self.play_sounds == "Yes":
+            try:
+                subprocess.call(['speech-dispatcher'])
+                subprocess.call(['spd-say', '"N-point scan has finished"'])
+            except:
+            print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
 
     def beam_switch(self, object_id):
         """Swings Antenna Across Object
@@ -638,6 +647,7 @@ class SmallRadioTelescopeDaemon:
                 "rotor_loc_npoint_live": self.rotor_loc_npoint_live,
                 "beam_switch_data": self.beam_switch_data,
                 "minimal_arrows_distance": self.minimal_arrows_distance,
+                "current_motor": self.motor_type,
                 "time": time(),
             }
             status_socket.send_json(status)
