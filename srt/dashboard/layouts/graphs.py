@@ -22,6 +22,7 @@ def generate_az_el_graph(
     rotor_loc_npoint_live,
     motor_cmd_azel,
     minimal_arrows_distance,
+    current_motor
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -83,23 +84,47 @@ def generate_az_el_graph(
         )
 
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
-        fig.add_annotation(
-            ax = current_location[0],
-            axref = 'x',
-            ay = current_location[1],
-            ayref = 'y',
-            x = motor_cmd_azel[0],
-            arrowcolor='red',
-            xref = 'x',
-            y = motor_cmd_azel[1],
-            yref='y',
-            arrowwidth=2.5,
-            arrowside='end',
-            arrowsize=1,
-            arrowhead = 4,
-            # text="Sleewing direction", # https://plotly.com/python/text-and-annotations/
-            opacity=0.4,
-            )
+    # If the motor moves in both axis at a time
+        if current_motor in ("NONE", "ALFASPID", "PUSHROD"): # IS THIS LIST OK?
+            fig.add_annotation(
+                ax = current_location[0],
+                ay = current_location[1],
+                axref = 'x',
+                ayref = 'y',
+                x = motor_cmd_azel[0],
+                y = motor_cmd_azel[1],
+                xref = 'x',
+                yref = 'y',
+                arrowcolor='red',
+                arrowwidth=2.5,
+                arrowside='end',
+                arrowsize=1,
+                arrowhead = 4,
+                opacity=0.4,
+                )
+        # If the motor moves in only one of the axis at a time
+        if current_motor in ("CASSI", "H180MOUNT"):
+            x_start = [current_location[0], current_location[0]]
+            x_end   = [current_location[0], motor_cmd_azel[0]]
+            y_start = [current_location[1], motor_cmd_azel[1]]
+            y_end   = [motor_cmd_azel[1],   motor_cmd_azel[1]]
+            for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
+                fig.add_annotation(
+                    x=x0,
+                    y=y0,
+                    ax=x1,
+                    ay=y1,
+                    axref = 'x',
+                    ayref = 'y',
+                    xref = 'x',
+                    yref = 'y',
+                    arrowcolor='red',
+                    arrowwidth=2.5,
+                    arrowside='end',
+                    arrowsize=1,
+                    arrowhead = 4,
+                    opacity=0.4,
+                    )
 
     # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles. 
 
