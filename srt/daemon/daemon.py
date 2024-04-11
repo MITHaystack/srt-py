@@ -236,7 +236,7 @@ class SmallRadioTelescopeDaemon:
                 subprocess.call(['speech-dispatcher'])
                 subprocess.call(['spd-say', '"N-point scan has finished"'])
             except:
-            print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
+                print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
 
     def beam_switch(self, object_id):
         """Swings Antenna Across Object
