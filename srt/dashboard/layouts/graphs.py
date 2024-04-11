@@ -72,6 +72,7 @@ def generate_az_el_graph(
         )
     )
 
+    # Markers for n-point scan
     if rotor_loc_npoint_live:
         fig.add_trace(
             go.Scatter(
@@ -83,6 +84,7 @@ def generate_az_el_graph(
             )
         )
 
+    # Arrows showing telescope route
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
     # If the motor moves in both axis at a time
         if current_motor in ("NONE", "ALFASPID", "PUSHROD"): # IS THIS LIST OK?
