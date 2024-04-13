@@ -508,6 +508,22 @@ class SmallRadioTelescopeDaemon:
         self.keep_running = False
         self.radio_queue.put(("is_running", self.keep_running))
 
+    def play_sound(self):
+        """Stops the Daemon Process
+
+        Returns
+        -------
+        None
+        """
+        if self.play_sounds == "Yes":
+            self.command.replace('playsound ', '')
+            self.command = "\"" + self.command + "\""
+            try:
+                subprocess.call(['speech-dispatcher'])
+                subprocess.call(['spd-say', self.command])
+            except:
+                print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
+
     def update_ephemeris_location(self):
         """Periodically Updates Object Locations for Tracking Sky Objects
 
@@ -780,6 +796,8 @@ class SmallRadioTelescopeDaemon:
                     self.calibrate()
                 elif command_name == "quit":
                     self.quit()
+                elif command_name == "playsound":
+                    self.play_sound()
                 elif command_name == "record":
                     self.start_recording(
                         name=(None if len(command_parts) <= 1 else command_parts[1])
