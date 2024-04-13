@@ -231,9 +231,9 @@ class SmallRadioTelescopeDaemon:
         self.rotor_offsets = (0.0, 0.0)
         self.ephemeris_cmd_location = object_id
 
-        if self.play_sounds == "Yes":
+        if self.play_sounds == True:
             try:
-                subprocess.call(['speech-dispatcher'])
+                subprocess.call(['speech-dispatcher'], stdout=subprocess.DEVNULL)
                 subprocess.call(['spd-say', '"N-point scan has finished"'])
             except:
                 print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
@@ -508,19 +508,19 @@ class SmallRadioTelescopeDaemon:
         self.keep_running = False
         self.radio_queue.put(("is_running", self.keep_running))
 
-    def play_sound(self):
+    def play_sound(self, command):
         """Stops the Daemon Process
 
         Returns
         -------
         None
         """
-        if self.play_sounds == "Yes":
-            self.command.replace('playsound ', '')
-            self.command = "\"" + self.command + "\""
+        if self.play_sounds == True:
+            command = command.replace('playsound ', '')
+            command = "\"" + command + "\""
             try:
-                subprocess.call(['speech-dispatcher'])
-                subprocess.call(['spd-say', self.command])
+                subprocess.call(['speech-dispatcher'], stdout=subprocess.DEVNULL)
+                subprocess.call(['spd-say', command])
             except:
                 print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
 
@@ -797,7 +797,7 @@ class SmallRadioTelescopeDaemon:
                 elif command_name == "quit":
                     self.quit()
                 elif command_name == "playsound":
-                    self.play_sound()
+                    self.play_sound(command=command)
                 elif command_name == "record":
                     self.start_recording(
                         name=(None if len(command_parts) <= 1 else command_parts[1])
