@@ -38,4 +38,5 @@ G90
 record g90.fits
 250
 roff
+playsound Observations completed
 stow
