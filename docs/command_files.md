@@ -19,6 +19,7 @@ The SRT software accepts commands in order to change settings at runtime as well
 | freq         | [cf]       |       | Sets Center Frequency in MHz to 'cf'       |
 | samp         | [sf]       |       | Sets Sampling Frequency in MHz to 'sf'     |
 | wait         | [time]     |       | Stops Execution and Waits for 'time' Secs. |
+| playsound    | [string]   |       | Uses Speech Dispatcher to declaim text     |
 | [time]       | None       |       | Waits for 'time' Seconds                   |
 | LST:hh:mm:ss | None       |       | Waits Until Next Time hh:mm:ss in UTC      |
 | Y:D:H:M:S    | None       |       | Waits Until Year:DayOfYear:Hour:Minute:Sec |
