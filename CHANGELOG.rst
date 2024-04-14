@@ -4,7 +4,7 @@ srt-py Change Log
 
 .. current developments
 
-vv1.1.1
+v1.1.1
 ====================
 
 **Added:**
@@ -14,7 +14,7 @@ vv1.1.1
 
 
 
-vv1.1.0
+v1.1.0
 ====================
 
 **Added:**
