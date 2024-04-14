@@ -5,3 +5,4 @@ record
 wait 50
 roff
 stow
+playsound All commands completed
