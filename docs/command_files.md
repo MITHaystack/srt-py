@@ -5,25 +5,25 @@ Note: The SRT 2020 software uses a command syntax heavily influenced by the comm
 
 The SRT software accepts commands in order to change settings at runtime as well as control the running operations.  All commands are funneled into a command queue, which will execute them in order of being received.  Parameters for a command should be separated by spaces.  Most commands are not case sensitive and do not care about excess whitespace.
 
-| Command      | Parameters | Notes |Info                                        |
-|--------------|------------|-------|--------------------------------------------|
-| *            | Any text   | 1     | Makes Line a Comment                       |
-| stow         | None       |       | Sends the Antenna to Stow                  |
-| cal          | None       |       | Sends the Antenna to Calibration Position  |
-| calibrate    | None       | 2     | Saves Current Spec as Calibration Data     |
-| quit         | None       | 3     | Stows and Gracefully Closes Daemon         |
-| record       | [filename] | 4     | Starts Saving into File of Name 'filename' |
-| roff         | None       |       | Ends Current Recording if Applicable       |
-| azel         | [az] [el]  |       | Points at Azimuth 'az', Elevation 'el'     |
-| offset       | [az] [el]  |       | Offsets from Current Object by 'az', 'el'  |
-| freq         | [cf]       |       | Sets Center Frequency in MHz to 'cf'       |
-| samp         | [sf]       |       | Sets Sampling Frequency in MHz to 'sf'     |
-| wait         | [time]     |       | Stops Execution and Waits for 'time' Secs. |
-| playsound    | [string]   |       | Uses Speech Dispatcher to declaim text     |
-| [time]       | None       |       | Waits for 'time' Seconds                   |
-| LST:hh:mm:ss | None       |       | Waits Until Next Time hh:mm:ss in UTC      |
-| Y:D:H:M:S    | None       |       | Waits Until Year:DayOfYear:Hour:Minute:Sec |
-| [name]       | [n] or [b] | 5     | Points Antenna at Object named 'name'      |
+| Command      | Parameters | Notes |Info                                             |
+|--------------|------------|-------|-------------------------------------------------|
+| *            | Any text   | 1     | Makes Line a Comment                            |
+| stow         | None       |       | Sends the Antenna to Stow                       |
+| cal          | None       |       | Sends the Antenna to Calibration Position       |
+| calibrate    | None       | 2     | Saves Current Spec as Calibration Data          |
+| quit         | None       | 3     | Stows and Gracefully Closes Daemon              |
+| record       | [filename] | 4     | Starts Saving into File of Name 'filename'      |
+| roff         | None       |       | Ends Current Recording if Applicable            |
+| azel         | [az] [el]  |       | Points at Azimuth 'az', Elevation 'el'          |
+| offset       | [az] [el]  |       | Offsets from Current Object by 'az', 'el'       |
+| freq         | [cf]       |       | Sets Center Frequency in MHz to 'cf'            |
+| samp         | [sf]       |       | Sets Sampling Frequency in MHz to 'sf'          |
+| wait         | [time]     |       | Stops Execution and Waits for 'time' Secs.      |
+| playsound    | [string]   |       | Uses Ubuntu's Speech Dispatcher to declaim text |
+| [time]       | None       |       | Waits for 'time' Seconds                        |
+| LST:hh:mm:ss | None       |       | Waits Until Next Time hh:mm:ss in UTC           |
+| Y:D:H:M:S    | None       |       | Waits Until Year:DayOfYear:Hour:Minute:Sec      |
+| [name]       | [n] or [b] | 5     | Points Antenna at Object named 'name'           |
 
 Additional Notes:
  1. Only is considered a comment if the line starts with '\*'.
