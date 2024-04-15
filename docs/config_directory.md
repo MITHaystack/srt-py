@@ -148,7 +148,7 @@ PLAY_SOUNDS: Yes
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.
-* The first column is the coordinate system of the celestial object, which supports any coordinate system name recognized by AstroPy, and has been tested with 'fk4' and 'galactic'.
+* The first column is the coordinate system of the celestial object, which supports any coordinate system name [recognized by AstroPy](https://docs.astropy.org/en/stable/coordinates/index.html#built-in-frame-classes), and has been tested with 'fk4' and 'galactic'.
 * The next two columns are the first and second coordinate of the object, such as ra and dec for fk4 and l and b for galactic.
 * The last column is the name of the object.
 
