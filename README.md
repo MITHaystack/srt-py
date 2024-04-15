@@ -226,6 +226,7 @@ srt_controller.py status --status_parameter=motor_azel
 - plotly
 - pandas
 - waitress
+- ocl-icd-system
 
 ## Accommodating Different Hardware
 
