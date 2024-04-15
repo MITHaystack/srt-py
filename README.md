@@ -29,7 +29,7 @@ git clone https://github.com/AlexKurek/srt-py
 Ensure that you have `conda-build` and `conda-verify` installed
 
 ```
-conda install conda-build conda-verify
+conda install -y conda-build conda-verify
 ```
 
 Build the conda package
