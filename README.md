@@ -20,18 +20,80 @@ This software is written in pure Python, and so depends on having an installed v
 
 ### Building the Conda Package Locally
 
-After downloading the srt-py source repository, open up a command prompt or terminal with conda installed and navigate to the folder containing the srt-py directory.  Additionally, ensure that you have conda-build and conda-verify installed
+Download srt-py source repository using command prompt or terminal with conda installed:
+```
+conda update -y --all
+git clone https://github.com/AlexKurek/srt-py
+```
+
+Ensure that you have `conda-build` and `conda-verify` installed
 
 ```
 conda install conda-build conda-verify
 ```
 
-Build and install the conda package
+Build the conda package
 
 ```
-conda-build srt-py
-conda install -c file://${CONDA_PREFIX}/conda-bld/ srt-py
+conda build -c conda-forge srt-py --no-test --no-anaconda-upload
 ```
+
+Create a new conda env, switch it to the conda-forge channel and activate it.
+
+```
+conda create -y -n srtpy
+conda activate srtpy
+conda config --env --add channels conda-forge
+conda config --env --set channel_priority strict
+```
+
+Install the package
+
+```
+conda install -y --use-local srt-py
+```
+
+Copy config files and an exemplary command file to your HOME:
+
+```
+mkdir ~/.srtpy-config/
+cp -r ~/srt-py/config/{config.yaml,schema.yaml,sky_coords.csv} ~/.srtpy-config/
+cp -r ~/srt-py/examples/example_cmd_file.txt ~/
+rm -rf ~/srt-py/
+```
+
+Enable udev device setup of rtl-sdr hardware
+
+```
+sudo ln -s ~/miniconda3/envs/srtpy/lib/udev/rules.d/rtl-sdr.rules /etc/udev/rules.d/
+```
+
+Reload your udev rules
+
+```
+sudo udevadm control --reload && sudo udevadm trigger
+```
+
+Cleanup
+
+```
+conda deactivate
+conda build purge
+```
+
+If you have Ubuntu 22 and getting https://askubuntu.com/questions/1403705/dev-ttyusb0-not-present-in-ubuntu-22-04
+
+```
+sudo apt purge brltty
+sudo rm -rv /var/lib/BrlAPI/
+```
+
+If you are getting `Cannot open /dev/ttyUSB0: Permission denied`
+```
+sudo usermod -a -G tty,dialout $USER
+```
+
+Do a proper logout or reboot.
 
 ### Building the Pip Package Locally (Not Recommended due to Dependency Issues)
 
