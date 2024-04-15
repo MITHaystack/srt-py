@@ -38,7 +38,7 @@ Build the conda package
 conda build -c conda-forge srt-py --no-test --no-anaconda-upload
 ```
 
-Create a new conda env, switch it to the conda-forge channel and activate it.
+Create a new conda env, switch it to the conda-forge channel and activate it
 
 ```
 conda create -y -n srtpy
