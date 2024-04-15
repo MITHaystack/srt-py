@@ -9,31 +9,31 @@ Current developments:
 
 * ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS`` parameters
 * CASSI motor support
-* baudrate check in H180 abd CASSI classes
-* non-physical limit warning
-* windrose letters and lines
-* shape drawing buttons to modebar and ``togglespikelines``, ``togglehover``
-* drawing of n-point scan points on az-el graph
-* drawing arrows showing motor route
-* playsound command
+* Baudrate check for H180 and CASSI motors classes
+* Non-physical limit warning
+* Windrose letters and lines in Azimuth and Elevation Graph
+* Buttons to modebar: all shape drawing,  ``togglespikelines`` and ``togglehover``
+* Drawing of n-point scan points on az-el graph
+* Drawing arrows showing motor route
+* ``playsound`` command
 * ``rot_curve.txt`` command file
 
 **Changed:**
 
 * Remember zoom after refresh in Azimuth and Elevation Graph
-* hide Plotly logo
-* enabe scroll zoom
+* Hide Plotly logo
+* Enabe scroll zoom
 * ``monitor_page.png``
 
 **Fixed:**
 
-* ~ not expanded when searching for default config dir (https://github.com/MITHaystack/srt-py/issues/23)
+* Searching for default config dir (https://github.com/MITHaystack/srt-py/issues/23)
 * Astropy deprecations
-* H180 class init (https://github.com/MITHaystack/srt-py/issues/21) and updating self.az_count, self.el_count (https://github.com/MITHaystack/srt-py/issues/24)
-* scan numbering
+* H180 class: init (https://github.com/MITHaystack/srt-py/issues/21) and updating ``self.az_count``, ``self.el_count`` (https://github.com/MITHaystack/srt-py/issues/24)
+* Scan numbering
 * Conda build error (https://github.com/MITHaystack/srt-py/issues/19)
 * Scan center not updated during scan (https://github.com/MITHaystack/srt-py/issues/25)
-* negative STOW azimuth
+* Visability rectangle for negative STOW azimuth
 
 
 
