@@ -72,8 +72,9 @@ def generate_az_el_graph(
         )
     )
 
-    # Markers for n-point scan
+    # N-point scan
     if rotor_loc_npoint_live:
+        # Markers
         fig.add_trace(
             go.Scatter(
                 x=[i[0] for i in rotor_loc_npoint_live],
@@ -83,6 +84,31 @@ def generate_az_el_graph(
                 marker_color=["greenyellow" for _ in rotor_loc_npoint_live],
             )
         )
+        # Arrows
+        print(rotor_loc_npoint_live)
+        if len(rotor_loc_npoint_live[0]) >1:
+            print(rotor_loc_npoint_live)
+            # x_start = [, ]
+            # x_end   = [, ]
+            # y_start = [, ]
+            # y_end   = [, ]
+            # for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
+            #     fig.add_annotation(
+            #         x=x0,
+            #         y=y0,
+            #         ax=x1,
+            #         ay=y1,
+            #         axref = 'x',
+            #         ayref = 'y',
+            #         xref = 'x',
+            #         yref = 'y',
+            #         arrowcolor='lawngreen',
+            #         arrowwidth=2.5,
+            #         arrowside='end',
+            #         arrowsize=1,
+            #         arrowhead = 3,
+            #         opacity=0.4,
+            #         )
 
     # Arrows showing telescope route
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
@@ -107,9 +133,9 @@ def generate_az_el_graph(
         # If the motor moves in only one of the axis at a time
         if current_motor in ("CASSI", "H180MOUNT"):
             x_start = [current_location[0], current_location[0]]
-            x_end   = [current_location[0], motor_cmd_azel[0]]
-            y_start = [current_location[1], motor_cmd_azel[1]]
-            y_end   = [motor_cmd_azel[1],   motor_cmd_azel[1]]
+            x_end   = [current_location[0], motor_cmd_azel[0]  ]
+            y_start = [current_location[1], motor_cmd_azel[1]  ]
+            y_end   = [motor_cmd_azel[1],   motor_cmd_azel[1]  ]
             for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
                 fig.add_annotation(
                     x=x0,
