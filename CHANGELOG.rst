@@ -18,6 +18,7 @@ srt-py Change Log
 * ``playsound`` command
 * Optional sound when n-point scan is complete
 * ``rot_curve.txt`` command file
+* ``ocl-icd-system`` to the recipe to avoid https://github.com/MITHaystack/srt-py/issues/21#issuecomment-1963827916
 
 **Changed:**
 
