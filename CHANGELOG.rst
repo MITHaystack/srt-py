@@ -3,7 +3,7 @@ srt-py Change Log
 =================
 
 
-Current developments:
+**Current developments:**
 
 **Added:**
 
@@ -16,6 +16,7 @@ Current developments:
 * Drawing of n-point scan points on az-el graph
 * Drawing arrows showing motor route
 * ``playsound`` command
+* Optional sound when n-point scan is complete
 * ``rot_curve.txt`` command file
 
 **Changed:**
