@@ -250,7 +250,7 @@ Adding a new antenna motor therefore requires:
 - Making the string name for that motor create that motor in  [rotors.py](srt/daemon/rotor_control/rotors.py)
 - Adding the string name as an valid option in the [YAML schema](config/schema.yaml) MOTOR_TYPE so the new type will be considered valid, such as:
 ```
-MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT', 'PUSHROD', 'NONE')
+MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT', 'PUSHROD', 'NONE', 'CASSI')
 ```
 - Changing the MOTOR_TYPE in your own configuration YAML to the new motor type
 - Adding the string name to the condition in `generate_az_el_graph` method in [graphs.py](https://github.com/AlexKurek/srt-py/blob/master/srt/dashboard/layouts/graphs.py).
