@@ -58,7 +58,7 @@ Copy config files and an exemplary command file to your HOME:
 ```
 mkdir ~/.srtpy-config/
 cp -r ~/srt-py/config/{config.yaml,schema.yaml,sky_coords.csv} ~/.srtpy-config/
-cp -r ~/srt-py/examples/example_cmd_file.txt ~/
+cp ~/srt-py/examples/example_cmd_file.txt ~/
 rm -rf ~/srt-py/
 ```
 
