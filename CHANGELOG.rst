@@ -26,6 +26,7 @@ srt-py Change Log
 * Hide Plotly logo
 * Enabe scroll zoom
 * ``monitor_page.png``
+* fk4 to icrs in ``sky_coords.csv``
 
 **Fixed:**
 
