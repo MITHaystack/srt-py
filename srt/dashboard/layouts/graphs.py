@@ -22,6 +22,7 @@ def generate_az_el_graph(
     rotor_loc_npoint_live,
     motor_cmd_azel,
     minimal_arrows_distance,
+    npoint_arrows,
     current_motor
 ):
     """Generates Figure for Displaying AzEl Locations
@@ -85,30 +86,40 @@ def generate_az_el_graph(
             )
         )
         # Arrows
-        print(rotor_loc_npoint_live)
-        if len(rotor_loc_npoint_live[0]) >1:
-            print(rotor_loc_npoint_live)
-            # x_start = [, ]
-            # x_end   = [, ]
-            # y_start = [, ]
-            # y_end   = [, ]
-            # for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
-            #     fig.add_annotation(
-            #         x=x0,
-            #         y=y0,
-            #         ax=x1,
-            #         ay=y1,
-            #         axref = 'x',
-            #         ayref = 'y',
-            #         xref = 'x',
-            #         yref = 'y',
-            #         arrowcolor='lawngreen',
-            #         arrowwidth=2.5,
-            #         arrowside='end',
-            #         arrowsize=1,
-            #         arrowhead = 3,
-            #         opacity=0.4,
-            #         )
+        if npoint_arrows == True:
+            # az col 0, el col 1
+            print("before condition: ", rotor_loc_npoint_live)
+            print("before condition nrow: ", len(rotor_loc_npoint_live))
+            if len(rotor_loc_npoint_live) >1:
+                print("after condition:  ", rotor_loc_npoint_live)
+                print("after condition nrow: ", len(rotor_loc_npoint_live))    # nrow
+                print("after condition ncol: ", len(rotor_loc_npoint_live[0])) # ncol
+
+                azzz = [col[0] for col in rotor_loc_npoint_live]
+                elll = [col[1] for col in rotor_loc_npoint_live]
+                print("azzz: ", azzz)
+                print("elll: ", elll)
+                # x_start = [, ]
+                # x_end   = [, ]
+                # y_start = [, ]
+                # y_end   = [, ]
+                # for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
+                #     fig.add_annotation(
+                #         x=x0,
+                #         y=y0,
+                #         ax=x1,
+                #         ay=y1,
+                #         axref = 'x',
+                #         ayref = 'y',
+                #         xref = 'x',
+                #         yref = 'y',
+                #         arrowcolor='lawngreen',
+                #         arrowwidth=2.5,
+                #         arrowside='end',
+                #         arrowsize=1,
+                #         arrowhead = 2,
+                #         opacity=0.3,
+                #         )
 
     # Arrows showing telescope route
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
