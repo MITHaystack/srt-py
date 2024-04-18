@@ -328,7 +328,9 @@ class CassiMotor(Motor):
     Based on the h180 function from the C SRT code:
     ftp://gemini.haystack.mit.edu/pub/web/src/source_srt_newsrtsource_ver9.tar.gz
 
-    Copied from H180Motor class with correction for Cassi Corp. motor type. Corrections taken from the Java version of SRT.
+    Copied from H180Motor class with correction for Cassi Corp. motor type.
+    Corrections taken from the Java version of SRT. This motor has a linear
+    actuator for elevation movement SuperPowerJack QARL-3636+
     """
 
     # AZCOUNTS_PER_DEG = 52.0 * 27.0 / 120.0

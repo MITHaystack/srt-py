@@ -99,27 +99,27 @@ def generate_az_el_graph(
                 elll = [col[1] for col in rotor_loc_npoint_live]
                 print("azzz: ", azzz)
                 print("elll: ", elll)
-                # x_start = [, ]
-                # x_end   = [, ]
-                # y_start = [, ]
-                # y_end   = [, ]
-                # for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
-                #     fig.add_annotation(
-                #         x=x0,
-                #         y=y0,
-                #         ax=x1,
-                #         ay=y1,
-                #         axref = 'x',
-                #         ayref = 'y',
-                #         xref = 'x',
-                #         yref = 'y',
-                #         arrowcolor='lawngreen',
-                #         arrowwidth=2.5,
-                #         arrowside='end',
-                #         arrowsize=1,
-                #         arrowhead = 2,
-                #         opacity=0.3,
-                #         )
+                x_start = azzz[1:]  # wszystkie azymuty oprócz ostatniego
+                x_end   = azzz[-1:] #                          pierwszego
+                y_start = elll[1:]  #           elewacje       pierwszej
+                y_end   = elll[-1:] #                          ostatniej
+                for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
+                    fig.add_annotation(
+                        x=x0,
+                        y=y0,
+                        ax=x1,
+                        ay=y1,
+                        axref = 'x',
+                        ayref = 'y',
+                        xref = 'x',
+                        yref = 'y',
+                        arrowcolor='lawngreen',
+                        arrowwidth=2.5,
+                        arrowside='end',
+                        arrowsize=1,
+                        arrowhead = 2,
+                        opacity=0.3,
+                        )
 
     # Arrows showing telescope route
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
