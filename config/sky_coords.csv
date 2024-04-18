@@ -1,19 +1,19 @@
 coordinate_system,coordinate_a,coordinate_b,name
-fk4,05 31 30,21 58 00,Crab
-fk4,05 32 48,-5 27 00,Orion
-fk4,05 42 00,-1 00 00,S8
-fk4,23 21 12,58 44 00,Cass
-fk4,17 42 54,-28 50 00,SgrA
-fk4,06 29 12,04 57 00,Rosett
-fk4,18 17 30,-16 18 00,M17
-fk4,20 27 00,41 00 00,CygEMN
-fk4,21 12 00,48 00 00,G90
-fk4,05 40 00,29 00 00,G180
-fk4,12 48 00,28 00 00,GNpole
-fk4,00 39 00,40 30 00,Androm
-fk4,05 14 12,18 44 00,AC1
-fk4,03 29 00,54 00 00,PULSAR
-fk4,08 30 00,-45 00 00,PS
+icrs, 05 34 31,  22 00 53, Crab
+icrs, 05 35 17,  -5 23 24, Orion
+icrs, 05 44 33,  -0 58 47, S8
+icrs, 23 23 28,  59 00 28, Cass
+icrs, 17 46 04, -28 51 08, SgrA
+icrs, 06 31 51,  04 54 47, Rosett
+icrs, 18 20 23, -16 16 37, M17
+icrs, 20 28 47,  41 10 03, CygEMN
+icrs, 21 13 44,  48 12 27, G90
+icrs, 05 43 11,  29 01 20, G180
+icrs, 12 50 26,  27 43 41, GNpole
+icrs, 00 41 44,  40 46 27, Androm
+icrs, 05 17 08,  18 47 13, AC1
+icrs, 03 32 47,  54 10 07, PULSAR
+icrs, 08 31 41, -45 10 13, PS
 galactic,10,1,RC_CLOUD
 galactic,00,0,G00
 galactic,10,0,G10
