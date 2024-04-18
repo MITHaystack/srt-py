@@ -145,6 +145,11 @@ DASHBOARD_THREADS: 8
 PLAY_SOUNDS: Yes
 ```
 
+* NPOINT_ARROWS - Whether to display arrows showing the motor route during n-point scanning.
+```YAML
+NPOINT_ARROWS: Yes
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.
