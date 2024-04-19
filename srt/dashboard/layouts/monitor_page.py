@@ -656,7 +656,8 @@ def register_callbacks(
     )
     def update_output(contents, name, date):
         if contents is not None:
-            content_type, content_string = contents.split(",")
+            # content_type, content_string = contents.split(",")
+            _, content_string = contents.split(",")
             decoded = base64.b64decode(content_string)
             try:
                 if "txt" in name or "cmd" in name:
