@@ -89,20 +89,24 @@ def generate_az_el_graph(
         if npoint_arrows == True:
             # az col 0, el col 1
             print("before condition: ", rotor_loc_npoint_live)
-            print("before condition nrow: ", len(rotor_loc_npoint_live))
+            # print("before condition nrow: ", len(rotor_loc_npoint_live))
             if len(rotor_loc_npoint_live) >1:
-                print("after condition:  ", rotor_loc_npoint_live)
-                print("after condition nrow: ", len(rotor_loc_npoint_live))    # nrow
-                print("after condition ncol: ", len(rotor_loc_npoint_live[0])) # ncol
+                # print("after condition:  ", rotor_loc_npoint_live)
+                # print("after condition nrow: ", len(rotor_loc_npoint_live))    # nrow
+                # print("after condition ncol: ", len(rotor_loc_npoint_live[0])) # ncol
 
                 azzz = [col[0] for col in rotor_loc_npoint_live]
                 elll = [col[1] for col in rotor_loc_npoint_live]
                 print("azzz: ", azzz)
                 print("elll: ", elll)
                 x_start = azzz[1:]  # wszystkie azymuty oprócz ostatniego
-                x_end   = azzz[-1:] #                          pierwszego
+                x_end   = azzz[:-1] #                          pierwszego
                 y_start = elll[1:]  #           elewacje       pierwszej
-                y_end   = elll[-1:] #                          ostatniej
+                y_end   = elll[:-1] #                          ostatniej
+                print("x_start: ", x_start)
+                print("x_end:   ", x_end)
+                print("y_start: ", y_start)
+                print("y_end:   ", y_end)
                 for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
                     fig.add_annotation(
                         x=x0,
@@ -143,10 +147,11 @@ def generate_az_el_graph(
                 )
         # If the motor moves in only one of the axis at a time
         if current_motor in ("CASSI", "H180MOUNT"):
-            x_start = [current_location[0], current_location[0]]
-            x_end   = [current_location[0], motor_cmd_azel[0]  ]
-            y_start = [current_location[1], motor_cmd_azel[1]  ]
-            y_end   = [motor_cmd_azel[1],   motor_cmd_azel[1]  ]
+            x_start = [current_location[0], motor_cmd_azel[0]  ]
+            x_end   = [motor_cmd_azel[0],   motor_cmd_azel[0]  ]
+            y_start = [current_location[1], current_location[1]]
+            y_end   = [current_location[1],  motor_cmd_azel[1] ]
+
             for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
                 fig.add_annotation(
                     x=x0,
