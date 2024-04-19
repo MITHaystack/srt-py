@@ -87,26 +87,15 @@ def generate_az_el_graph(
         )
         # Arrows
         if npoint_arrows == True:
-            # az col 0, el col 1
-            print("before condition: ", rotor_loc_npoint_live)
-            # print("before condition nrow: ", len(rotor_loc_npoint_live))
             if len(rotor_loc_npoint_live) >1:
-                # print("after condition:  ", rotor_loc_npoint_live)
-                # print("after condition nrow: ", len(rotor_loc_npoint_live))    # nrow
-                # print("after condition ncol: ", len(rotor_loc_npoint_live[0])) # ncol
-
                 azzz = [col[0] for col in rotor_loc_npoint_live]
                 elll = [col[1] for col in rotor_loc_npoint_live]
                 print("azzz: ", azzz)
                 print("elll: ", elll)
-                x_start = azzz[1:]  # wszystkie azymuty oprócz ostatniego
-                x_end   = azzz[:-1] #                          pierwszego
-                y_start = elll[1:]  #           elewacje       pierwszej
-                y_end   = elll[:-1] #                          ostatniej
-                print("x_start: ", x_start)
-                print("x_end:   ", x_end)
-                print("y_start: ", y_start)
-                print("y_end:   ", y_end)
+                x_end   = azzz[1:]
+                x_start = azzz[:-1]
+                y_end   = elll[1:]
+                y_start = elll[:-1]
                 for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
                     fig.add_annotation(
                         x=x0,
@@ -117,7 +106,7 @@ def generate_az_el_graph(
                         ayref = 'y',
                         xref = 'x',
                         yref = 'y',
-                        arrowcolor='lawngreen',
+                        arrowcolor='limegreen',
                         arrowwidth=2.5,
                         arrowside='end',
                         arrowsize=1,
