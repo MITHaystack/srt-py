@@ -21,6 +21,7 @@ srt-py Change Log
 * ``ocl-icd-system`` to the recipe to avoid https://github.com/MITHaystack/srt-py/issues/21#issuecomment-1963827916
 * Optional arrows showing route of n-point scan
 * ``test_azel_to_object_coords.py``, ``test_object_coords_to_azel.py``
+* Recording indicator to system page
 
 **Changed:**
 
