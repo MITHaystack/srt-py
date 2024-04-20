@@ -299,7 +299,7 @@ def generate_app(config_dir, config_dict):
         if rec_status == "Yes":
             status_string = f"""
             #  {status_string}
-            - Currently recording: Yes """
+            - Currently recording: **Yes** """
 
         status_string = f"""
          #### {status_string}
