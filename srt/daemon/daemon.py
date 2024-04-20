@@ -666,6 +666,7 @@ class SmallRadioTelescopeDaemon:
                 "minimal_arrows_distance": self.minimal_arrows_distance,
                 "npoint_arrows": self.npoint_arrows,
                 "current_motor": self.motor_type,
+                "radio_save_task": str(self.radio_save_task),
                 "time": time(),
             }
             status_socket.send_json(status)

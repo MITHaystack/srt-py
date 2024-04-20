@@ -271,6 +271,7 @@ def generate_app(config_dir, config_dict):
             bandwidth = np.nan
             status_string = "SRT Not Connected"
             vlsr = np.nan
+            rec_status = "No"
         else:
             az = status["motor_azel"][0]
             el = status["motor_azel"][1]
@@ -279,6 +280,13 @@ def generate_app(config_dir, config_dict):
             cf = status["center_frequency"]
             bandwidth = status["bandwidth"]
             vlsr = status["vlsr"]
+            # print(status["radio_save_task"])
+            # print(type(status["radio_save_task"]))
+            # if "None" in status["radio_save_task"]:
+            #     rec_status = "No"
+            rec_status = "No"
+            if "None" not in status["radio_save_task"]:
+                rec_status = "Yes"
             time_dif = time() - status["time"]
             if time_dif > 5:
                 status_string = "SRT Daemon Not Available"
@@ -286,6 +294,16 @@ def generate_app(config_dir, config_dict):
                 status_string = "SRT Inactive"
             else:
                 status_string = "SRT In Use!"
+
+        if rec_status == "No":
+            status_string = f"""
+            # {status_string}
+            - Currently recording: No """
+
+        if rec_status == "Yes":
+            status_string = f"""
+            #  {status_string}
+            - Currently recording: Yes """
 
         status_string = f"""
          #### {status_string}
