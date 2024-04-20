@@ -72,7 +72,7 @@ def generate_first_row():
 
 
 def generate_fig_row():
-    """Generates First Row (Power and Spectrum) Display
+    """Generates Fig Row (N-point and Beam-switch) Display
 
     Returns
     -------
@@ -88,7 +88,7 @@ def generate_fig_row():
                         className="pretty_container six columns",
                     ),
                     # html.Div(
-                    #     [dcc.Graph(id="beamsswitch-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']})],
+                    #     [dcc.Graph(id="beamswitch-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']})],
                     #     className="pretty_container six columns",
                     # ),
                 ],
