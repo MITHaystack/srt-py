@@ -50,13 +50,19 @@ def generate_first_row():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="power-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']})],
+                        [dcc.Graph(id="power-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                              ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                                               'drawrect', 'eraseshape']})],
                         className="pretty_container six columns",
                     ),
                     html.Div(
                         [
-                            dcc.Graph(id="cal-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']}),
-                            dcc.Graph(id="raw-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']}),
+                            dcc.Graph(id="cal-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                                            ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath',
+                                                                             'drawcircle', 'drawrect', 'eraseshape']}),
+                            dcc.Graph(id="raw-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                                            ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 
+                                                                             'drawcircle', 'drawrect', 'eraseshape']}),
                         ],
                         className="pretty_container six columns",
                     ),
@@ -76,7 +82,7 @@ def generate_fig_row():
 
     Returns
     -------
-    Div Containing First Row Objects
+    Div Containing Fig Row Objects
     """
     return html.Div(
         [
@@ -84,11 +90,15 @@ def generate_fig_row():
                 [
                     dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="npoint-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']})],
+                        [dcc.Graph(id="npoint-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                                                'drawrect', 'eraseshape']})],
                         className="pretty_container six columns",
                     ),
                     # html.Div(
-                    #     [dcc.Graph(id="beamswitch-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']})],
+                    #     [dcc.Graph(id="beamswitch-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                    #                                                ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                    #                                                 'drawrect', 'eraseshape']})],
                     #     className="pretty_container six columns",
                     # ),
                 ],
@@ -457,7 +467,9 @@ def generate_layout():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="az-el-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'drawrect', 'eraseshape']})],
+                        [dcc.Graph(id="az-el-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                              ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                                               'drawrect', 'eraseshape']})],
                         className="pretty_container twelve columns",
                     ),
                 ],
