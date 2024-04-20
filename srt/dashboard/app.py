@@ -280,10 +280,6 @@ def generate_app(config_dir, config_dict):
             cf = status["center_frequency"]
             bandwidth = status["bandwidth"]
             vlsr = status["vlsr"]
-            # print(status["radio_save_task"])
-            # print(type(status["radio_save_task"]))
-            # if "None" in status["radio_save_task"]:
-            #     rec_status = "No"
             rec_status = "No"
             if "None" not in status["radio_save_task"]:
                 rec_status = "Yes"
