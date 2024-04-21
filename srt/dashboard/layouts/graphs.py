@@ -90,8 +90,6 @@ def generate_az_el_graph(
             if len(rotor_loc_npoint_live) >1:
                 azzz = [col[0] for col in rotor_loc_npoint_live]
                 elll = [col[1] for col in rotor_loc_npoint_live]
-                print("azzz: ", azzz)
-                print("elll: ", elll)
                 x_end   = azzz[1:]
                 x_start = azzz[:-1]
                 y_end   = elll[1:]
@@ -406,6 +404,69 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     )
     return fig
 
+def generate_waterfall_graph(bandwidth, cf, spectrum_history):
+    """Generates a Waterfall Graph of Spectrum Data
+
+    Parameters
+    ----------
+    bandwidth : float
+        Bandwidth of the Incoming Spectra
+    cf : float
+        Center Frequency of the Incoming Spectra
+    spectrum_history : [(int, ndarary)]
+        List of Spectrum Samples
+
+    Returns
+    -------
+    Plotly Graph Object of Waterfall Spectrum
+    """
+    waterfall = []
+    timestamps = []
+    for t, spectrum in spectrum_history:
+        waterfall.append(list(spectrum))
+        timestamps.append(t)
+
+    if len(waterfall) == 0:
+        return ""
+    else:
+        if cf > pow(10, 9):
+            cf /= pow(10, 9)
+            bandwidth /= pow(10, 9)
+            xaxis = "Frequency (GHz)"
+        elif cf > pow(10, 6):
+            cf /= pow(10, 6)
+            bandwidth /= pow(10, 6)
+            xaxis = "Frequency (MHz)"
+        elif cf > pow(10, 3):
+            cf /= pow(10, 3)
+            bandwidth /= pow(10, 3)
+            xaxis = "Frequency (kHz)"
+        else:
+            xaxis = "Frequency (Hz)"
+        fig = go.Figure(
+            layout={
+                "title": "Raw Spectrum History",
+                "xaxis_title": xaxis,
+                "yaxis_title": "Time",
+                "height": 300,
+                "margin": dict(
+                    l=20,
+                    r=20,
+                    b=20,
+                    t=30,
+                    pad=4,
+                ),
+                "uirevision": True,
+            },
+        )
+        data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(waterfall[0])) + cf
+        # https://plotly.com/python/builtin-colorscales/
+        fig.add_trace(
+            go.Heatmap(colorbar={"title": "Temp.<br>(Unitless)"}, y=[datetime.utcfromtimestamp(t) for t in timestamps], x=data_range , 
+                       z=waterfall, colorscale = 'RdBu_r')
+            )
+
+        return fig
 
 def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
     """Generates a Graph of Spectrum Data

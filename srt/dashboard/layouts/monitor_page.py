@@ -32,6 +32,7 @@ from .navbar import generate_navbar
 from .graphs import (
     generate_az_el_graph,
     generate_power_history_graph,
+    generate_waterfall_graph,
     generate_spectrum_graph,
     generate_npoint,
     emptygraph,
@@ -111,6 +112,33 @@ def generate_fig_row():
         ]
     )
 
+def generate_second_fig_row():
+    """Generates Second Fig Row (Waterfall Plot and Cross Scan) Display
+
+    Returns
+    -------
+    Div Containing Second Fig Row Objects
+    """
+    return html.Div(
+        [
+            html.Div(
+                [
+                    # dcc.Store(id="npoint_info", storage_type="session"),
+                    html.Div(
+                        [dcc.Graph(id="waterfall-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                                                'drawrect', 'eraseshape']})],
+                        className="pretty_container six columns",
+                    ),
+                ],
+                className="flex-display",
+                style={
+                    "justify-content": "left",
+                    "margin": "5px",
+                },
+            ),
+        ]
+    )
 
 def generate_popups():
     """Generates all 'Pop-up' Modal Components
@@ -477,6 +505,7 @@ def generate_layout():
                 style={"margin": dict(l=10, r=5, t=5, b=5)},
             ),
             generate_fig_row(),
+            generate_second_fig_row(),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
         ]
@@ -550,6 +579,18 @@ def register_callbacks(
         if spectrum_history is None:
             return ""
         return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history)
+
+    @app.callback(
+        Output("waterfall-graph", "figure"), [Input("interval-component", "n_intervals")]
+    )
+    def update_waterfall_graph(n):
+        spectrum_history = raw_spectrum_thread.get_history()
+        status = status_thread.get_status()
+        if status is None or spectrum_history is None:
+            return ""
+        bandwidth = float(status["bandwidth"])
+        cf = float(status["center_frequency"])
+        return generate_waterfall_graph(bandwidth, cf, spectrum_history)
 
     @app.callback(
         Output("npoint_info", "data"),

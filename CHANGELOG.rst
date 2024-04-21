@@ -22,6 +22,7 @@ srt-py Change Log
 * Optional arrows showing route of n-point scan
 * ``test_azel_to_object_coords.py``, ``test_object_coords_to_azel.py``
 * Recording indicator to system page
+* Waterfall spectrum plot
 
 **Changed:**
 
