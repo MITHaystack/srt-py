@@ -29,6 +29,7 @@ DASHBOARD_REFRESH_MS: int()
 DASHBOARD_THREADS: int()
 PLAY_SOUNDS: bool()
 NPOINT_ARROWS: bool()
+SPECTRUM_HISTORY_LENGTH: int()
 ---
 location:
     latitude: num()
