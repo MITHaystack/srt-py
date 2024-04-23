@@ -31,6 +31,7 @@ srt-py Change Log
 * Enabe scroll zoom
 * ``monitor_page.png``
 * fk4 to icrs in ``sky_coords.csv``
+* Sort the system page by newest issue first
 
 **Fixed:**
 
