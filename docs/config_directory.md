@@ -152,7 +152,7 @@ NPOINT_ARROWS: Yes
 
 * SPECTRUM_HISTORY_LENGTH - How many spectra to keep in history (memory).
 ```YAML
-SPECTRUM_HISTORY_LENGTH: Yes
+SPECTRUM_HISTORY_LENGTH: 1000
 ```
 
 ##### sky_coords.csv
