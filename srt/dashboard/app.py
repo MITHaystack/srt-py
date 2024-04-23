@@ -68,10 +68,11 @@ def generate_app(config_dir, config_dict):
     command_thread = CommandThread(port=5556)
     command_thread.start()
 
-    raw_spectrum_thread = SpectrumThread(port=5561)
+    history_length = config_dict["SPECTRUM_HISTORY_LENGTH"]
+    raw_spectrum_thread = SpectrumThread(port=5561, history_length = history_length)
     raw_spectrum_thread.start()
 
-    cal_spectrum_thread = SpectrumThread(port=5563)
+    cal_spectrum_thread = SpectrumThread(port=5563, history_length = history_length)
     cal_spectrum_thread.start()
 
     # Dictionary of Pages and matching URL prefixes
@@ -294,12 +295,12 @@ def generate_app(config_dir, config_dict):
         if rec_status == "No":
             status_string = f"""
             # {status_string}
-            - Currently recording: No """
+            - Currently recording: No"""
 
         if rec_status == "Yes":
             status_string = f"""
             #  {status_string}
-            - Currently recording: **Yes** """
+            - Currently recording: **Yes**"""
 
         status_string = f"""
          #### {status_string}
