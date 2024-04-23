@@ -150,6 +150,11 @@ PLAY_SOUNDS: Yes
 NPOINT_ARROWS: Yes
 ```
 
+* SPECTRUM_HISTORY_LENGTH - How many spectra to keep in history (memory).
+```YAML
+SPECTRUM_HISTORY_LENGTH: Yes
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.
