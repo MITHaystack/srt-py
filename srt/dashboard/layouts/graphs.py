@@ -424,11 +424,10 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length):
     timestamps = []
     if len(spectrum_history) > 0:
         spectrum_history_len = len(spectrum_history)
-        how_many_spectra = min(spectrum_history_len, 200)
+        how_many_spectra = min(spectrum_history_len, waterfall_length)
         spectrum_history_last_n_els = spectrum_history[:how_many_spectra]
 
         for t, spectrum in spectrum_history_last_n_els:
-            print(timestamps)
             waterfall.append(list(spectrum))
             timestamps.append(t)
 
