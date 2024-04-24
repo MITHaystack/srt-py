@@ -404,7 +404,7 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     )
     return fig
 
-def generate_waterfall_graph(bandwidth, cf, spectrum_history):
+def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length):
     """Generates a Waterfall Graph of Spectrum Data
 
     Parameters
@@ -422,13 +422,16 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history):
     """
     waterfall = []
     timestamps = []
-    for t, spectrum in spectrum_history:
-        waterfall.append(list(spectrum))
-        timestamps.append(t)
+    if len(spectrum_history) > 0:
+        spectrum_history_len = len(spectrum_history)
+        how_many_spectra = min(spectrum_history_len, 200)
+        spectrum_history_last_n_els = spectrum_history[:how_many_spectra]
 
-    if len(waterfall) == 0:
-        return ""
-    else:
+        for t, spectrum in spectrum_history_last_n_els:
+            print(timestamps)
+            waterfall.append(list(spectrum))
+            timestamps.append(t)
+
         if cf > pow(10, 9):
             cf /= pow(10, 9)
             bandwidth /= pow(10, 9)
@@ -447,7 +450,7 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history):
             layout={
                 "title": "Raw Spectrum History",
                 "xaxis_title": xaxis,
-                "yaxis_title": "Time",
+                "yaxis_title": "Time (UTC)",
                 "height": 300,
                 "margin": dict(
                     l=20,
@@ -460,13 +463,16 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history):
             },
         )
         data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(waterfall[0])) + cf
+        y_labels = [datetime.utcfromtimestamp(t) for t in timestamps]
         # https://plotly.com/python/builtin-colorscales/
         fig.add_trace(
-            go.Heatmap(colorbar={"title": "Temp.<br>(Unitless)"}, y=[datetime.utcfromtimestamp(t) for t in timestamps], x=data_range , 
-                       z=waterfall, colorscale = 'RdBu_r')
+            go.Heatmap(colorbar={"title": "Temp.<br>(Unitless)"}, y=y_labels, x=data_range, 
+                    z=waterfall, colorscale = 'RdBu_r')
             )
 
         return fig
+    else:
+        return ""
 
 def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
     """Generates a Graph of Spectrum Data

@@ -30,6 +30,7 @@ DASHBOARD_THREADS: int()
 PLAY_SOUNDS: bool()
 NPOINT_ARROWS: bool()
 SPECTRUM_HISTORY_LENGTH: int()
+WATERFALL_LENGTH: int()
 ---
 location:
     latitude: num()

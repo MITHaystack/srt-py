@@ -155,6 +155,11 @@ NPOINT_ARROWS: Yes
 SPECTRUM_HISTORY_LENGTH: 1000
 ```
 
+* WATERFALL_LENGTH - How many spectra to display on Waterfall Plot.
+```YAML
+WATERFALL_LENGTH: 200
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.
