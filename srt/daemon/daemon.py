@@ -673,7 +673,7 @@ class SmallRadioTelescopeDaemon:
                 "npoint_arrows": self.npoint_arrows,
                 "current_motor": self.motor_type,
                 "radio_save_task": str(self.radio_save_task),
-                "waterfall_length": self.waterfall_length
+                "waterfall_length": self.waterfall_length,
                 "time": time(),
             }
             status_socket.send_json(status)

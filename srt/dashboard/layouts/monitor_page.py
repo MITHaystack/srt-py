@@ -590,6 +590,7 @@ def register_callbacks(
             return ""
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
+        waterfall_length = status["waterfall_length"]
         return generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length)
 
     @app.callback(
