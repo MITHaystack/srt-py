@@ -5,7 +5,7 @@ Contains the Code for Generating Complicated Graphs
 """
 
 import plotly.graph_objects as go
-from datetime import datetime
+from datetime import datetime, timezone
 import numpy as np
 from math import dist
 
@@ -430,7 +430,6 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length):
         for t, spectrum in spectrum_history_last_n_els:
             waterfall.append(list(spectrum))
             timestamps.append(t)
-
         if cf > pow(10, 9):
             cf /= pow(10, 9)
             bandwidth /= pow(10, 9)
@@ -462,7 +461,8 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length):
             },
         )
         data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(waterfall[0])) + cf
-        y_labels = [datetime.utcfromtimestamp(t) for t in timestamps]
+        # y_labels = [datetime.utcfromtimestamp(t) for t in timestamps]
+        y_labels = [datetime.fromtimestamp(t, timezone.utc) for t in timestamps]
         # https://plotly.com/python/builtin-colorscales/
         fig.add_trace(
             go.Heatmap(colorbar={"title": "Temp.<br>(Unitless)"}, y=y_labels, x=data_range, 
