@@ -510,7 +510,12 @@ class SmallRadioTelescopeDaemon:
         self.radio_queue.put(("is_running", self.keep_running))
 
     def play_sound(self, command):
-        """Stops the Daemon Process
+        """Declaims a text
+
+        Parameters
+        ----------
+        command : string
+            Text to declaim
 
         Returns
         -------
