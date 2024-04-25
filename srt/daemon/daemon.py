@@ -92,6 +92,7 @@ class SmallRadioTelescopeDaemon:
         self.play_sounds = config_dict["PLAY_SOUNDS"]
         self.npoint_arrows = config_dict["NPOINT_ARROWS"]
         self.waterfall_length = config_dict["WATERFALL_LENGTH"]
+        self.gui_timezone = config_dict["GUI_TIMEZONE"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -674,6 +675,7 @@ class SmallRadioTelescopeDaemon:
                 "motor_type": self.motor_type,
                 "radio_save_task": str(self.radio_save_task),
                 "waterfall_length": self.waterfall_length,
+                "gui_timezone": self.gui_timezone,
                 "time": time(),
             }
             status_socket.send_json(status)

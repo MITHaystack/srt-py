@@ -227,6 +227,7 @@ srt_controller.py status --status_parameter=motor_azel
 - pandas
 - waitress
 - ocl-icd-system
+- tzlocal
 
 ## Accommodating Different Hardware
 

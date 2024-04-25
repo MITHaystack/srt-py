@@ -40,6 +40,7 @@ requirements:
     - waitress
     - yamale
     - ocl-icd-system  # https://github.com/MITHaystack/srt-py/issues/21#issuecomment-1963827916
+    - tzlocal
 
 test:
   requires:

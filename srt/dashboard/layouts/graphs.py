@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timezone
 import numpy as np
 from math import dist
+from tzlocal import get_localzone
 
 
 def generate_az_el_graph(
@@ -355,7 +356,7 @@ def generate_az_el_graph(
     return fig
 
 
-def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
+def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_timezone):
     """Generates a Graph of the Power History
 
     Parameters
@@ -382,14 +383,22 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     if power_history is None or len(power_history) == 0:
         return ""
     power_time, power_vals = zip(*power_history)
+    if gui_timezone == 'UTC':
+        xaxis_title = "Time (UTC)"
+        x_labels = [datetime.fromtimestamp(t, timezone.utc) for t in power_time]
+    else:
+        xaxis_title = "Time (local)"
+        x_labels = [datetime.fromtimestamp(t, timezone.utc).astimezone(get_localzone()) for t in power_time]
+
     fig = go.Figure(
         data=go.Scatter(
-            x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals # deprecated since Python 3.12
-            # x=[datetime.fromtimestamp(t, tz=timezone.utc) for t in power_time], y=power_vals # https://blog.ganssle.io/articles/2019/11/utcnow.html
+            # x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals # deprecated since Python 3.12
+            # x=[datetime.fromtimestamp(t, tz=timezone.utc) for t in power_time], y=power_vals
+            x = x_labels, y=power_vals
         ),
         layout={
             "title": "Power vs Time",
-            "xaxis_title": "Time (UTC)",
+            "xaxis_title": xaxis_title,
             "yaxis_title": "Calibrated Power",
             "height": 300,
             "margin": dict(
@@ -404,7 +413,7 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     )
     return fig
 
-def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length):
+def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length, gui_timezone):
     """Generates a Waterfall Graph of Spectrum Data
 
     Parameters
@@ -444,11 +453,15 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length):
             xaxis = "Frequency (kHz)"
         else:
             xaxis = "Frequency (Hz)"
+        if gui_timezone == 'UTC':
+            yaxis_title = "Time (UTC)"
+        else:
+            yaxis_title = "Time (local)"
         fig = go.Figure(
             layout={
                 "title": "Raw Spectrum History",
                 "xaxis_title": xaxis,
-                "yaxis_title": "Time (UTC)",
+                "yaxis_title": yaxis_title,
                 "height": 300,
                 "margin": dict(
                     l=20,
@@ -461,8 +474,11 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length):
             },
         )
         data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(waterfall[0])) + cf
-        # y_labels = [datetime.utcfromtimestamp(t) for t in timestamps]
-        y_labels = [datetime.fromtimestamp(t, timezone.utc) for t in timestamps]
+        if gui_timezone == 'UTC':
+            y_labels = [datetime.fromtimestamp(t, timezone.utc) for t in timestamps]
+        else:
+            y_labels = [datetime.fromtimestamp(t, timezone.utc).astimezone(get_localzone()) for t in timestamps]
+
         # https://plotly.com/python/builtin-colorscales/
         fig.add_trace(
             go.Heatmap(colorbar={"title": "Temp.<br>(Unitless)"}, y=y_labels, x=data_range, 

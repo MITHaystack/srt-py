@@ -160,6 +160,11 @@ SPECTRUM_HISTORY_LENGTH: 1000
 WATERFALL_LENGTH: 200
 ```
 
+* GUI_TIMEZONE - Whether to display axes on charts in "UTC" or "local" time.
+```YAML
+GUI_TIMEZONE: Yes
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.

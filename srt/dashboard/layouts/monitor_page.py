@@ -578,7 +578,8 @@ def register_callbacks(
         spectrum_history = raw_spectrum_thread.get_history()
         if spectrum_history is None:
             return ""
-        return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history)
+        gui_timezone = status["gui_timezone"]
+        return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_timezone)
 
     @app.callback(
         Output("waterfall-graph", "figure"), [Input("interval-component", "n_intervals")]
@@ -591,7 +592,8 @@ def register_callbacks(
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         waterfall_length = status["waterfall_length"]
-        return generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length)
+        gui_timezone = status["gui_timezone"]
+        return generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length, gui_timezone)
 
     @app.callback(
         Output("npoint_info", "data"),
