@@ -165,7 +165,7 @@ def register_callbacks(app, config, status_thread):
         status = status_thread.get_status()
         if status is None or "error_logs" not in status:
             return ""
-        status = reversed(status["error_logs"])
+        status = status["error_logs"]
         children = [
             html.P(
                 f"{datetime.fromtimestamp(log_time).strftime('%Y-%m-%d %H:%M:%S')}: {log_txt}"

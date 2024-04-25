@@ -166,7 +166,7 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        self.command_error_logs.append((time(), message))
+        self.command_error_logs.insert(0, (time(), message))
         print(message)
 
     def n_point_scan(self, object_id):
