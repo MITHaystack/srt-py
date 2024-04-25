@@ -746,7 +746,7 @@ def register_callbacks(
                 status["motor_cmd_azel"],
                 status["minimal_arrows_distance"],
                 status["npoint_arrows"],
-                status["current_motor"],
+                status["motor_type"],
             )
         return ""
 

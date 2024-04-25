@@ -23,7 +23,7 @@ def generate_az_el_graph(
     motor_cmd_azel,
     minimal_arrows_distance,
     npoint_arrows,
-    current_motor
+    motor_type,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -115,7 +115,7 @@ def generate_az_el_graph(
     # Arrows showing telescope route
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
     # If the motor moves in both axis at a time
-        if current_motor in ("NONE", "ALFASPID", "PUSHROD"): # IS THIS LIST OK?
+        if motor_type in ("NONE", "ALFASPID", "PUSHROD"): # IS THIS LIST OK?
             fig.add_annotation(
                 ax = current_location[0],
                 ay = current_location[1],
@@ -133,7 +133,7 @@ def generate_az_el_graph(
                 opacity=0.4,
                 )
         # If the motor moves in only one of the axis at a time
-        if current_motor in ("CASSI", "H180MOUNT"):
+        if motor_type in ("CASSI", "H180MOUNT"):
             x_start = [current_location[0], motor_cmd_azel[0]  ]
             x_end   = [motor_cmd_azel[0],   motor_cmd_azel[0]  ]
             y_start = [current_location[1], current_location[1]]

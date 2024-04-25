@@ -671,7 +671,7 @@ class SmallRadioTelescopeDaemon:
                 "beam_switch_data": self.beam_switch_data,
                 "minimal_arrows_distance": self.minimal_arrows_distance,
                 "npoint_arrows": self.npoint_arrows,
-                "current_motor": self.motor_type,
+                "motor_type": self.motor_type,
                 "radio_save_task": str(self.radio_save_task),
                 "waterfall_length": self.waterfall_length,
                 "time": time(),
