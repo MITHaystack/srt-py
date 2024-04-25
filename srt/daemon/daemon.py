@@ -93,6 +93,9 @@ class SmallRadioTelescopeDaemon:
         self.npoint_arrows = config_dict["NPOINT_ARROWS"]
         self.waterfall_length = config_dict["WATERFALL_LENGTH"]
         self.gui_timezone = config_dict["GUI_TIMEZONE"]
+        if self.gui_timezone != "UTC" and self.gui_timezone != "local":
+            print("Unknows value of GUI_TIMEZONE: \'" + self.gui_timezone + "\'. It has to be \'UTC\' or \'local\'. Defaulting to UTC.")
+            self.gui_timezone = "UTC"
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
