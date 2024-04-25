@@ -162,7 +162,7 @@ WATERFALL_LENGTH: 200
 
 * GUI_TIMEZONE - Whether to display axes on charts in "UTC" or "local" time.
 ```YAML
-GUI_TIMEZONE: Yes
+GUI_TIMEZONE: UTC
 ```
 
 ##### sky_coords.csv
