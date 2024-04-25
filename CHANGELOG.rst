@@ -7,7 +7,7 @@ srt-py Change Log
 
 **Added:**
 
-* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH`` parameters
+* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE`` parameters
 * CASSI motor support
 * Baudrate check for H180 and CASSI motors classes
 * Non-physical limit warning
@@ -24,6 +24,7 @@ srt-py Change Log
 * Recording indicator to system page
 * Waterfall spectrum plot
 * Spectrum history length to parameter
+* User now can choose timezone in Monitor Page
 
 **Changed:**
 
