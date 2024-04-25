@@ -31,6 +31,7 @@ PLAY_SOUNDS: bool()
 NPOINT_ARROWS: bool()
 SPECTRUM_HISTORY_LENGTH: int()
 WATERFALL_LENGTH: int()
+GUI_TIMEZONE: str()
 ---
 location:
     latitude: num()
