@@ -165,6 +165,15 @@ WATERFALL_LENGTH: 200
 GUI_TIMEZONE: UTC
 ```
 
+* DISPLAY_LIM - Display limits at az-el graph
+```YAML
+DISPLAY_LIM:
+  az_lower_display_lim: 0
+  az_upper_display_lim: 360
+  el_lower_display_lim: 0
+  el_upper_display_lim: 90
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.

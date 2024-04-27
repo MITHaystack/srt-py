@@ -96,6 +96,12 @@ class SmallRadioTelescopeDaemon:
         if self.gui_timezone != "UTC" and self.gui_timezone != "local":
             print("Unknows value of GUI_TIMEZONE: \'" + self.gui_timezone + "\'. It has to be \'UTC\' or \'local\'. Defaulting to UTC.")
             self.gui_timezone = "UTC"
+        self.display_lim = (
+            config_dict["DISPLAY_LIM"]["az_lower_display_lim"],
+            config_dict["DISPLAY_LIM"]["az_upper_display_lim"],
+            config_dict["DISPLAY_LIM"]["el_lower_display_lim"],
+            config_dict["DISPLAY_LIM"]["el_upper_display_lim"],
+        )
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -679,6 +685,7 @@ class SmallRadioTelescopeDaemon:
                 "radio_save_task": str(self.radio_save_task),
                 "waterfall_length": self.waterfall_length,
                 "gui_timezone": self.gui_timezone,
+                "display_lim": self.display_lim,
                 "time": time(),
             }
             status_socket.send_json(status)

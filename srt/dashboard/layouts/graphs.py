@@ -25,6 +25,7 @@ def generate_az_el_graph(
     minimal_arrows_distance,
     npoint_arrows,
     motor_type,
+    display_lim,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -55,10 +56,10 @@ def generate_az_el_graph(
         layout={"uirevision": True,}
     )
 
-    az_lower_display_lim = 0
-    az_upper_display_lim = 360
-    el_lower_display_lim = 0
-    el_upper_display_lim = 90
+    az_lower_display_lim = display_lim[0]
+    az_upper_display_lim = display_lim[1]
+    el_lower_display_lim = display_lim[2]
+    el_upper_display_lim = display_lim[3]
 
 
     # Markers for celestial objects
@@ -392,8 +393,6 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_time
 
     fig = go.Figure(
         data=go.Scatter(
-            # x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals # deprecated since Python 3.12
-            # x=[datetime.fromtimestamp(t, tz=timezone.utc) for t in power_time], y=power_vals
             x = x_labels, y=power_vals
         ),
         layout={

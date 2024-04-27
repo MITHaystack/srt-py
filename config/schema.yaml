@@ -32,6 +32,7 @@ NPOINT_ARROWS: bool()
 SPECTRUM_HISTORY_LENGTH: int()
 WATERFALL_LENGTH: int()
 GUI_TIMEZONE: str()
+DISPLAY_LIM: include('disp_limit')
 ---
 location:
     latitude: num()
@@ -50,3 +51,8 @@ contact_info:
     name: str()
     email: str()
     phone_number: str()
+disp_limit:
+    az_lower_display_lim: num()
+    az_upper_display_lim: num()
+    el_lower_display_lim: num()
+    el_upper_display_lim: num()

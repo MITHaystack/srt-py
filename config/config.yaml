@@ -54,3 +54,8 @@ NPOINT_ARROWS: Yes
 SPECTRUM_HISTORY_LENGTH: 1000
 WATERFALL_LENGTH: 200
 GUI_TIMEZONE: UTC
+DISPLAY_LIM:
+  az_lower_display_lim: 0
+  az_upper_display_lim: 360
+  el_lower_display_lim: 0
+  el_upper_display_lim: 90

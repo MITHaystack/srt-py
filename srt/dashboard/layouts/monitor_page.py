@@ -749,6 +749,7 @@ def register_callbacks(
                 status["minimal_arrows_distance"],
                 status["npoint_arrows"],
                 status["motor_type"],
+                status["display_lim"],
             )
         return ""
 
