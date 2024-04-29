@@ -33,6 +33,7 @@ SPECTRUM_HISTORY_LENGTH: int()
 WATERFALL_LENGTH: int()
 GUI_TIMEZONE: str()
 DISPLAY_LIM: include('disp_limit')
+DRAW_ECLIPTIC: bool()
 ---
 location:
     latitude: num()

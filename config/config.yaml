@@ -59,3 +59,4 @@ DISPLAY_LIM:
   az_upper_display_lim: 360
   el_lower_display_lim: 0
   el_upper_display_lim: 90
+DRAW_ECLIPTIC: Yes

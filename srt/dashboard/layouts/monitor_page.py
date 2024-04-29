@@ -26,7 +26,7 @@ from pathlib import Path
 from time import time
 import base64
 import io
-import numpy as np
+# import numpy as np
 
 from .navbar import generate_navbar
 from .graphs import (
@@ -749,7 +749,9 @@ def register_callbacks(
                 status["minimal_arrows_distance"],
                 status["npoint_arrows"],
                 status["motor_type"],
+                status["station"],
                 status["display_lim"],
+                status["draw_ecliptic"],
             )
         return ""
 

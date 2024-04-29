@@ -9,6 +9,9 @@ from datetime import datetime, timezone
 import numpy as np
 from math import dist
 from tzlocal import get_localzone
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz
+import astropy.units as u
+from astropy.time import Time
 
 
 def generate_az_el_graph(
@@ -25,7 +28,9 @@ def generate_az_el_graph(
     minimal_arrows_distance,
     npoint_arrows,
     motor_type,
+    station,
     display_lim,
+    draw_ecliptic,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -304,6 +309,7 @@ def generate_az_el_graph(
             ),
         )
 
+    # Windrose lines and letters
     x_pos = [0, 90, 180, 270, 360]
     rose_lettter = ['<b>N</b>', '<b>E</b>', '<b>S</b>', '<b>W</b>', '<b>N</b>']
     for (a, b) in zip(x_pos ,rose_lettter):
@@ -353,6 +359,20 @@ def generate_az_el_graph(
     )
     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
+
+    # Draw ecliptic plane
+    if draw_ecliptic == True:
+        ecl_el, ecl_az = generate_ecliptic_plane(station)
+        fig.add_trace(
+            go.Scatter(
+                x=[point for point in ecl_az],
+                y=[point for point in ecl_el],
+                name="Ecliptic",
+                mode="lines",
+                textposition="top center",
+                line = dict(color = 'LightSkyBlue', width = 1, dash = 'dot'),
+            )
+        )
 
     return fig
 
@@ -712,3 +732,34 @@ def sinc_interp2d(x, y, values, dx, dy, xout, yout):
         val_out += float(v_c) * np.sinc(x_1) * np.sinc(y_1)
 
     return val_out
+
+def generate_ecliptic_plane(station):
+    """Generates the ecliptic plane
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    el, az : float, float
+        1-d lists
+    """
+
+    observer_lat = station["latitude"],
+    observer_lon = station["longitude"],
+    observer_elevation = 0
+    location = EarthLocation.from_geodetic(
+        lat=observer_lat * u.deg,
+        lon=observer_lon * u.deg,
+        height=observer_elevation * u.m,
+    )
+
+    lon_ecl = np.linspace(0, 360, 100)
+    lat_ecl = np.zeros(100)
+
+    ecliptic_plane = SkyCoord(lon_ecl, lat_ecl, unit=u.deg, frame='barycentricmeanecliptic')
+    ecliptic_altaz = ecliptic_plane.transform_to(AltAz(obstime=Time.now(), location=location))
+    el, az = ecliptic_altaz.alt.deg.tolist(), ecliptic_altaz.az.deg.tolist()
+
+    return el, az

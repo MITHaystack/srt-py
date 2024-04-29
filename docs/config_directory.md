@@ -174,6 +174,11 @@ DISPLAY_LIM:
   el_upper_display_lim: 90
 ```
 
+* DRAW_ECLIPTIC - Whether to ecliptic plane.
+```YAML
+DRAW_ECLIPTIC: Yes
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.

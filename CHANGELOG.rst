@@ -7,7 +7,7 @@ srt-py Change Log
 
 **Added:**
 
-* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM`` parameters
+* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC`` parameters
 * CASSI motor support
 * Baudrate check for H180 and CASSI motors classes
 * Non-physical limit warning
@@ -27,6 +27,7 @@ srt-py Change Log
 * Spectrum history length to parameter
 * User now can choose timezone in Monitor Page
 * Az-el graph display limits to parameter
+* Optional drawing of ecliptic plane
 
 **Changed:**
 
