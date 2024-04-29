@@ -370,8 +370,9 @@ def generate_az_el_graph(
                 y=[point for point in ecl_el],
                 name="Ecliptic",
                 mode="lines",
+                opacity=0.5,
                 textposition="top center",
-                line = dict(color = 'LightSkyBlue', width = 1, dash = 'dot'),
+                line = dict(color = 'MediumPurple', width = 1, dash = 'dot'),
             )
         )
 
@@ -385,7 +386,7 @@ def generate_az_el_graph(
                 name="Equator",
                 mode="lines",
                 textposition="top center",
-                line = dict(color = 'royalblue', width = 1, dash = 'dot'),
+                line = dict(color = 'LightSkyBlue', width = 1, dash = 'dot'),
             )
         )
 
