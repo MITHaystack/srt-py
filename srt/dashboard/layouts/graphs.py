@@ -31,6 +31,7 @@ def generate_az_el_graph(
     station,
     display_lim,
     draw_ecliptic,
+    draw_equator,
 ):
     """Generates Figure for Displaying AzEl Locations
 
@@ -371,6 +372,20 @@ def generate_az_el_graph(
                 mode="lines",
                 textposition="top center",
                 line = dict(color = 'LightSkyBlue', width = 1, dash = 'dot'),
+            )
+        )
+
+    # Draw equator plane
+    if draw_equator == True:
+        ecl_el, ecl_az = generate_equator_plane(station)
+        fig.add_trace(
+            go.Scatter(
+                x=[point for point in ecl_az],
+                y=[point for point in ecl_el],
+                name="Equator",
+                mode="lines",
+                textposition="top center",
+                line = dict(color = 'royalblue', width = 1, dash = 'dot'),
             )
         )
 
@@ -761,5 +776,36 @@ def generate_ecliptic_plane(station):
     ecliptic_plane = SkyCoord(lon_ecl, lat_ecl, unit=u.deg, frame='barycentricmeanecliptic')
     ecliptic_altaz = ecliptic_plane.transform_to(AltAz(obstime=Time.now(), location=location))
     el, az = ecliptic_altaz.alt.deg.tolist(), ecliptic_altaz.az.deg.tolist()
+
+    return el, az
+
+def generate_equator_plane(station):
+    """Generates the equator plane
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    el, az : float, float
+        1-d lists
+    """
+
+    observer_lat = station["latitude"],
+    observer_lon = station["longitude"],
+    observer_elevation = 0
+    location = EarthLocation.from_geodetic(
+        lat=observer_lat * u.deg,
+        lon=observer_lon * u.deg,
+        height=observer_elevation * u.m,
+    )
+
+    lon_ecl = np.linspace(0, 360, 100)
+    lat_ecl = np.zeros(100)
+
+    equator_plane = SkyCoord(lon_ecl, lat_ecl, unit=u.deg)
+    equator_altaz = equator_plane.transform_to(AltAz(obstime=Time.now(), location=location))
+    el, az = equator_altaz.alt.deg.tolist(), equator_altaz.az.deg.tolist()
 
     return el, az

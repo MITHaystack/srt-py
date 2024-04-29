@@ -752,6 +752,7 @@ def register_callbacks(
                 status["station"],
                 status["display_lim"],
                 status["draw_ecliptic"],
+                status["draw_equator"],
             )
         return ""
 

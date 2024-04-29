@@ -179,6 +179,11 @@ DISPLAY_LIM:
 DRAW_ECLIPTIC: Yes
 ```
 
+* DRAW_EQUATOR - Whether to equator plane.
+```YAML
+DRAW_EQUATOR: Yes
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.

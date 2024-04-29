@@ -103,6 +103,7 @@ class SmallRadioTelescopeDaemon:
             config_dict["DISPLAY_LIM"]["el_upper_display_lim"],
         )
         self.draw_ecliptic = config_dict["DRAW_ECLIPTIC"]
+        self.draw_equator = config_dict["DRAW_EQUATOR"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -689,6 +690,7 @@ class SmallRadioTelescopeDaemon:
                 "display_lim": self.display_lim,
                 "station" : self.station,
                 "draw_ecliptic" : self.draw_ecliptic,
+                "draw_equator" : self.draw_equator,
                 "time": time(),
             }
             status_socket.send_json(status)

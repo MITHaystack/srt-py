@@ -60,3 +60,4 @@ DISPLAY_LIM:
   el_lower_display_lim: 0
   el_upper_display_lim: 90
 DRAW_ECLIPTIC: Yes
+DRAW_EQUATOR: Yes

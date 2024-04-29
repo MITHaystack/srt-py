@@ -34,6 +34,7 @@ WATERFALL_LENGTH: int()
 GUI_TIMEZONE: str()
 DISPLAY_LIM: include('disp_limit')
 DRAW_ECLIPTIC: bool()
+DRAW_EQUATOR: bool()
 ---
 location:
     latitude: num()
