@@ -372,7 +372,7 @@ def generate_az_el_graph(
                 mode="lines",
                 opacity=0.5,
                 textposition="top center",
-                line = dict(color = 'MediumPurple', width = 1, dash = 'dot'),
+                line = dict(color = 'MediumPurple', width = 1, dash = 'dash'),
             )
         )
 
@@ -383,7 +383,7 @@ def generate_az_el_graph(
             go.Scatter(
                 x=[point for point in ecl_az],
                 y=[point for point in ecl_el],
-                name="Equator",
+                name="Earth's equator",
                 mode="lines",
                 textposition="top center",
                 line = dict(color = 'LightSkyBlue', width = 1, dash = 'dot'),
@@ -802,10 +802,10 @@ def generate_equator_plane(station):
         height=observer_elevation * u.m,
     )
 
-    lon_ecl = np.linspace(0, 360, 100)
-    lat_ecl = np.zeros(100)
+    lon_eq = np.linspace(0, 360, 100)
+    lat_eq = np.zeros(100)
 
-    equator_plane = SkyCoord(lon_ecl, lat_ecl, unit=u.deg)
+    equator_plane = SkyCoord(lon_eq, lat_eq, unit=u.deg)
     equator_altaz = equator_plane.transform_to(AltAz(obstime=Time.now(), location=location))
     el, az = equator_altaz.alt.deg.tolist(), equator_altaz.az.deg.tolist()
 
