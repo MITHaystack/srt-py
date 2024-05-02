@@ -14,40 +14,40 @@ icrs, 00 41 44,  40 46 27, Androm
 icrs, 05 17 08,  18 47 13, AC1
 icrs, 03 32 47,  54 10 07, PULSAR
 icrs, 08 31 41, -45 10 13, PS
-galactic,10,1,RC_CLOUD
-galactic,00,0,G00
-galactic,10,0,G10
-galactic,20,0,G20
-galactic,30,0,G30
-galactic,40,0,G40
-galactic,50,0,G50
-galactic,60,0,G60
-galactic,70,0,G70
-galactic,80,0,G80
-galactic,90,0,G90
-galactic,100,0,G100
-galactic,110,0,G110
-galactic,120,0,G120
-galactic,130,0,G130
-galactic,140,0,G140
-galactic,150,0,G150
-galactic,160,0,G160
-galactic,170,0,G170
-galactic,180,0,G180
-galactic,190,0,G190
-galactic,200,0,G200
-galactic,210,0,G210
-galactic,220,0,G220
-galactic,230,0,G230
-galactic,240,0,G240
-galactic,250,0,G250
-galactic,260,0,G260
-galactic,270,0,G270
-galactic,280,0,G280
-galactic,290,0,G290
-galactic,300,0,G300
-galactic,310,0,G310
-galactic,320,0,G320
-galactic,330,0,G330
-galactic,340,0,G340
-galactic,350,0,G350
+galactic, 10,1,  RC_CLOUD
+galactic, 00,0,  G00
+galactic, 10,0,  G10
+galactic, 20,0,  G20
+galactic, 30,0,  G30
+galactic, 40,0,  G40
+galactic, 50,0,  G50
+galactic, 60,0,  G60
+galactic, 70,0,  G70
+galactic, 80,0,  G80
+galactic, 90,0,  G90
+galactic, 100,0, G100
+galactic, 110,0, G110
+galactic, 120,0, G120
+galactic, 130,0, G130
+galactic, 140,0, G140
+galactic, 150,0, G150
+galactic, 160,0, G160
+galactic, 170,0, G170
+galactic, 180,0, G180
+galactic, 190,0, G190
+galactic, 200,0, G200
+galactic, 210,0, G210
+galactic, 220,0, G220
+galactic, 230,0, G230
+galactic, 240,0, G240
+galactic, 250,0, G250
+galactic, 260,0, G260
+galactic, 270,0, G270
+galactic, 280,0, G280
+galactic, 290,0, G290
+galactic, 300,0, G300
+galactic, 310,0, G310
+galactic, 320,0, G320
+galactic, 330,0, G330
+galactic, 340,0, G340
+galactic, 350,0, G350
