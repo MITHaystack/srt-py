@@ -114,7 +114,7 @@ def generate_az_el_graph(
                 marker_color=["greenyellow" for _ in rotor_loc_npoint_live],
             )
         )
-        # Arrows
+        # Arrows showing n-point scan route
         if npoint_arrows == True:
             if len(rotor_loc_npoint_live) >1:
                 azzz = [col[0] for col in rotor_loc_npoint_live]
@@ -186,8 +186,7 @@ def generate_az_el_graph(
                     opacity=0.4,
                     )
 
-    # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles. 
-
+    # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles.
     az_l = current_location[0]
     el_l = current_location[1]
     el_u = el_l + .5*beam_width
@@ -206,7 +205,7 @@ def generate_az_el_graph(
             y=y_vec, 
             fill="toself",
             fillcolor="rgba(147,112,219,0.1)",
-            text=["Visability"],
+            text="Visability",
             name='Visability',
             mode="markers",
             marker = dict(
