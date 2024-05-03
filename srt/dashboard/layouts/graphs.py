@@ -74,6 +74,7 @@ def generate_az_el_graph(
             x=[points_dict[name][0] for name in points_dict],
             y=[points_dict[name][1] for name in points_dict],
             text=[name for name in points_dict],
+            hoverinfo = ["text", "name"],
             name="Celestial Objects",
             mode="markers+text",
             textposition="top center",
@@ -188,7 +189,10 @@ def generate_az_el_graph(
             text=["Visability"],
             name='Visability',
             mode="markers",
-            marker_color=["rgba(147,112,219, .8)" for _ in x_vec]
+            marker = dict(
+                symbol="cross", 
+                color = ["rgba(147,112,219, .8)" for _ in x_vec]
+                ),
         )
     )
 
@@ -200,7 +204,10 @@ def generate_az_el_graph(
             name="Current Location",
             mode="markers+text",
             textposition="bottom center",
-            marker_color=["rgba(0, 0, 152, .8)"],
+            marker = dict(
+                symbol="x", 
+                color = ["rgba(0, 0, 152, .8)"]
+                ),
         )
     )
 
@@ -212,7 +219,10 @@ def generate_az_el_graph(
             name="Other Locations",
             mode="markers+text",
             textposition="top center",
-            marker_color=["rgba(0, 152, 0, .8)", "rgba(0, 152, 0, .8)"],
+            marker = dict(
+                symbol="diamond", 
+                color = ["rgba(0, 152, 0, .8)", "rgba(0, 152, 0, .8)"]
+                ),
         )
     )
 
@@ -357,6 +367,7 @@ def generate_az_el_graph(
         xaxis_title="Azimuth",
         yaxis_title="Elevation",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        plot_bgcolor="ghostwhite", # https://stackoverflow.com/a/72502441/6764984
     )
     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
