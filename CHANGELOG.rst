@@ -28,6 +28,7 @@ srt-py Change Log
 * User now can choose timezone in Monitor Page
 * Az-el graph display limits to parameter
 * Optional drawing of ecliptic and equator planes
+* Real size Sun shape
 
 **Changed:**
 

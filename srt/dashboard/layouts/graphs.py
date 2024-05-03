@@ -82,6 +82,16 @@ def generate_az_el_graph(
         )
     )
 
+    # Real size Sun
+    fig.add_shape(type="circle",
+        xref="x", yref="y",
+        x0=points_dict["Sun"][0]-0.25,
+        y0=points_dict["Sun"][1]-0.25,
+        x1=points_dict["Sun"][0]+0.25,
+        y1=points_dict["Sun"][1]+0.25,
+        fillcolor="gold",
+    )
+
     # N-point scan
     if rotor_loc_npoint_live:
         # Markers
@@ -367,7 +377,9 @@ def generate_az_el_graph(
         xaxis_title="Azimuth",
         yaxis_title="Elevation",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        plot_bgcolor="ghostwhite", # https://stackoverflow.com/a/72502441/6764984
+        # ghostwhite, azure, # https://stackoverflow.com/a/72502441/6764984
+        plot_bgcolor="rgb(252,252,252)",
+
     )
     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
