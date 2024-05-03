@@ -166,7 +166,7 @@ def generate_az_el_graph(
             x_start = [current_location[0], motor_cmd_azel[0]  ]
             x_end   = [motor_cmd_azel[0],   motor_cmd_azel[0]  ]
             y_start = [current_location[1], current_location[1]]
-            y_end   = [current_location[1],  motor_cmd_azel[1] ]
+            y_end   = [current_location[1], motor_cmd_azel[1]  ]
 
             for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
                 fig.add_annotation(
@@ -189,37 +189,27 @@ def generate_az_el_graph(
     # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles.
     az_l = current_location[0]
     el_l = current_location[1]
-    el_u = el_l + .5*beam_width
-    el_d = el_l - .5*beam_width
 
-    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
-    azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
-    second_el = min(az_l-azu,360) # relevant when STOW is negative
-    if second_el < 0: second_el = 0
-    x_vec = [max(az_l-azd,0), second_el, max(az_l+azu,0), min(az_l+azd,360), max(az_l-azd,0)]
-    y_vec = [max(el_d,0), min(el_u,90), min(el_u,90), min(el_d,90), max(el_d,0)]
-
-    fig.add_trace(
-        go.Scatter(
-            x=x_vec, 
-            y=y_vec, 
-            fill="toself",
-            fillcolor="rgba(147,112,219,0.1)",
-            text="Visability",
-            name='Visability',
-            mode="markers",
-            marker = dict(
-                symbol="cross", 
-                color = ["rgba(147,112,219, .8)" for _ in x_vec]
-                ),
-        )
+    fig.add_shape(type="circle",
+        xref="x", yref="y",
+        x0=az_l-.5*beam_width,
+        y0=el_l-.5*beam_width,
+        x1=az_l+.5*beam_width,
+        y1=el_l+.5*beam_width,
+        fillcolor="rgba(147,112,219, .8)", opacity=0.2,
+        line=dict(
+            color="RoyalBlue",
+            width=1,
+        ),
+        showlegend=True,
+        name='Visability',
     )
 
     fig.add_trace(
         go.Scatter(
             x=[az_l],
             y=[el_l],
-            text=["Antenna Location"],
+            text="Antenna Location",
             name="Current Location",
             mode="markers+text",
             textposition="bottom center",

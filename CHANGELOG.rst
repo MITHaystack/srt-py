@@ -39,6 +39,7 @@ srt-py Change Log
 * fk4 to icrs in ``sky_coords.csv``
 * Sort the system page by newest issue first
 * Different marker types on az el graph
+* Marker for visability to circular
 
 **Fixed:**
 
