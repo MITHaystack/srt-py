@@ -92,6 +92,16 @@ def generate_az_el_graph(
         fillcolor="gold",
     )
 
+    # Real size Moon
+    fig.add_shape(type="circle",
+        xref="x", yref="y",
+        x0=points_dict["Moon"][0]-0.25,
+        y0=points_dict["Moon"][1]-0.25,
+        x1=points_dict["Moon"][0]+0.25,
+        y1=points_dict["Moon"][1]+0.25,
+        fillcolor="silver",
+    )
+
     # N-point scan
     if rotor_loc_npoint_live:
         # Markers
