@@ -189,14 +189,13 @@ def generate_az_el_graph(
     # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles.
     az_l = current_location[0]
     el_l = current_location[1]
-
     fig.add_shape(type="circle",
         xref="x", yref="y",
         x0=az_l-.5*beam_width,
         y0=el_l-.5*beam_width,
         x1=az_l+.5*beam_width,
         y1=el_l+.5*beam_width,
-        fillcolor="rgba(147,112,219, .8)", opacity=0.2,
+        fillcolor="rgba(147,112,219, .2)",
         line=dict(
             color="RoyalBlue",
             width=1,
