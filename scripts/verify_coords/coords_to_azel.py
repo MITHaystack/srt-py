@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """coords_to_azel.py
 
 Calculates Az and El from Coords. Inverse of azel_to_coords.py.

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """azel_to_coords.py
 
 Calculates Coords from Az, El. Helps to create test objects for sky_coords.csv.
