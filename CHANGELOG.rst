@@ -50,6 +50,7 @@ srt-py Change Log
 * Conda build error (https://github.com/MITHaystack/srt-py/issues/19)
 * Scan center not updated during scan (https://github.com/MITHaystack/srt-py/issues/25)
 * Visability rectangle for negative STOW azimuth
+* Dash deprecation: https://github.com/AlexKurek/srt-py/commit/43946aa7e8453154096ddc45c092f506cda00cff
 
 
 
