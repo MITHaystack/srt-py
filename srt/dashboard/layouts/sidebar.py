@@ -34,14 +34,14 @@ def generate_sidebar(title, sections):
     sidebar_header = dbc.Row(
         [
             dbc.Col(
-                html.H3(title, class_name="display-7"),
+                html.H3(title, className="display-7"),
             ),
             dbc.Col(
                 [
                     html.Button(
                         # use the Bootstrap navbar-toggler classes to style
-                        html.Span(class_name="navbar-toggler-icon"),
-                        class_name="navbar-toggler",
+                        html.Span(className="navbar-toggler-icon"),
+                        className="navbar-toggler",
                         # the navbar-toggler classes don't set color
                         style={
                             "color": "rgba(0,0,0,.5)",
@@ -51,8 +51,8 @@ def generate_sidebar(title, sections):
                     ),
                     html.Button(
                         # use the Bootstrap navbar-toggler classes to style
-                        html.Span(class_name="navbar-toggler-icon"),
-                        class_name="navbar-toggler",
+                        html.Span(className="navbar-toggler-icon"),
+                        className="navbar-toggler",
                         # the navbar-toggler classes don't set color
                         style={
                             "color": "rgba(0,0,0,.5)",
