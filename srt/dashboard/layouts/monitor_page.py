@@ -54,7 +54,7 @@ def generate_first_row():
                         [dcc.Graph(id="power-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
                                                                'drawrect', 'eraseshape']})],
-                        class_name="pretty_container six columns",
+                        className="pretty_container six columns",
                     ),
                     html.Div(
                         [
@@ -65,10 +65,10 @@ def generate_first_row():
                                                                             ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 
                                                                              'drawcircle', 'drawrect', 'eraseshape']}),
                         ],
-                        class_name="pretty_container six columns",
+                        className="pretty_container six columns",
                     ),
                 ],
-                class_name="flex-display",
+                className="flex-display",
                 style={
                     "justify-content": "center",
                     "margin": "5px",
@@ -94,16 +94,16 @@ def generate_fig_row():
                         [dcc.Graph(id="npoint-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
                                                                ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
                                                                 'drawrect', 'eraseshape']})],
-                        class_name="pretty_container six columns",
+                        className="pretty_container six columns",
                     ),
                     # html.Div(
                     #     [dcc.Graph(id="beamswitch-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
                     #                                                ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
                     #                                                 'drawrect', 'eraseshape']})],
-                    #     class_name="pretty_container six columns",
+                    #     className="pretty_container six columns",
                     # ),
                 ],
-                class_name="flex-display",
+                className="flex-display",
                 style={
                     "justify-content": "left",
                     "margin": "5px",
@@ -128,10 +128,10 @@ def generate_second_fig_row():
                         [dcc.Graph(id="waterfall-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
                                                                ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
                                                                 'drawrect', 'eraseshape']})],
-                        class_name="pretty_container six columns",
+                        className="pretty_container six columns",
                     ),
                 ],
-                class_name="flex-display",
+                className="flex-display",
                 style={
                     "justify-content": "left",
                     "margin": "5px",
@@ -171,14 +171,14 @@ def generate_popups():
                             dbc.Button(
                                 "Yes",
                                 id="az-el-graph-btn-yes",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="az-el-graph-btn-no",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="secondary",
                             ),
@@ -211,14 +211,14 @@ def generate_popups():
                             dbc.Button(
                                 "Yes",
                                 id="point-btn-yes",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="point-btn-no",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="secondary",
                             ),
@@ -246,14 +246,14 @@ def generate_popups():
                             dbc.Button(
                                 "Yes",
                                 id="freq-btn-yes",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="freq-btn-no",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="secondary",
                             ),
@@ -281,14 +281,14 @@ def generate_popups():
                             dbc.Button(
                                 "Yes",
                                 id="samp-btn-yes",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="samp-btn-no",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="secondary",
                             ),
@@ -321,14 +321,14 @@ def generate_popups():
                             dbc.Button(
                                 "Yes",
                                 id="offset-btn-yes",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="offset-btn-no",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="secondary",
                             ),
@@ -365,14 +365,14 @@ def generate_popups():
                             dbc.Button(
                                 "Yes",
                                 id="record-btn-yes",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="record-btn-no",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="secondary",
                             ),
@@ -439,14 +439,14 @@ def generate_popups():
                             dbc.Button(
                                 "Yes",
                                 id="start-btn-yes",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="primary",
                             ),
                             dbc.Button(
                                 "No",
                                 id="start-btn-no",
-                                class_name="ml-auto",
+                                className="ml-auto",
                                 # block=True,
                                 color="secondary",
                             ),
@@ -498,10 +498,10 @@ def generate_layout():
                         [dcc.Graph(id="az-el-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
                                                                'drawrect', 'eraseshape']})],
-                        class_name="pretty_container twelve columns",
+                        className="pretty_container twelve columns",
                     ),
                 ],
-                class_name="flex-display",
+                className="flex-display",
                 style={"margin": dict(l=10, r=5, t=5, b=5)},
             ),
             generate_fig_row(),
