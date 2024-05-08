@@ -34,7 +34,7 @@ def generate_layout():
                 [
                     html.Div(
                         [],
-                        className="one-third column",
+                        class_name="one-third column",
                     ),
                     html.Div(
                         [
@@ -43,13 +43,13 @@ def generate_layout():
                                 style={"margin-bottom": "0px", "text-align": "center"},
                             ),
                         ],
-                        className="one-third column",
+                        class_name="one-third column",
                         id="title",
                     ),
-                    html.Div([], className="one-third column", id="button"),
+                    html.Div([], class_name="one-third column", id="button"),
                 ],
                 id="header",
-                className="row flex-display",
+                class_name="row flex-display",
                 style={"margin-bottom": "25px"},
             ),
             html.Div(
@@ -63,7 +63,7 @@ def generate_layout():
                             ),
                             dcc.Markdown(id="emergency-contact-info"),
                         ],
-                        className="pretty_container four columns",
+                        class_name="pretty_container four columns",
                     ),
                     html.Div(
                         [
@@ -72,7 +72,7 @@ def generate_layout():
                             ),
                             dcc.Markdown(id="command-display"),
                         ],
-                        className="pretty_container four columns",
+                        class_name="pretty_container four columns",
                     ),
                     html.Div(
                         [
@@ -90,10 +90,10 @@ def generate_layout():
                                 },
                             ),
                         ],
-                        className="pretty_container four columns",
+                        class_name="pretty_container four columns",
                     ),
                 ],
-                className="flex-display",
+                class_name="flex-display",
                 style={"justify-content": "center"},
             ),
             html.Div(
@@ -113,10 +113,10 @@ def generate_layout():
                                 },
                             ),
                         ],
-                        className="pretty_container twelve columns",
+                        class_name="pretty_container twelve columns",
                     ),
                 ],
-                className="flex-display",
+                class_name="flex-display",
                 style={"justify-content": "center", "margin": "5px"},
             ),
         ]
