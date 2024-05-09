@@ -46,24 +46,22 @@ def generate_first_row():
     -------
     Div Containing First Row Objects
     """
+    config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                              ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                                               'drawrect', 'eraseshape']}
+
     return html.Div(
         [
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="power-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                              ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                                               'drawrect', 'eraseshape']})],
+                        [dcc.Graph(id="power-graph", config= config)],
                         className="pretty_container six columns",
                     ),
                     html.Div(
                         [
-                            dcc.Graph(id="cal-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                                            ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath',
-                                                                             'drawcircle', 'drawrect', 'eraseshape']}),
-                            dcc.Graph(id="raw-spectrum-histogram", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                                            ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 
-                                                                             'drawcircle', 'drawrect', 'eraseshape']}),
+                            dcc.Graph(id="cal-spectrum-histogram", config= config),
+                            dcc.Graph(id="raw-spectrum-histogram", config= config),
                         ],
                         className="pretty_container six columns",
                     ),
@@ -85,21 +83,21 @@ def generate_fig_row():
     -------
     Div Containing Fig Row Objects
     """
+    config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                                                'drawrect', 'eraseshape']}
+
     return html.Div(
         [
             html.Div(
                 [
                     dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="npoint-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                                                'drawrect', 'eraseshape']})],
+                        [dcc.Graph(id="npoint-graph", config= config)],
                         className="pretty_container six columns",
                     ),
                     # html.Div(
-                    #     [dcc.Graph(id="beamswitch-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                    #                                                ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                    #                                                 'drawrect', 'eraseshape']})],
+                    #     [dcc.Graph(id="beamswitch-graph", config= config)],
                     #     className="pretty_container six columns",
                     # ),
                 ],
