@@ -5,7 +5,7 @@ Main Control and Orchestration Class for the Small Radio Telescope
 """
 
 from time import sleep, time
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from threading import Thread
 from queue import Queue
 from xmlrpc.client import ServerProxy
@@ -861,16 +861,16 @@ class SmallRadioTelescopeDaemon:
                 elif command_name.split(":")[0] == "lst":  # Wait Until Next Time H:M:S
                     time_string = command_name.replace("LST:", "")
                     time_val = datetime.strptime(time_string, "%H:%M:%S")
-                    while time_val < datetime.utcfromtimestamp(time()):
+                    while time_val < datetime.fromtimestamp(time(), timezone.utc):
                         time_val += timedelta(days=1)
                     time_delta = (
-                        time_val - datetime.utcfromtimestamp(time())
+                        time_val - datetime.fromtimestamp(time(), timezone.utc)
                     ).total_seconds()
                     sleep(time_delta)
                 elif len(command_name.split(":")) == 5:  # Wait Until Y:D:H:M:S
                     time_val = datetime.strptime(command_name, "%Y:%j:%H:%M:%S")
                     time_delta = (
-                        time_val - datetime.utcfromtimestamp(time())
+                        time_val - datetime.fromtimestamp(time(), timezone.utc)
                     ).total_seconds()
                     sleep(time_delta)
                 else:
