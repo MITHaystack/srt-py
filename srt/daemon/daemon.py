@@ -28,6 +28,7 @@ from .utilities.object_tracker import EphemerisTracker
 from .utilities.functions import azel_within_range, get_spectrum
 
 import subprocess
+from math import isqrt, sqrt
 
 class SmallRadioTelescopeDaemon:
     """
@@ -104,6 +105,7 @@ class SmallRadioTelescopeDaemon:
         )
         self.draw_ecliptic = config_dict["DRAW_ECLIPTIC"]
         self.draw_equator = config_dict["DRAW_EQUATOR"]
+        self.n_pnt_count = config_dict["N_PNT_COUNT"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -181,8 +183,8 @@ class SmallRadioTelescopeDaemon:
         self.command_error_logs.insert(0, (time(), message))
         print(message)
 
-    def n_point_scan(self, object_id):
-        """Runs an N-Point (25) Scan About an Object
+    def n_point_scan(self, n_pnt_count, object_id):
+        """Runs an N-Point Scan About an Object
 
         Parameters
         ----------
@@ -193,23 +195,26 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
+        if n_pnt_count < 1:
+            print("The value of N_PNT_COUNT is <1. Scan may not work.")
+        if self.is_square(n_pnt_count) == False:
+            print("The value of N_PNT_COUNT is not a square of a natural number. Scan may not work.")
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
         cur_vlsr = self.ephemeris_vlsr[object_id]
         self.radio_queue.put(("vlsr", float(cur_vlsr)))
         self.current_vlsr = cur_vlsr
-        N_pnt_default = 25
         rotor_loc = []
         pwr_list = []
         scan_center_list = []
-        np_sides = [5, 5]
-        for scan in range(N_pnt_default):
+        np_sides = [sqrt(n_pnt_count), sqrt(n_pnt_count)]
+        for scan in range(n_pnt_count):
             current_scan_center = self.ephemeris_locations[object_id]
             scan_center_list.append(current_scan_center)
-            self.log_message("{0} of {1} point scan.".format(scan + 1, N_pnt_default))
-            i = (scan // 5) - 2
-            j = (scan % 5) - 2
+            self.log_message("{0} of {1} point scan.".format(scan + 1, n_pnt_count))
+            i = (scan // sqrt(n_pnt_count)) - 2
+            j = (scan % sqrt(n_pnt_count)) - 2
             el_dif = i * self.beamwidth * 0.5
             az_dif_scalar = np.cos((current_scan_center[1] + el_dif) * np.pi / 180.0)
             # Avoid issues where you get close to the zenith
@@ -251,6 +256,9 @@ class SmallRadioTelescopeDaemon:
                 subprocess.call(['spd-say', '"N-point scan has finished"'])
             except:
                 print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
+
+    def is_square(i: int) -> bool:
+        return i == isqrt(i) ** 2
 
     def beam_switch(self, object_id):
         """Swings Antenna Across Object
@@ -810,7 +818,7 @@ class SmallRadioTelescopeDaemon:
                 # If Command Starts With a Valid Object Name
                 if command_parts[0] in self.ephemeris_locations:
                     if command_parts[-1] == "n":  # N-Point Scan About Object
-                        self.n_point_scan(object_id=command_parts[0])
+                        self.n_point_scan(self.n_pnt_count, object_id=command_parts[0])
                     elif command_parts[-1] == "b":  # Beam-Switch Away From Object
                         self.beam_switch(object_id=command_parts[0])
                     else:  # Point Directly At Object

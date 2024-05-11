@@ -145,6 +145,11 @@ DASHBOARD_THREADS: 8
 PLAY_SOUNDS: Yes
 ```
 
+* N_PNT_COUNT - How many rotor positions during the n-point scan. This number must be a square of a natural number >1. The recommended value is 25.
+```YAML
+N_PNT_COUNT: Yes
+```
+
 * NPOINT_ARROWS - Whether to display arrows showing the motor route during n-point scanning.
 ```YAML
 NPOINT_ARROWS: Yes

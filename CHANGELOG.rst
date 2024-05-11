@@ -7,7 +7,7 @@ srt-py Change Log
 
 **Added:**
 
-* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC``, ``DRAW_EQUATOR`` parameters
+* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC``, ``DRAW_EQUATOR``, ``N_PNT_COUNT`` parameters
 * CASSI motor support
 * Baudrate check for H180 and CASSI motors classes
 * Non-physical limit warning
@@ -40,6 +40,7 @@ srt-py Change Log
 * Sort the system page by newest issue first
 * Different marker types on az el graph
 * Marker for visability to circular
+* Number of n-point scan rotor positions to parameter
 
 **Fixed:**
 

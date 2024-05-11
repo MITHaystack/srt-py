@@ -61,3 +61,4 @@ DISPLAY_LIM:
   el_upper_display_lim: 90
 DRAW_ECLIPTIC: Yes
 DRAW_EQUATOR: Yes
+N_PNT_COUNT: 25
