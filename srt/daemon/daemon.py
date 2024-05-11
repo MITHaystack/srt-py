@@ -25,10 +25,10 @@ from .radio_control.radio_task_starter import (
     RadioSaveSpecFitsTask,
 )
 from .utilities.object_tracker import EphemerisTracker
-from .utilities.functions import azel_within_range, get_spectrum
+from .utilities.functions import azel_within_range, get_spectrum, is_square
 
 import subprocess
-from math import isqrt, sqrt
+from math import sqrt
 
 class SmallRadioTelescopeDaemon:
     """
@@ -197,7 +197,7 @@ class SmallRadioTelescopeDaemon:
         """
         if n_pnt_count < 1:
             print("The value of N_PNT_COUNT is <1. Scan may not work.")
-        if self.is_square(n_pnt_count) == False:
+        if is_square(n_pnt_count) == False:
             print("The value of N_PNT_COUNT is not a square of a natural number. Scan may not work.")
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
@@ -257,8 +257,6 @@ class SmallRadioTelescopeDaemon:
             except:
                 print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
 
-    def is_square(i: int) -> bool:
-        return i == isqrt(i) ** 2
 
     def beam_switch(self, object_id):
         """Swings Antenna Across Object
