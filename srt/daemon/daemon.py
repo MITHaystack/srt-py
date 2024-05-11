@@ -30,6 +30,7 @@ from .utilities.functions import azel_within_range, get_spectrum, is_square
 import subprocess
 from math import sqrt
 
+
 class SmallRadioTelescopeDaemon:
     """
     Controller Class for the Small Radio Telescope
@@ -255,7 +256,8 @@ class SmallRadioTelescopeDaemon:
                 subprocess.call(['speech-dispatcher'], stdout=subprocess.DEVNULL)
                 subprocess.call(['spd-say', '"N-point scan has finished"'])
             except:
-                print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
+                print("""Sounds are enabled in the config file, but there was a problem and could not play sound.
+                      (The playback mechanism uses Ubuntu's speech dispatcher).""")
 
 
     def beam_switch(self, object_id):
