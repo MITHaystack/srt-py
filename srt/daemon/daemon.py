@@ -549,7 +549,8 @@ class SmallRadioTelescopeDaemon:
                 subprocess.call(['speech-dispatcher'], stdout=subprocess.DEVNULL)
                 subprocess.call(['spd-say', command])
             except:
-                print("Sounds are enabled in the config file, but there was a problem and could not play sound. (The playback mechanism uses Ubuntu's speech dispatcher).")
+                print("""Sounds are enabled in the config file, but there was a problem and could not play sound.
+                      (The playback mechanism uses Ubuntu's speech dispatcher).""")
 
     def update_ephemeris_location(self):
         """Periodically Updates Object Locations for Tracking Sky Objects
