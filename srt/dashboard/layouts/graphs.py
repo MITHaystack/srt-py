@@ -139,7 +139,7 @@ def generate_az_el_graph(
                         arrowsize=1,
                         arrowhead = 2,
                         opacity=0.3,
-                        )
+                    )
 
     # Arrows showing telescope route
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
@@ -160,7 +160,7 @@ def generate_az_el_graph(
                 arrowsize=1,
                 arrowhead = 4,
                 opacity=0.4,
-                )
+            )
         # If the motor moves in only one of the axis at a time
         if motor_type in ("CASSI", "H180MOUNT"):
             x_start = [current_location[0], motor_cmd_azel[0]  ]
@@ -184,7 +184,7 @@ def generate_az_el_graph(
                     arrowsize=1,
                     arrowhead = 4,
                     opacity=0.4,
-                    )
+                )
 
     # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles.
     az_l = current_location[0]
@@ -215,7 +215,7 @@ def generate_az_el_graph(
             marker = dict(
                 symbol="x", 
                 color = ["rgba(0, 0, 152, .8)"]
-                ),
+            ),
         )
     )
 
@@ -230,7 +230,7 @@ def generate_az_el_graph(
             marker = dict(
                 symbol="diamond", 
                 color = ["rgba(0, 152, 0, .8)", "rgba(0, 152, 0, .8)"]
-                ),
+            ),
         )
     )
 
@@ -340,7 +340,8 @@ def generate_az_el_graph(
                                     textangle=0,
                                     xref="x",
                                     yref="paper"
-                                ))
+                                )
+                            )
 
     for val in [90, 180, 270]:
         fig.add_shape(
