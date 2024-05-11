@@ -174,12 +174,12 @@ DISPLAY_LIM:
   el_upper_display_lim: 90
 ```
 
-* DRAW_ECLIPTIC - Whether to ecliptic plane.
+* DRAW_ECLIPTIC - Whether to draw ecliptic plane.
 ```YAML
 DRAW_ECLIPTIC: Yes
 ```
 
-* DRAW_EQUATOR - Whether to equator plane.
+* DRAW_EQUATOR - Whether to draw equator plane.
 ```YAML
 DRAW_EQUATOR: Yes
 ```
