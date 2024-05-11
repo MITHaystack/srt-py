@@ -14,12 +14,13 @@ from gnuradio import fft
 from gnuradio.fft import window
 from gnuradio import filter
 from gnuradio import gr
-from gnuradio.filter import firdes
+# from gnuradio.filter import firdes
 import sys
 import signal
 from argparse import ArgumentParser
-from gnuradio.eng_arg import eng_float, intx
-from gnuradio import eng_notation
+# from gnuradio.eng_arg import eng_float, intx
+from gnuradio.eng_arg import intx
+# from gnuradio import eng_notation
 from gnuradio import zeromq
 
 try:
@@ -29,10 +30,10 @@ except ModuleNotFoundError:
 
 import threading
 from . import add_clock_tags
-import math
+# import math
 import numpy as np
 import osmosdr
-import time
+# import time
 
 
 class radio_process(gr.top_block):
