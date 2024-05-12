@@ -70,7 +70,7 @@ MOTOR_TYPE: NONE
 MOTOR_PORT: /dev/ttyUSB0
 ```
 
-* MOTOR_BAUDRATE - The baudrate for the serial connection to the motor controller. The ALFASPID motor baudrate can vary depending on the specific model, the ROT2PROG is 600, while the MD-01/MD-02 default setting is 460800. This can be changed and see the instruction manual to learn how to set and check this value. The H180MOUNT is 2400 and the PUSHROD is 2000. This is not used if MOTOR_TYPE is NONE.
+* MOTOR_BAUDRATE - The baudrate for the serial connection to the motor controller. The ALFASPID motor baudrate can vary depending on the specific model, the ROT2PROG is 600, while the MD-01/MD-02 default setting is 460800. This can be changed and see the instruction manual to learn how to set and check this value. The H180MOUNT and CASSI is 2400 and the PUSHROD is 2000. This is not used if MOTOR_TYPE is NONE.
 ```YAML
 MOTOR_BAUDRATE: 600
 ```
