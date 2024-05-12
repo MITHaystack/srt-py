@@ -626,7 +626,7 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
     return fig
 
 
-def emptygraph(xlabel, ylabel, title):
+def emptygraph(xlabel, ylabel, title, **kwargs):
     """Creates an empty figure.
 
     Parameters
@@ -637,16 +637,20 @@ def emptygraph(xlabel, ylabel, title):
         String for ylabel.
     title : str
         String for title.
+    **kwargs : int
+        Hieght of the figure.
 
     Returns
     -------
     fig : plotly.fig
         Figure object.
     """
-
-    fig = go.Figure(
+    height = kwargs.get('height', None)
+    if height:
+        layout={"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel, "height": height}
+    else:
         layout={"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel}
-    )
+    fig = go.Figure(layout=layout)
 
     return fig
 
