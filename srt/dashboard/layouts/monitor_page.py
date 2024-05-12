@@ -24,9 +24,8 @@ from dash.dependencies import Input, Output, State
 
 from pathlib import Path
 from time import time
-import base64
+from base64 import b64decode
 import io
-# import numpy as np
 
 from .navbar import generate_navbar
 from .graphs import (
@@ -47,8 +46,8 @@ def generate_first_row():
     Div Containing First Row Objects
     """
     config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                              ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                                               'drawrect', 'eraseshape']}
+                            ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                            'drawrect', 'eraseshape']}
 
     return html.Div(
         [
@@ -84,8 +83,8 @@ def generate_fig_row():
     Div Containing Fig Row Objects
     """
     config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                                                'drawrect', 'eraseshape']}
+                                    ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                    'drawrect', 'eraseshape']}
 
     return html.Div(
         [
@@ -117,17 +116,22 @@ def generate_second_fig_row():
     -------
     Div Containing Second Fig Row Objects
     """
+    config = {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
+                                    ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
+                                    'drawrect', 'eraseshape']}
     return html.Div(
         [
             html.Div(
                 [
                     # dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="waterfall-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                               ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                                                'drawrect', 'eraseshape']})],
+                        [dcc.Graph(id="waterfall-graph", config= config)],
                         className="pretty_container six columns",
                     ),
+                    # html.Div(
+                    #     [dcc.Graph(id="cross-scan-graph", config= config)],
+                    #     className="pretty_container six columns",
+                    # ),
                 ],
                 className="flex-display",
                 style={
@@ -585,8 +589,8 @@ def register_callbacks(
     def update_waterfall_graph(n):
         spectrum_history = raw_spectrum_thread.get_history()
         status = status_thread.get_status()
-        if status is None or spectrum_history is None:
-            return ""
+        if (not spectrum_history) or (spectrum_history is None):
+            return emptygraph("Frequency", "Time", "Raw Spectrum History")
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         waterfall_length = status["waterfall_length"]
@@ -712,7 +716,7 @@ def register_callbacks(
         if contents is not None:
             # content_type, content_string = contents.split(",")
             _, content_string = contents.split(",")
-            decoded = base64.b64decode(content_string)
+            decoded = b64decode(content_string)
             try:
                 if "txt" in name or "cmd" in name:
                     # Assume that the user uploaded a txt file
