@@ -544,7 +544,7 @@ def register_callbacks(
         Output("cal-spectrum-histogram", "figure"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_cal_spectrum_histogram(n):
+    def update_cal_spectrum_histogram(_):
         spectrum = cal_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
@@ -557,7 +557,7 @@ def register_callbacks(
         Output("raw-spectrum-histogram", "figure"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_raw_spectrum_histogram(n):
+    def update_raw_spectrum_histogram(_):
 
         spectrum = raw_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
@@ -570,7 +570,7 @@ def register_callbacks(
     @app.callback(
         Output("power-graph", "figure"), [Input("interval-component", "n_intervals")]
     )
-    def update_power_graph(n):
+    def update_power_graph(_):
         status = status_thread.get_status()
         if status is None:
             return ""
@@ -586,7 +586,7 @@ def register_callbacks(
     @app.callback(
         Output("waterfall-graph", "figure"), [Input("interval-component", "n_intervals")]
     )
-    def update_waterfall_graph(n):
+    def update_waterfall_graph(_):
         spectrum_history = raw_spectrum_thread.get_history()
         status = status_thread.get_status()
         if (not spectrum_history) or (spectrum_history is None):
@@ -601,7 +601,7 @@ def register_callbacks(
         Output("npoint_info", "data"),
         [Input("interval-component", "n_intervals"), State("npoint_info", "data")],
     )
-    def npointstore(n, npdata):
+    def npointstore(_, npdata):
         """Update the npoint track info
 
         Parameters
@@ -685,7 +685,7 @@ def register_callbacks(
         Output("start-warning", "children"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_start_daemon_warning(n):
+    def update_start_daemon_warning(_):
         status = status_thread.get_status()
         if status is None:
             return "SRT Daemon Not Detected"
@@ -699,7 +699,7 @@ def register_callbacks(
         Output("start-config-file", "options"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_start_daemon_options(n):
+    def update_start_daemon_options(_):
         files = [
             {"label": file.name, "value": file.name}
             for file in Path(config["CONFIG_DIR"]).glob("*")
@@ -734,7 +734,7 @@ def register_callbacks(
     @app.callback(
         Output("az-el-graph", "figure"), [Input("interval-component", "n_intervals")]
     )
-    def update_az_el_graph(n):
+    def update_az_el_graph(_):
         status = status_thread.get_status()
         if status is not None:
             return generate_az_el_graph(
@@ -893,9 +893,7 @@ def register_callbacks(
         ],
         [State("record-modal", "is_open"), State("record-options", "value")],
     )
-    def record_click_func(
-        n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, record_option
-    ):
+    def record_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, record_option):
         ctx = dash.callback_context
         if not ctx.triggered:
             return is_open
@@ -978,10 +976,7 @@ def register_callbacks(
         ],
     )
     def cmd_button_pressed(
-        n_clicks_stow,
-        n_clicks_stop_record,
-        n_clicks_shutdown,
-        n_clicks_calibrate,
+        *_,
     ):
         ctx = dash.callback_context
         if not ctx.triggered:
