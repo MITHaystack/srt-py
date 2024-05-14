@@ -440,7 +440,7 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_time
         pwr = (tsys + tcal) * p / (a * cal_pwr)
         power_history.insert(0, (t, pwr))
     if power_history is None or len(power_history) == 0:
-        return ""
+        return emptygraph("Time", "Calibrated Power", title="Power vs Time", height=300)
     power_time, power_vals = zip(*power_history)
     if gui_timezone == 'UTC':
         xaxis_title = "Time (UTC)"
@@ -626,7 +626,7 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
     return fig
 
 
-def emptygraph(xlabel, ylabel, title, **kwargs):
+def emptygraph(xlabel, ylabel, **kwargs):
     """Creates an empty figure.
 
     Parameters
@@ -646,10 +646,13 @@ def emptygraph(xlabel, ylabel, title, **kwargs):
         Figure object.
     """
     height = kwargs.get('height', None)
-    if height:
+    title = kwargs.get('title', None)
+    if height and title:
         layout={"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel, "height": height}
-    else:
+    if not height:
         layout={"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel}
+    if (not height) and (not title):
+        layout={"xaxis_title": xlabel, "yaxis_title": ylabel}
     fig = go.Figure(layout=layout)
 
     return fig

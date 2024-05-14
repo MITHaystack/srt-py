@@ -54,6 +54,7 @@ srt-py Change Log
 * Dash deprecation: ``className`` to ``class_name`` (https://github.com/AlexKurek/srt-py/commit/43946aa7e8453154096ddc45c092f506cda00cff)
 * ``utcfromtimestamp`` deprecation
 * Comment unused modules in ``srt/daemon/radio_control/`` (https://github.com/AlexKurek/srt-py/commit/9a3f9d05a5b0fd2e2b8300441605010e2586599c)
+* Graphs appear faster
 
 
 

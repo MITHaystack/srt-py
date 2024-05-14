@@ -548,7 +548,7 @@ def register_callbacks(
         spectrum = cal_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
-            return ""
+            return emptygraph("Frequency", "Temperature (K)", title="Calibrated Spectrum", height=150)
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=True)
@@ -558,11 +558,10 @@ def register_callbacks(
         [Input("interval-component", "n_intervals")],
     )
     def update_raw_spectrum_histogram(_):
-
         spectrum = raw_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
-            return ""
+            return emptygraph("Frequency", "Temp. (Unitless)", title="Raw Spectrum", height=150)
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=False)
@@ -573,13 +572,13 @@ def register_callbacks(
     def update_power_graph(_):
         status = status_thread.get_status()
         if status is None:
-            return ""
+           return emptygraph("Time", "Calibrated Power", title="Power vs Time", height=300)
         tsys = float(status["temp_sys"])
         tcal = float(status["temp_cal"])
         cal_pwr = float(status["cal_power"])
         spectrum_history = raw_spectrum_thread.get_history()
         if spectrum_history is None:
-            return ""
+           return emptygraph("Time", "Calibrated Power", title="Power vs Time", height=300)
         gui_timezone = status["gui_timezone"]
         return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_timezone)
 
@@ -590,7 +589,7 @@ def register_callbacks(
         spectrum_history = raw_spectrum_thread.get_history()
         status = status_thread.get_status()
         if (not spectrum_history) or (spectrum_history is None):
-            return emptygraph("Frequency", "Time", "Raw Spectrum History")
+            return emptygraph("Frequency", "Time", title="Raw Spectrum History", height=300)
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         waterfall_length = status["waterfall_length"]
@@ -664,10 +663,10 @@ def register_callbacks(
         if ts is None:
             raise PreventUpdate
         if npdata is None:
-            return emptygraph("x", "y", "N-Point Scan")
+            return emptygraph("x", "y", title="N-Point Scan")
 
         if npdata.get("scan_center", [1, 1])[0] == 0:
-            return emptygraph("x", "y", "N-Point Scan")
+            return emptygraph("x", "y", title="N-Point Scan")
 
         az_a = []
         el_a = []
@@ -736,7 +735,9 @@ def register_callbacks(
     )
     def update_az_el_graph(_):
         status = status_thread.get_status()
-        if status is not None:
+        if status == None:
+            return emptygraph("Azimuth", "Elevation")
+        else:
             return generate_az_el_graph(
                 status["az_limits"],
                 status["el_limits"],
