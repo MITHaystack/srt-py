@@ -196,8 +196,8 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        if n_pnt_count < 1:
-            print("The value of N_PNT_COUNT is <1. Scan may not work.")
+        if n_pnt_count < 4:
+            print("The value of N_PNT_COUNT is <4. Scan may not work.")
         if is_square(n_pnt_count) == False:
             print("The value of N_PNT_COUNT is not a square of a natural number. Scan may not work.")
         self.ephemeris_cmd_location = None
