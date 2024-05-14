@@ -757,7 +757,6 @@ def register_callbacks(
                 status["draw_ecliptic"],
                 status["draw_equator"],
             )
-        return ""
 
     @app.callback(
         Output("az-el-graph-modal", "is_open"),
