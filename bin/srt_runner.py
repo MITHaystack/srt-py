@@ -11,6 +11,7 @@ from multiprocessing import Process
 
 from waitress import serve
 from srt import config_loader
+from os.path import expanduser
 
 
 def run_srt_daemon(configuration_dir, configuration_dict):
@@ -33,7 +34,6 @@ def run_srt_dashboard(configuration_dir, configuration_dict):
 
 
 if __name__ == "__main__":
-    from os.path import expanduser
     # Create the parser
     my_parser = argparse.ArgumentParser(description="Runs the SRT Control Application")
 
@@ -52,7 +52,6 @@ if __name__ == "__main__":
         help="The filename of the Config File to Load",
         default="config.yaml",
     )
-
     my_parser.add_argument(
         "--dash_only",
         dest="dash_only",
