@@ -588,7 +588,7 @@ def register_callbacks(
     def update_waterfall_graph(_):
         spectrum_history = raw_spectrum_thread.get_history()
         status = status_thread.get_status()
-        if (not spectrum_history) or (spectrum_history is None):
+        if (not spectrum_history) or (spectrum_history is None) or (status is None):
             return emptygraph("Frequency", "Time", title="Raw Spectrum History", height=300)
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
@@ -663,10 +663,10 @@ def register_callbacks(
         if ts is None:
             raise PreventUpdate
         if npdata is None:
-            return emptygraph("x", "y", title="N-Point Scan")
+            return emptygraph("x", "y", title="N-Point Scan", height=300)
 
         if npdata.get("scan_center", [1, 1])[0] == 0:
-            return emptygraph("x", "y", title="N-Point Scan")
+            return emptygraph("x", "y", title="N-Point Scan", height=300)
 
         az_a = []
         el_a = []

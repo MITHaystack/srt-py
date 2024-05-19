@@ -137,7 +137,7 @@ def generate_az_el_graph(
                         arrowwidth=2.5,
                         arrowside='end',
                         arrowsize=1,
-                        arrowhead = 2,
+                        arrowhead=2,
                         opacity=0.3,
                     )
 
@@ -158,7 +158,7 @@ def generate_az_el_graph(
                 arrowwidth=2.5,
                 arrowside='end',
                 arrowsize=1,
-                arrowhead = 4,
+                arrowhead=4,
                 opacity=0.4,
             )
         # If the motor moves in only one of the axis at a time
@@ -720,6 +720,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
             "title": "N-Point Scan",
             "xaxis_title": "Normalized x",
             "yaxis_title": "Normalized y",
+            "height": 300,
             "uirevision": True,
         },
     )
