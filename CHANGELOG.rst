@@ -41,6 +41,7 @@ srt-py Change Log
 * Different marker types on az el graph
 * Marker for visability to circular
 * Number of n-point scan rotor positions to parameter
+* Height of n-point scan graph to 300
 
 **Fixed:**
 
