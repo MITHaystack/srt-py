@@ -29,6 +29,7 @@ srt-py Change Log
 * Az-el graph display limits to parameter
 * Optional drawing of ecliptic and equator planes
 * Real size Sun and Moon shapes
+* Logging messages to beam switch
 
 **Changed:**
 

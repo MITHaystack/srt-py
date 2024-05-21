@@ -282,6 +282,7 @@ class SmallRadioTelescopeDaemon:
         rotor_loc = []
         pwr_list = []
         for j in range(0, 3 * self.num_beamswitches):
+            self.log_message("{0} of {1} beam switch.".format(j + 1, self.num_beamswitches))
             self.radio_queue.put(("beam_switch", j + 1))
             az_dif_scalar = np.cos(new_rotor_destination[1] * np.pi / 180.0)
             az_dif = (j % 3 - 1) * self.beamwidth / az_dif_scalar
