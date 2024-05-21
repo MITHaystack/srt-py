@@ -278,10 +278,10 @@ class SmallRadioTelescopeDaemon:
         cur_vlsr = self.ephemeris_vlsr[object_id]
         self.radio_queue.put(("vlsr", float(cur_vlsr)))
         self.current_vlsr = cur_vlsr
-        new_rotor_destination = self.ephemeris_locations[object_id]
         rotor_loc = []
         pwr_list = []
         for j in range(0, (3 * self.num_beamswitches)-1):
+            new_rotor_destination = self.ephemeris_locations[object_id]
             if (j == 0) or ((j+1) % 3 == 0):
                 if j==0:
                     self.log_message("{0} of {1} beam switch.".format(ceil((j + 1)/3),   self.num_beamswitches)) 

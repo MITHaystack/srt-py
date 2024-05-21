@@ -51,7 +51,7 @@ srt-py Change Log
 * H180 class: init (https://github.com/MITHaystack/srt-py/issues/21) and updating ``self.az_count``, ``self.el_count`` (https://github.com/MITHaystack/srt-py/issues/24)
 * Scan numbering
 * Conda build error (https://github.com/MITHaystack/srt-py/issues/19)
-* Scan center not updated during scan (https://github.com/MITHaystack/srt-py/issues/25)
+* N-point scan and beam switch center not updated during scan (https://github.com/MITHaystack/srt-py/issues/25)
 * Visability rectangle for negative STOW azimuth (overwritten by: marker for visability to circular)
 * Dash deprecation: ``className`` to ``class_name`` (https://github.com/AlexKurek/srt-py/commit/43946aa7e8453154096ddc45c092f506cda00cff)
 * ``utcfromtimestamp`` deprecation
