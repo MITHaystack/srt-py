@@ -294,6 +294,8 @@ class SmallRadioTelescopeDaemon:
             if self.rotor.angles_within_bounds(*new_rotor_destination):
                 self.rotor_destination = new_rotor_destination
                 self.point_at_offset(*new_rotor_offsets)
+            else:
+                print("Angle not within bounds, skipping iteration.")
             rotor_loc.append(self.rotor_location)
             sleep(5)
             raw_spec = get_spectrum(port=5561)
