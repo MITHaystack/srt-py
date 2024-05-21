@@ -49,7 +49,7 @@ srt-py Change Log
 * Searching for default config dir (https://github.com/MITHaystack/srt-py/issues/23)
 * Astropy deprecations
 * H180 class: init (https://github.com/MITHaystack/srt-py/issues/21) and updating ``self.az_count``, ``self.el_count`` (https://github.com/MITHaystack/srt-py/issues/24)
-* Scan numbering
+* N-point scan and beam switch numbering (off-by-one error)
 * Conda build error (https://github.com/MITHaystack/srt-py/issues/19)
 * N-point scan and beam switch center not updated during scan (https://github.com/MITHaystack/srt-py/issues/25)
 * Visability rectangle for negative STOW azimuth (overwritten by: marker for visability to circular)
