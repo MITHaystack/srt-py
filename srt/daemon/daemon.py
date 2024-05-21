@@ -28,7 +28,7 @@ from .utilities.object_tracker import EphemerisTracker
 from .utilities.functions import azel_within_range, get_spectrum, is_square
 
 import subprocess
-from math import sqrt
+from math import sqrt, ceil
 
 
 class SmallRadioTelescopeDaemon:
@@ -281,8 +281,12 @@ class SmallRadioTelescopeDaemon:
         new_rotor_destination = self.ephemeris_locations[object_id]
         rotor_loc = []
         pwr_list = []
-        for j in range(0, 3 * self.num_beamswitches):
-            self.log_message("{0} of {1} beam switch.".format(j + 1, self.num_beamswitches))
+        for j in range(0, (3 * self.num_beamswitches)-1):
+            if (j == 0) or ((j+1) % 3 == 0):
+                if j==0:
+                    self.log_message("{0} of {1} beam switch.".format(ceil((j + 1)/3),   self.num_beamswitches)) 
+                else:
+                    self.log_message("{0} of {1} beam switch.".format(ceil((j + 1)/3)+1, self.num_beamswitches))
             self.radio_queue.put(("beam_switch", j + 1))
             az_dif_scalar = np.cos(new_rotor_destination[1] * np.pi / 180.0)
             az_dif = (j % 3 - 1) * self.beamwidth / az_dif_scalar

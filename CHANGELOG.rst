@@ -57,6 +57,7 @@ srt-py Change Log
 * ``utcfromtimestamp`` deprecation
 * Comment unused modules in ``srt/daemon/radio_control/`` (https://github.com/AlexKurek/srt-py/commit/9a3f9d05a5b0fd2e2b8300441605010e2586599c)
 * Graphs appear faster
+* Beam switch count (off-by-one error)
 
 
 
