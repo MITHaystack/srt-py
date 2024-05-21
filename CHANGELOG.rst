@@ -16,7 +16,7 @@ srt-py Change Log
 * Drawing of n-point scan points on az-el graph
 * Drawing arrows showing motor route
 * ``playsound`` command
-* Optional sound when n-point scan is complete
+* Optional sound when n-point scan and beam switch are complete
 * ``rot_curve.txt`` command file
 * ``ocl-icd-system`` to the recipe to avoid https://github.com/MITHaystack/srt-py/issues/21#issuecomment-1963827916
 * ``tzlocal`` to recipe

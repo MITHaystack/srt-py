@@ -308,6 +308,14 @@ class SmallRadioTelescopeDaemon:
         self.ephemeris_cmd_location = object_id
         self.beam_switch_data = [rotor_loc, pwr_list]
 
+        if self.play_sounds == True:
+            try:
+                subprocess.call(['speech-dispatcher'], stdout=subprocess.DEVNULL)
+                subprocess.call(['spd-say', '"Beam switch has finished"'])
+            except:
+                print("""Sounds are enabled in the config file, but there was a problem and could not play sound.
+                      (The playback mechanism uses Ubuntu's speech dispatcher).""")
+
     def point_at_object(self, object_id):
         """Points Antenna Directly at Object, and Sets Up Tracking to Follow it
 
