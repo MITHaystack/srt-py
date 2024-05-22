@@ -34,6 +34,7 @@ from .graphs import (
     generate_waterfall_graph,
     generate_spectrum_graph,
     generate_npoint,
+    generate_bswitch_graph,
     emptygraph,
 )
 
@@ -688,10 +689,9 @@ def register_callbacks(
         bswitch_data = status["beam_switch_data"]
         if (not bswitch_data) or (status is None):
             return emptygraph("Time", "Power", title="Beam switch", height=300)
-        # pwr_list = status["pwr_list"]
-        # gui_timezone = status["gui_timezone"]
-        # bswitch_fig = generate_bswitch_graph(pwr_list, gui_timezone)
-        # return bswitch_fig
+        pwr_list = status["pwr_list"]
+        bswitch_fig = generate_bswitch_graph(pwr_list)
+        return bswitch_fig
 
     @app.callback(
         Output("start-warning", "children"),

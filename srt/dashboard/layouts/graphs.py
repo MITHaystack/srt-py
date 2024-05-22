@@ -743,6 +743,24 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     )
     return fig
 
+def generate_bswitch_graph(pwr_list):
+    fig = go.Figure(
+        layout={
+            "title": "Beam switch",
+            "xaxis_title": "Time",
+            "yaxis_title": "power",
+            "height": 300,
+            "uirevision": True,
+        },
+    )
+    # fig.add_trace(
+    #     go.Scatter(
+    #         x=len(pwr_list),
+    #         y=pwr_list,
+    #     )
+    # )
+    # return fig
+    return ""
 
 def sinc_interp2d(x, y, values, dx, dy, xout, yout):
     """Perform a sinc interpolation
