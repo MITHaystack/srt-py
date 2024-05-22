@@ -7,7 +7,7 @@ srt-py Change Log
 
 **Added:**
 
-* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC``, ``DRAW_EQUATOR``, ``N_PNT_COUNT`` parameters
+* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC``, ``DRAW_EQUATOR``, ``N_PNT_COUNT``, ``BSWITCH_INTEG_TIME`` parameters
 * CASSI motor support
 * Baudrate check for H180 and CASSI motors classes
 * Non-physical limit warning
@@ -43,6 +43,7 @@ srt-py Change Log
 * Marker for visability to circular
 * Number of n-point scan rotor positions to parameter
 * Height of n-point scan graph to 300
+* N-point scan and beam switch integration times to parameters
 
 **Fixed:**
 

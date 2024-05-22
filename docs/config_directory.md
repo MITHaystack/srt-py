@@ -125,6 +125,10 @@ SAVE_DIRECTORY: ~/Desktop/SRT-Saves
 NPOINT_INTEG_TIME: 5.0
 ```
 
+* BSWITCH_INTEG_TIME - The integration time in seconds at each point of a beam switch. In the case of the Cassi mount, this should not be less than 4s.
+```YAML
+BSWITCH_INTEG_TIME: 5.0
+
 * MINIMAL_ARROWS_DISTANCE - The minimum Euclidean distance in degrees between the current motor position and the coordinates of the object to be moved to. If it is not exceeded, the arrows representing the movement of the telescope will not be displayed.
 ```YAML
 MINIMAL_ARROWS_DISTANCE: 5.0
