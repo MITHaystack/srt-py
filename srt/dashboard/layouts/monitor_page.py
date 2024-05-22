@@ -95,10 +95,10 @@ def generate_fig_row():
                         [dcc.Graph(id="npoint-graph", config= config)],
                         className="pretty_container six columns",
                     ),
-                    # html.Div(
-                    #     [dcc.Graph(id="beamswitch-graph", config= config)],
-                    #     className="pretty_container six columns",
-                    # ),
+                    html.Div(
+                        [dcc.Graph(id="bswitch-graph", config= config)],
+                        className="pretty_container six columns",
+                    ),
                 ],
                 className="flex-display",
                 style={
@@ -681,6 +681,19 @@ def register_callbacks(
         return ofig
 
     @app.callback(
+        Output("bswitch-graph", "figure"), [Input("interval-component", "n_intervals")]
+    )
+    def update_bswitch_graph(_):
+        status = status_thread.get_status()
+        bswitch_data = status["beam_switch_data"]
+        if (not bswitch_data) or (status is None):
+            return emptygraph("Time", "Power", title="Beam switch", height=300)
+        # pwr_list = status["pwr_list"]
+        # gui_timezone = status["gui_timezone"]
+        # bswitch_fig = generate_bswitch_graph(pwr_list, gui_timezone)
+        # return bswitch_fig
+
+    @app.callback(
         Output("start-warning", "children"),
         [Input("interval-component", "n_intervals")],
     )
@@ -711,7 +724,7 @@ def register_callbacks(
         [Input("upload-data", "contents")],
         [State("upload-data", "filename"), State("upload-data", "last_modified")],
     )
-    def update_output(contents, name, date):
+    def update_output(contents, name, _):
         if contents is not None:
             # content_type, content_string = contents.split(",")
             _, content_string = contents.split(",")
