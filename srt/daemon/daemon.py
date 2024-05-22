@@ -90,7 +90,8 @@ class SmallRadioTelescopeDaemon:
         self.temp_cal = config_dict["TCAL"]
         self.save_dir = config_dict["SAVE_DIRECTORY"]
         self.npoint_integration_time = config_dict["NPOINT_INTEG_TIME"]
-        self.minimal_arrows_distance = config_dict["NPOINT_INTEG_TIME"]
+        self.bswitch_integration_time = config_dict["BSWITCH_INTEG_TIME"]
+        self.minimal_arrows_distance = config_dict["MINIMAL_ARROWS_DISTANCE"]
         self.play_sounds = config_dict["PLAY_SOUNDS"]
         self.npoint_arrows = config_dict["NPOINT_ARROWS"]
         self.waterfall_length = config_dict["WATERFALL_LENGTH"]
@@ -297,7 +298,7 @@ class SmallRadioTelescopeDaemon:
             else:
                 print("Angle not within bounds, skipping iteration.")
             rotor_loc.append(self.rotor_location)
-            sleep(5)
+            sleep(self.bswitch_integration_time)
             raw_spec = get_spectrum(port=5561)
             p = np.sum(raw_spec)
             a = len(raw_spec)
