@@ -30,6 +30,7 @@ srt-py Change Log
 * Optional drawing of ecliptic and equator planes
 * Real size Sun and Moon shapes
 * Logging messages to beam switch
+* Warning message when angle out of bounds during n-point scan and beam switch
 
 **Changed:**
 
