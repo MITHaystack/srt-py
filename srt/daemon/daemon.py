@@ -90,10 +90,7 @@ class SmallRadioTelescopeDaemon:
         self.temp_cal = config_dict["TCAL"]
         self.save_dir = config_dict["SAVE_DIRECTORY"]
         self.npoint_integration_time = config_dict["NPOINT_INTEG_TIME"]
-<<<<<<< Updated upstream
         self.bswitch_integration_time = config_dict["BSWITCH_INTEG_TIME"]
-=======
->>>>>>> Stashed changes
         self.minimal_arrows_distance = config_dict["MINIMAL_ARROWS_DISTANCE"]
         self.play_sounds = config_dict["PLAY_SOUNDS"]
         self.npoint_arrows = config_dict["NPOINT_ARROWS"]
