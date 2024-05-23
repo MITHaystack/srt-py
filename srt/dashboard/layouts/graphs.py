@@ -753,9 +753,13 @@ def generate_bswitch_graph(pwr_list):
             "uirevision": True,
         },
     )
+    x_axis_points = [1, 2, 3]
+    for _ in range(len(pwr_list)/3):
+        x_axis = x_axis_points + x_axis_points
+    print(x_axis)
     # fig.add_trace(
     #     go.Scatter(
-    #         x=len(pwr_list),
+    #         x=x_axis,
     #         y=pwr_list,
     #     )
     # )

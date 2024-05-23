@@ -31,6 +31,7 @@ srt-py Change Log
 * Real size Sun and Moon shapes
 * Logging messages to beam switch
 * Warning message when angle out of bounds during n-point scan and beam switch
+* Log message at the end of n-point scan and beam switch
 
 **Changed:**
 

@@ -241,6 +241,7 @@ class SmallRadioTelescopeDaemon:
             a = len(raw_spec)
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
+        self.log_message("N-point scan has finished.")
         maxdiff = (az_dif, el_dif)
 
         sc_az = [t[0] for t in scan_center_list]
@@ -307,6 +308,7 @@ class SmallRadioTelescopeDaemon:
             a = len(raw_spec)
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
+        self.log_message("Beam switch has finished.")
         self.rotor_offsets = (0.0, 0.0)
         self.radio_queue.put(("beam_switch", 0))
         self.ephemeris_cmd_location = object_id
