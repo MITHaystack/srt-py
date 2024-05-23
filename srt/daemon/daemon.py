@@ -231,7 +231,8 @@ class SmallRadioTelescopeDaemon:
                 self.rotor_destination = current_scan_center
                 self.point_at_offset(*new_rotor_offsets)
             else:
-                print("Angle not within bounds, skipping iteration.")
+                print("""Angle not within bounds, skipping iteration. Scan results will be biased. 
+                It is recommended to ignore them and run another scan further away from the bounds.""")
             rotor_loc.append(self.rotor_location)
             self.rotor_loc_npoint_live = rotor_loc
             sleep(self.npoint_integration_time)
