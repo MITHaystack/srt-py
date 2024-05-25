@@ -687,15 +687,13 @@ def register_callbacks(
     def update_bswitch_graph(_):
         status = status_thread.get_status()
         if (not status):
-            return emptygraph("Time", "Power", title="Beam switch", height=300)
-        bswitch_data = status["beam_switch_data"]
-        if (not bswitch_data):
-            return emptygraph("Time", "Power", title="Beam switch", height=300)
-        # print(bswitch_data)
-        # pwr_list = bswitch_data["pwr_list"]
-        # bswitch_fig = generate_bswitch_graph(pwr_list)
-        # return bswitch_fig
-        return ""
+            return emptygraph("Position", "Power", title="Beam switch", height=300)
+        power_bswitch_live = status["power_bswitch_live"]
+        if (not power_bswitch_live):
+            return emptygraph("Position", "Power", title="Beam switch", height=300)
+        num_beamswitches = status["num_beamswitches"]
+        bswitch_fig = generate_bswitch_graph(power_bswitch_live, num_beamswitches)
+        return bswitch_fig
 
     @app.callback(
         Output("start-warning", "children"),

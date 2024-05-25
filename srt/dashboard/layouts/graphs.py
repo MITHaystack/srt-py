@@ -743,28 +743,45 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     )
     return fig
 
-def generate_bswitch_graph(pwr_list):
+def generate_bswitch_graph(power_bswitch_live, num_beamswitches):
     fig = go.Figure(
         layout={
             "title": "Beam switch",
-            "xaxis_title": "Time",
-            "yaxis_title": "power",
+            "xaxis_title": "Position",
+            "yaxis_title": "Power",
             "height": 300,
             "uirevision": True,
+            "xaxis_range": [0.75, 3.25]
         },
     )
-    x_axis_points = [1, 2, 3]
-    for _ in range(len(pwr_list)/3):
-        x_axis = x_axis_points + x_axis_points
-    print(x_axis)
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=x_axis,
-    #         y=pwr_list,
-    #     )
-    # )
-    # return fig
-    return ""
+    x_axis_points = [1, 2, 3, 2]
+    x_axis_full = x_axis_points * num_beamswitches
+    power_bswitch_live_len = len(power_bswitch_live)
+    x_axis = x_axis_full[:power_bswitch_live_len]
+    fig.add_trace(
+        go.Scatter(
+            x=x_axis,
+            y=power_bswitch_live,
+            mode='markers',
+            opacity=0.5,
+            marker=dict(
+                color='green',
+                size=10,
+                line=dict(
+                    color='MediumPurple',
+                    width=1
+                )
+            ),
+        )
+    )
+    fig.update_layout(
+        xaxis = dict(
+            tickmode = 'array',
+            tickvals = [1, 2, 3],
+            ticktext = ['Left offset', 'Target', 'Right offset']
+        )
+    )
+    return fig
 
 def sinc_interp2d(x, y, values, dx, dy, xout, yout):
     """Perform a sinc interpolation

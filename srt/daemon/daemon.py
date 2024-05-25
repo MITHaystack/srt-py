@@ -169,6 +169,7 @@ class SmallRadioTelescopeDaemon:
         self.n_point_data = []
         self.beam_switch_data = []
         self.rotor_loc_npoint_live = []
+        self.power_bswitch_live = []
 
     def log_message(self, message):
         """Writes Contents to a Logging List and Prints
@@ -308,6 +309,7 @@ class SmallRadioTelescopeDaemon:
             a = len(raw_spec)
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
+            self.power_bswitch_live = pwr_list
         self.log_message("Beam switch has finished.")
         self.rotor_offsets = (0.0, 0.0)
         self.radio_queue.put(("beam_switch", 0))
@@ -710,7 +712,9 @@ class SmallRadioTelescopeDaemon:
                 "cal_power": self.cal_power,
                 "n_point_data": self.n_point_data,
                 "rotor_loc_npoint_live": self.rotor_loc_npoint_live,
+                "power_bswitch_live": self.power_bswitch_live,
                 "beam_switch_data": self.beam_switch_data,
+                "num_beamswitches": self.num_beamswitches,
                 "minimal_arrows_distance": self.minimal_arrows_distance,
                 "npoint_arrows": self.npoint_arrows,
                 "motor_type": self.motor_type,
