@@ -774,6 +774,25 @@ def generate_bswitch_graph(power_bswitch_live, num_beamswitches):
             ),
         )
     )
+    fig.add_annotation(
+        x=2.5,
+        y=np.mean(power_bswitch_live),
+        xref="x",
+        yref="y",
+        text="S/N: ",
+        showarrow=False,
+        font=dict(
+            family="Courier New, monospace",
+            size=16,
+            color="#ffffff"
+            ),
+        align="center",
+        bordercolor="#c7c7c7",
+        borderwidth=2,
+        borderpad=6,
+        bgcolor="#ff7f0e",
+        opacity=0.8
+    )
     fig.update_layout(
         xaxis = dict(
             tickmode = 'array',
