@@ -39,14 +39,27 @@ from .graphs import (
 )
 
 
-def generate_first_row(config):
+def generate_first_row():
     """Generates First Row (Power and Spectrum) Display
 
     Returns
     -------
     Div Containing First Row Objects
     """
-    config = config
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
 
     return html.Div(
         [
@@ -73,14 +86,28 @@ def generate_first_row(config):
         ]
     )
 
-def generate_fig_row(config):
+
+def generate_fig_row():
     """Generates Fig Row (N-point and Beam-switch) Display
 
     Returns
     -------
     Div Containing Fig Row Objects
     """
-    config = config
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
 
     return html.Div(
         [
@@ -106,14 +133,27 @@ def generate_fig_row(config):
     )
 
 
-def generate_second_fig_row(config):
+def generate_second_fig_row():
     """Generates Second Fig Row (Waterfall Plot and Cross Scan) Display
 
     Returns
     -------
     Div Containing Second Fig Row Objects
     """
-    config = config
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
     return html.Div(
         [
             html.Div(
@@ -486,31 +526,30 @@ def generate_layout():
             dbc.DropdownMenuItem("Shutdown", id="btn-quit"),
         ],
     }
-    config={
-    "displaylogo": False,
-    "scrollZoom": True,
-    "modeBarButtonsToAdd": [
-        "togglehover",
-        "togglespikelines",
-        "drawline",
-        "drawopenpath",
-        "drawclosedpath",
-        "drawcircle",
-        "drawrect",
-        "eraseshape",
-        ],
-    },
     layout = html.Div(
         [
             generate_navbar(drop_down_buttons),
-            generate_first_row(config),
+            generate_first_row(),
             html.Div(
                 [
                     html.Div(
                         [
                             dcc.Graph(
                                 id="az-el-graph",
-                                config=config
+                                config={
+                                    "displaylogo": False,
+                                    "scrollZoom": True,
+                                    "modeBarButtonsToAdd": [
+                                        "togglehover",
+                                        "togglespikelines",
+                                        "drawline",
+                                        "drawopenpath",
+                                        "drawclosedpath",
+                                        "drawcircle",
+                                        "drawrect",
+                                        "eraseshape",
+                                    ],
+                                },
                             )
                         ],
                         className="pretty_container twelve columns",
@@ -519,8 +558,8 @@ def generate_layout():
                 className="flex-display",
                 style={"margin": dict(l=10, r=5, t=5, b=5)},
             ),
-            generate_fig_row(config),
-            generate_second_fig_row(config),
+            generate_fig_row(),
+            generate_second_fig_row(),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
         ]
