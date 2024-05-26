@@ -3,6 +3,7 @@
 Module for Controlling Different Motor Types over Serial
 
 """
+
 import serial
 
 from abc import ABC, abstractmethod
@@ -338,19 +339,20 @@ class CassiMotor(Motor):
 
     # CASSI
     # PTOLER = 1                                         # for encoders
-    COUNPERSTEP = 10000                                  # default large number for no stepping 
-    AZCOUNTS_PER_DEG = 8.0 * 32.0 * 60.0 / (360.0 * 9.0) # default for CASSIMOUNT
+    COUNPERSTEP = 10000  # default large number for no stepping
+    AZCOUNTS_PER_DEG = 8.0 * 32.0 * 60.0 / (360.0 * 9.0)  # default for CASSIMOUNT
     # ROD = 1                                              # default to rod as on CASSIMOUNT
     # Parameters described in: https://www.haystack.mit.edu/wp-content/uploads/2020/07/memo_SRT_017.pdf , note 5)
     ROD1 = 14.25  # rigid arm length
-    ROD2 = 16.5   # distance from pushrod upper joint to el axis
-    ROD3 = 2.0    # pushrod collar offset
+    ROD2 = 16.5  # distance from pushrod upper joint to el axis
+    ROD3 = 2.0  # pushrod collar offset
     ROD4 = 110.0  # angle at horizon
-    ROD5 = 30.0   # pushrod counts per inch
+    ROD5 = 30.0  # pushrod counts per inch
     # end CASSI
 
-
-    def __init__(self, port, baudrate, az_limits, el_limits, counts_per_step=COUNPERSTEP):
+    def __init__(
+        self, port, baudrate, az_limits, el_limits, counts_per_step=COUNPERSTEP
+    ):
         """Initializer for the Cassi Motor, baudrate should be 2400.
 
         Parameters
@@ -366,7 +368,9 @@ class CassiMotor(Motor):
         counts_per_step : int
             Maximum number of counts to move per call to function
         """
-        Motor.__init__(self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate),
+        Motor.__init__(
+            self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate
+        ),
         self.serial = serial.Serial(
             port=port,
             baudrate=baudrate,  # 2400,
@@ -376,7 +380,9 @@ class CassiMotor(Motor):
             timeout=None,
         )
         if baudrate != 2400:
-            print(f"The correct baud rate for the Cassi motor is 2400, while {baudrate} is parsed from the config file. Have you forgotten to change it?")
+            print(
+                f"The correct baud rate for the Cassi motor is 2400, while {baudrate} is parsed from the config file. Have you forgotten to change it?"
+            )
         self.count_per_step = counts_per_step
         self.az_lower_lim = az_limits[0]
         self.el_lower_lim = el_limits[0]
@@ -409,7 +415,9 @@ class CassiMotor(Motor):
 
         # print("D_az: ", az)
         # print("D_el: ", el)
-        azz = az - self.az_lower_lim # az to d1.azcmd w C i nie zgadza sie. Definiowana w app.py#L275, a tam jest brana z self.rotor_location z daemon.py#L601
+        azz = (
+            az - self.az_lower_lim
+        )  # az to d1.azcmd w C i nie zgadza sie. Definiowana w app.py#L275, a tam jest brana z self.rotor_location z daemon.py#L601
         # print("D1_0: ", azz)
         # print("D1_1: ", az)
         # print("D1_1: ", self.az_lower_lim)
@@ -417,7 +425,7 @@ class CassiMotor(Motor):
         # print("D2: ", ell)
         for axis in range(2):
             mm = -1
-            count = 0 # number of “counts” of the reed microswitch on the drive gear to move
+            count = 0  # number of “counts” of the reed microswitch on the drive gear to move
             if stow:
                 # print("D2_2: stow")
                 if axis == 0:
@@ -438,7 +446,9 @@ class CassiMotor(Motor):
                         acount = -self.count_per_step
                         # print("D6: ", acount)
                     if acount > 0:
-                        count = acount + 0.5 # 0.5 prevent rounding down. Change to math.ceil() ?
+                        count = (
+                            acount + 0.5
+                        )  # 0.5 prevent rounding down. Change to math.ceil() ?
                         # print("D7: ", count)
                     else:
                         count = acount - 0.5
@@ -453,12 +463,28 @@ class CassiMotor(Motor):
                     # print("D11: axis==1")
 
                     # CASSI
-                    lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0) - self.ROD3 * self.ROD3
+                    lenzero = (
+                        self.ROD1 * self.ROD1
+                        + self.ROD2 * self.ROD2
+                        - 2.0
+                        * self.ROD1
+                        * self.ROD2
+                        * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0)
+                        - self.ROD3 * self.ROD3
+                    )
                     if lenzero >= 0.0:
                         lenzero = sqrt(lenzero)
                     else:
                         lenzero = 0
-                    acount = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - (ell+self.el_lower_lim)) * pi / 180.0) - self.ROD3 * self.ROD3
+                    acount = (
+                        self.ROD1 * self.ROD1
+                        + self.ROD2 * self.ROD2
+                        - 2.0
+                        * self.ROD1
+                        * self.ROD2
+                        * cos((self.ROD4 - (ell + self.el_lower_lim)) * pi / 180.0)
+                        - self.ROD3 * self.ROD3
+                    )
                     if acount >= 0.0:
                         acount = (-sqrt(acount) + lenzero) * self.ROD5
                     else:
@@ -514,10 +540,14 @@ class CassiMotor(Motor):
                 sleep(0.1)
                 # print("D23_1: ", resp)
                 for i in range(status):
-                    if resp[i] == "M" or resp[i] == "T":  # Move, Timeout. Timeout means STOW or limit switches
+                    if (
+                        resp[i] == "M" or resp[i] == "T"
+                    ):  # Move, Timeout. Timeout means STOW or limit switches
                         im = i
                         # print("D23_2: ", im)
-                ccount = int(resp[im:status].split(" ")[-3]) # rozdziela resp (spacja jako delimiter) i zwraca druga czesc jako int
+                ccount = int(
+                    resp[im:status].split(" ")[-3]
+                )  # rozdziela resp (spacja jako delimiter) i zwraca druga czesc jako int
                 # print("D24: ", ccount) # TU SIE ZACZYNA ROZNIC
                 if resp[im] == "M":
                     # print("D25_0: ", resp[im])
@@ -573,10 +603,18 @@ class CassiMotor(Motor):
             Current Azimuth and Elevation Coordinate as a Tuple of Floats
         """
         azz = self.az_count / CassiMotor.AZCOUNTS_PER_DEG
-        #ell = self.el_count / CassiMotor.ELCOUNTS_PER_DEG # CASSI
+        # ell = self.el_count / CassiMotor.ELCOUNTS_PER_DEG # CASSI
 
         # CASSI
-        lenzero = self.ROD1 * self.ROD1 + self.ROD2 * self.ROD2 - 2.0 * self.ROD1 * self.ROD2 * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0) - self.ROD3 * self.ROD3
+        lenzero = (
+            self.ROD1 * self.ROD1
+            + self.ROD2 * self.ROD2
+            - 2.0
+            * self.ROD1
+            * self.ROD2
+            * cos((self.ROD4 - self.el_lower_lim) * pi / 180.0)
+            - self.ROD3 * self.ROD3
+        )
         # print("D0_0: ", self.el_lower_lim)
         # print("D0_1: ", lenzero)
         if lenzero >= 0.0:
@@ -584,14 +622,21 @@ class CassiMotor(Motor):
         else:
             lenzero = 0
         temp = lenzero - self.el_count / self.ROD5
-        temp = (self.ROD1*self.ROD1 + self.ROD2*self.ROD2 - self.ROD3*self.ROD3 - temp*temp) / (2.0*self.ROD1*self.ROD2)
+        temp = (
+            self.ROD1 * self.ROD1
+            + self.ROD2 * self.ROD2
+            - self.ROD3 * self.ROD3
+            - temp * temp
+        ) / (2.0 * self.ROD1 * self.ROD2)
         # print("D0_2: ", temp)
-        ell = -acos(temp) * 180/pi + self.ROD4 - self.el_lower_lim
+        ell = -acos(temp) * 180 / pi + self.ROD4 - self.el_lower_lim
         # print("D0_3: ", ell)
         # end CASSI
 
         az = azz + self.az_lower_lim
-        el = ell + self.el_lower_lim # kolo frazy azel w Javie jest to wyswietlane ze zmiennej ell. W Co to sie chyba w ogole nie wyswietla. W sport.java jest też wyliczana ellnow
+        el = (
+            ell + self.el_lower_lim
+        )  # kolo frazy azel w Javie jest to wyswietlane ze zmiennej ell. W Co to sie chyba w ogole nie wyswietla. W sport.java jest też wyliczana ellnow
         return az, el
 
 
@@ -623,7 +668,9 @@ class H180Motor(Motor):  # TODO: Test!
             Maximum number of counts to move per call to function
         """
         # Motor.__init__(self, port, az_limits, el_limits)
-        Motor.__init__(self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate)
+        Motor.__init__(
+            self, port, az_limits=az_limits, el_limits=el_limits, baudrate=baudrate
+        )
         self.serial = serial.Serial(
             port=port,
             baudrate=baudrate,  # 2400,
@@ -633,7 +680,9 @@ class H180Motor(Motor):  # TODO: Test!
             timeout=None,
         )
         if baudrate != 2400:
-            print(f"The correct baud rate for the H180 motor is 2400, while {baudrate} is parsed from the config file. Have you forgotten to change it?")
+            print(
+                f"The correct baud rate for the H180 motor is 2400, while {baudrate} is parsed from the config file. Have you forgotten to change it?"
+            )
         self.count_per_step = counts_per_step
         self.az_lower_lim = az_limits[0]
         self.el_lower_lim = el_limits[0]
@@ -718,7 +767,9 @@ class H180Motor(Motor):  # TODO: Test!
                 for i in range(status):
                     if resp[i] == "M" or resp[i] == "T":
                         im = i
-                ccount = int(resp[im:status].split(" ")[-1]) # for Cassi motor correct value here is -3
+                ccount = int(
+                    resp[im:status].split(" ")[-1]
+                )  # for Cassi motor correct value here is -3
                 if resp[im] == "M":
                     if mm == 1:
                         self.az_count += ccount
@@ -740,6 +791,7 @@ class H180Motor(Motor):  # TODO: Test!
         if stow:
             self.az_count = 0
             self.el_count = 0
+
     # return self.az_count, self.el_count # for Cassi motor this needs to be here
 
     def point(self, az, el):

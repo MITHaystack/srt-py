@@ -3,6 +3,7 @@
 Calculates and Displays All AzEl Coordinates Above the Horizon
 
 """
+
 from srt.daemon.utilities.object_tracker import EphemerisTracker
 import matplotlib.pyplot as plt
 

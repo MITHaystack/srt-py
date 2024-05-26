@@ -3,6 +3,7 @@
 Extra Functions Condensed for Ease-of-Use
 
 """
+
 import zmq
 import numpy as np
 from math import isqrt

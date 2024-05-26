@@ -46,22 +46,33 @@ def generate_first_row():
     -------
     Div Containing First Row Objects
     """
-    config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                            ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                            'drawrect', 'eraseshape']}
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
 
     return html.Div(
         [
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="power-graph", config= config)],
+                        [dcc.Graph(id="power-graph", config=config)],
                         className="pretty_container six columns",
                     ),
                     html.Div(
                         [
-                            dcc.Graph(id="cal-spectrum-histogram", config= config),
-                            dcc.Graph(id="raw-spectrum-histogram", config= config),
+                            dcc.Graph(id="cal-spectrum-histogram", config=config),
+                            dcc.Graph(id="raw-spectrum-histogram", config=config),
                         ],
                         className="pretty_container six columns",
                     ),
@@ -83,9 +94,20 @@ def generate_fig_row():
     -------
     Div Containing Fig Row Objects
     """
-    config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                    ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                    'drawrect', 'eraseshape']}
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
 
     return html.Div(
         [
@@ -93,11 +115,11 @@ def generate_fig_row():
                 [
                     dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="npoint-graph", config= config)],
+                        [dcc.Graph(id="npoint-graph", config=config)],
                         className="pretty_container six columns",
                     ),
                     html.Div(
-                        [dcc.Graph(id="bswitch-graph", config= config)],
+                        [dcc.Graph(id="bswitch-graph", config=config)],
                         className="pretty_container six columns",
                     ),
                 ],
@@ -110,6 +132,7 @@ def generate_fig_row():
         ]
     )
 
+
 def generate_second_fig_row():
     """Generates Second Fig Row (Waterfall Plot and Cross Scan) Display
 
@@ -117,16 +140,27 @@ def generate_second_fig_row():
     -------
     Div Containing Second Fig Row Objects
     """
-    config = {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                    ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                    'drawrect', 'eraseshape']}
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
     return html.Div(
         [
             html.Div(
                 [
                     # dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="waterfall-graph", config= config)],
+                        [dcc.Graph(id="waterfall-graph", config=config)],
                         className="pretty_container six columns",
                     ),
                     # html.Div(
@@ -142,6 +176,7 @@ def generate_second_fig_row():
             ),
         ]
     )
+
 
 def generate_popups():
     """Generates all 'Pop-up' Modal Components
@@ -498,9 +533,25 @@ def generate_layout():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="az-el-graph", config= {'displaylogo': False, 'scrollZoom': True, 'modeBarButtonsToAdd': 
-                                                              ['togglehover', 'togglespikelines', 'drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 
-                                                               'drawrect', 'eraseshape']})],
+                        [
+                            dcc.Graph(
+                                id="az-el-graph",
+                                config={
+                                    "displaylogo": False,
+                                    "scrollZoom": True,
+                                    "modeBarButtonsToAdd": [
+                                        "togglehover",
+                                        "togglespikelines",
+                                        "drawline",
+                                        "drawopenpath",
+                                        "drawclosedpath",
+                                        "drawcircle",
+                                        "drawrect",
+                                        "eraseshape",
+                                    ],
+                                },
+                            )
+                        ],
                         className="pretty_container twelve columns",
                     ),
                 ],
@@ -549,7 +600,9 @@ def register_callbacks(
         spectrum = cal_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
-            return emptygraph("Frequency", "Temperature (K)", title="Calibrated Spectrum", height=150)
+            return emptygraph(
+                "Frequency", "Temperature (K)", title="Calibrated Spectrum", height=150
+            )
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=True)
@@ -562,7 +615,9 @@ def register_callbacks(
         spectrum = raw_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
-            return emptygraph("Frequency", "Temp. (Unitless)", title="Raw Spectrum", height=150)
+            return emptygraph(
+                "Frequency", "Temp. (Unitless)", title="Raw Spectrum", height=150
+            )
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=False)
@@ -573,29 +628,40 @@ def register_callbacks(
     def update_power_graph(_):
         status = status_thread.get_status()
         if status is None:
-           return emptygraph("Time", "Calibrated Power", title="Power vs Time", height=300)
+            return emptygraph(
+                "Time", "Calibrated Power", title="Power vs Time", height=300
+            )
         tsys = float(status["temp_sys"])
         tcal = float(status["temp_cal"])
         cal_pwr = float(status["cal_power"])
         spectrum_history = raw_spectrum_thread.get_history()
         if spectrum_history is None:
-           return emptygraph("Time", "Calibrated Power", title="Power vs Time", height=300)
+            return emptygraph(
+                "Time", "Calibrated Power", title="Power vs Time", height=300
+            )
         gui_timezone = status["gui_timezone"]
-        return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_timezone)
+        return generate_power_history_graph(
+            tsys, tcal, cal_pwr, spectrum_history, gui_timezone
+        )
 
     @app.callback(
-        Output("waterfall-graph", "figure"), [Input("interval-component", "n_intervals")]
+        Output("waterfall-graph", "figure"),
+        [Input("interval-component", "n_intervals")],
     )
     def update_waterfall_graph(_):
         spectrum_history = raw_spectrum_thread.get_history()
         status = status_thread.get_status()
         if (not spectrum_history) or (spectrum_history is None) or (status is None):
-            return emptygraph("Frequency", "Time", title="Raw Spectrum History", height=300)
+            return emptygraph(
+                "Frequency", "Time", title="Raw Spectrum History", height=300
+            )
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         waterfall_length = status["waterfall_length"]
         gui_timezone = status["gui_timezone"]
-        return generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length, gui_timezone)
+        return generate_waterfall_graph(
+            bandwidth, cf, spectrum_history, waterfall_length, gui_timezone
+        )
 
     @app.callback(
         Output("npoint_info", "data"),
@@ -686,10 +752,10 @@ def register_callbacks(
     )
     def update_bswitch_graph(_):
         status = status_thread.get_status()
-        if (not status):
+        if not status:
             return emptygraph("Position", "Power", title="Beam switch", height=300)
         power_bswitch_live = status["power_bswitch_live"]
-        if (not power_bswitch_live):
+        if not power_bswitch_live:
             return emptygraph("Position", "Power", title="Beam switch", height=300)
         num_beamswitches = status["num_beamswitches"]
         bswitch_fig = generate_bswitch_graph(power_bswitch_live, num_beamswitches)
@@ -908,7 +974,9 @@ def register_callbacks(
         ],
         [State("record-modal", "is_open"), State("record-options", "value")],
     )
-    def record_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, record_option):
+    def record_click_func(
+        n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, record_option
+    ):
         ctx = dash.callback_context
         if not ctx.triggered:
             return is_open

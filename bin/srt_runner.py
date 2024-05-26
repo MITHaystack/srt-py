@@ -57,7 +57,6 @@ if __name__ == "__main__":
         dest="dash_only",
         action="store_true",
         help="Load up the dashboard only",
-        
     )
     # Execute the parse_args() method
     args = my_parser.parse_args()

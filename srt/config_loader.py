@@ -3,6 +3,7 @@
 Module Containing Brief Functions for Validating and Parsing YAML
 
 """
+
 import yamale
 import yaml
 
