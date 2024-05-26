@@ -774,12 +774,18 @@ def generate_bswitch_graph(power_bswitch_live, num_beamswitches):
             ),
         )
     )
+    left = power_bswitch_live[0::4]
+    target = power_bswitch_live[1::2]
+    right = power_bswitch_live[2::4]
+    background = (sum(left) + sum(right))/2
+    SN = round(sum(target)/background, 3)
+    annot_text = "S/N: " + str(SN)
     fig.add_annotation(
         x=2.5,
         y=np.mean(power_bswitch_live),
         xref="x",
         yref="y",
-        text="S/N: ",
+        text=annot_text,
         showarrow=False,
         font=dict(
             family="Courier New, monospace",

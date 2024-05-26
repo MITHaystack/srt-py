@@ -63,6 +63,10 @@ srt-py Change Log
 * Graphs appear faster
 * Beam switch count (off-by-one error)
 
+**Known issues:**
+
+* A lot of waitress logging messages is printed (https://github.com/MITHaystack/srt-py/issues/27)
+
 
 
 v1.1.1
