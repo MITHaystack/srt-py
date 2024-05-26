@@ -66,6 +66,8 @@ srt-py Change Log
 **Known issues:**
 
 * A lot of waitress logging messages is printed (https://github.com/MITHaystack/srt-py/issues/27)
+* Beam-switch and N-Point Scan not possible after Direct Point to the same object (https://github.com/MITHaystack/srt-py/issues/29)
+* Versioneer is outdated and not supporting current Python versions
 
 
 
