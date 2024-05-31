@@ -3,6 +3,7 @@
 Module for Tracking and Caching the Azimuth-Elevation Coords of Celestial Objects
 
 """
+
 from astropy.coordinates import SkyCoord, EarthLocation, get_body
 from astropy.coordinates import ICRS, Galactic, FK4, CIRS, AltAz
 from astropy.utils.iers.iers import conf
@@ -149,13 +150,13 @@ class EphemerisTracker:
 
         return vlsr.to(u.km / u.s).value
 
-    def calculate_vlsr_azel(self,az_el, time=None):
+    def calculate_vlsr_azel(self, az_el, time=None):
         """Takes an AzEl tuple and derives the vlsr from  Location
 
         Parameters
         ----------
         az_el : (float, float)
-            Azimuth and Elevation 
+            Azimuth and Elevation
         time : AstroPy Time Obj
             Time of Conversion
 
@@ -167,7 +168,7 @@ class EphemerisTracker:
 
         if time is None:
             time = Time.now()
-        
+
         az, el = az_el
         start_frame = AltAz(
             obstime=time, location=self.location, alt=el * u.deg, az=az * u.deg
@@ -175,11 +176,11 @@ class EphemerisTracker:
         end_frame = Galactic()
         result = start_frame.transform_to(end_frame)
         sk1 = SkyCoord(result)
-        f1 = AltAz(obstime=time,location=self.location)
+        f1 = AltAz(obstime=time, location=self.location)
         vlsr = sk1.transform_to(f1).radial_velocity_correction(obstime=time)
 
-        return vlsr.to(u.km/u.s).value
-    
+        return vlsr.to(u.km / u.s).value
+
     def convert_to_gal_coord(self, az_el, time=None):
         """Converts an AzEl Tuple into a Galactic Tuple from Location
 
@@ -266,13 +267,15 @@ class EphemerisTracker:
             return self.calculate_az_el(
                 name, time, AltAz(obstime=time, location=self.location)
             )
+
     def get_all_vlsr(self):
         return self.vlsr_dict
+
     def get_vlsr(self, name, time_offset=0):
-        
-        if time_offset==0:
+
+        if time_offset == 0:
             return self.get_all_vlsr()[name]
         else:
             time = Time.now() + time_offset
             frame = AltAz(obstime=time, location=self.location)
-            return self.calculate_vlsr(name,time,frame)
+            return self.calculate_vlsr(name, time, frame)
