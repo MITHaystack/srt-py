@@ -59,7 +59,9 @@ def generate_az_el_graph(
     Plotly Figure of Azimuth and Elevation Graph
     """
     fig = go.Figure(
-        layout={"uirevision": True,}
+        layout={
+            "uirevision": True,
+        }
     )
 
     az_lower_display_lim = display_lim[0]
@@ -67,14 +69,13 @@ def generate_az_el_graph(
     el_lower_display_lim = display_lim[2]
     el_upper_display_lim = display_lim[3]
 
-
     # Markers for celestial objects
     fig.add_trace(
         go.Scatter(
             x=[points_dict[name][0] for name in points_dict],
             y=[points_dict[name][1] for name in points_dict],
             text=[name for name in points_dict],
-            hoverinfo = ["text", "name"],
+            hoverinfo=["text", "name"],
             name="Celestial Objects",
             mode="markers+text",
             textposition="top center",
@@ -83,22 +84,26 @@ def generate_az_el_graph(
     )
 
     # Real size Sun
-    fig.add_shape(type="circle",
-        xref="x", yref="y",
-        x0=points_dict["Sun"][0]-0.25,
-        y0=points_dict["Sun"][1]-0.25,
-        x1=points_dict["Sun"][0]+0.25,
-        y1=points_dict["Sun"][1]+0.25,
+    fig.add_shape(
+        type="circle",
+        xref="x",
+        yref="y",
+        x0=points_dict["Sun"][0] - 0.25,
+        y0=points_dict["Sun"][1] - 0.25,
+        x1=points_dict["Sun"][0] + 0.25,
+        y1=points_dict["Sun"][1] + 0.25,
         fillcolor="gold",
     )
 
     # Real size Moon
-    fig.add_shape(type="circle",
-        xref="x", yref="y",
-        x0=points_dict["Moon"][0]-0.25,
-        y0=points_dict["Moon"][1]-0.25,
-        x1=points_dict["Moon"][0]+0.25,
-        y1=points_dict["Moon"][1]+0.25,
+    fig.add_shape(
+        type="circle",
+        xref="x",
+        yref="y",
+        x0=points_dict["Moon"][0] - 0.25,
+        y0=points_dict["Moon"][1] - 0.25,
+        x1=points_dict["Moon"][0] + 0.25,
+        y1=points_dict["Moon"][1] + 0.25,
         fillcolor="silver",
     )
 
@@ -116,26 +121,26 @@ def generate_az_el_graph(
         )
         # Arrows showing n-point scan route
         if npoint_arrows == True:
-            if len(rotor_loc_npoint_live) >1:
+            if len(rotor_loc_npoint_live) > 1:
                 azzz = [col[0] for col in rotor_loc_npoint_live]
                 elll = [col[1] for col in rotor_loc_npoint_live]
-                x_end   = azzz[1:]
+                x_end = azzz[1:]
                 x_start = azzz[:-1]
-                y_end   = elll[1:]
+                y_end = elll[1:]
                 y_start = elll[:-1]
-                for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
+                for x0, y0, x1, y1 in zip(x_end, y_end, x_start, y_start):
                     fig.add_annotation(
                         x=x0,
                         y=y0,
                         ax=x1,
                         ay=y1,
-                        axref = 'x',
-                        ayref = 'y',
-                        xref = 'x',
-                        yref = 'y',
-                        arrowcolor='limegreen',
+                        axref="x",
+                        ayref="y",
+                        xref="x",
+                        yref="y",
+                        arrowcolor="limegreen",
                         arrowwidth=2.5,
-                        arrowside='end',
+                        arrowside="end",
                         arrowsize=1,
                         arrowhead=2,
                         opacity=0.3,
@@ -143,65 +148,67 @@ def generate_az_el_graph(
 
     # Arrows showing telescope route
     if dist(current_location, motor_cmd_azel) > minimal_arrows_distance:
-    # If the motor moves in both axis at a time
-        if motor_type in ("NONE", "ALFASPID", "PUSHROD"): # IS THIS LIST OK?
+        # If the motor moves in both axis at a time
+        if motor_type in ("NONE", "ALFASPID", "PUSHROD"):  # IS THIS LIST OK?
             fig.add_annotation(
-                ax = current_location[0],
-                ay = current_location[1],
-                axref = 'x',
-                ayref = 'y',
-                x = motor_cmd_azel[0],
-                y = motor_cmd_azel[1],
-                xref = 'x',
-                yref = 'y',
-                arrowcolor='red',
+                ax=current_location[0],
+                ay=current_location[1],
+                axref="x",
+                ayref="y",
+                x=motor_cmd_azel[0],
+                y=motor_cmd_azel[1],
+                xref="x",
+                yref="y",
+                arrowcolor="red",
                 arrowwidth=2.5,
-                arrowside='end',
+                arrowside="end",
                 arrowsize=1,
                 arrowhead=4,
                 opacity=0.4,
             )
         # If the motor moves in only one of the axis at a time
         if motor_type in ("CASSI", "H180MOUNT"):
-            x_start = [current_location[0], motor_cmd_azel[0]  ]
-            x_end   = [motor_cmd_azel[0],   motor_cmd_azel[0]  ]
+            x_start = [current_location[0], motor_cmd_azel[0]]
+            x_end = [motor_cmd_azel[0], motor_cmd_azel[0]]
             y_start = [current_location[1], current_location[1]]
-            y_end   = [current_location[1], motor_cmd_azel[1]  ]
+            y_end = [current_location[1], motor_cmd_azel[1]]
 
-            for x0,y0,x1,y1 in zip(x_end, y_end, x_start, y_start):
+            for x0, y0, x1, y1 in zip(x_end, y_end, x_start, y_start):
                 fig.add_annotation(
                     x=x0,
                     y=y0,
                     ax=x1,
                     ay=y1,
-                    axref = 'x',
-                    ayref = 'y',
-                    xref = 'x',
-                    yref = 'y',
-                    arrowcolor='red',
+                    axref="x",
+                    ayref="y",
+                    xref="x",
+                    yref="y",
+                    arrowcolor="red",
                     arrowwidth=2.5,
-                    arrowside='end',
+                    arrowside="end",
                     arrowsize=1,
-                    arrowhead = 4,
+                    arrowhead=4,
                     opacity=0.4,
                 )
 
     # Marker for visability, basically beamwidth with azimuth stretched out for high elevation angles.
     az_l = current_location[0]
     el_l = current_location[1]
-    fig.add_shape(type="circle",
-        xref="x", yref="y",
-        x0=az_l-.5*beam_width,
-        y0=el_l-.5*beam_width,
-        x1=az_l+.5*beam_width,
-        y1=el_l+.5*beam_width,
+    fig.add_shape(
+        type="circle",
+        xref="x",
+        yref="y",
+        x0=az_l - 0.5 * beam_width,
+        y0=el_l - 0.5 * beam_width,
+        x1=az_l + 0.5 * beam_width,
+        y1=el_l + 0.5 * beam_width,
         fillcolor="rgba(147,112,219, .2)",
         line=dict(
             color="RoyalBlue",
             width=1,
         ),
         showlegend=True,
-        name='Visability',
+        name="Visability",
     )
 
     fig.add_trace(
@@ -212,10 +219,7 @@ def generate_az_el_graph(
             name="Current Location",
             mode="markers+text",
             textposition="bottom center",
-            marker = dict(
-                symbol="x", 
-                color = ["rgba(0, 0, 152, .8)"]
-            ),
+            marker=dict(symbol="x", color=["rgba(0, 0, 152, .8)"]),
         )
     )
 
@@ -227,9 +231,8 @@ def generate_az_el_graph(
             name="Other Locations",
             mode="markers+text",
             textposition="top center",
-            marker = dict(
-                symbol="diamond", 
-                color = ["rgba(0, 152, 0, .8)", "rgba(0, 152, 0, .8)"]
+            marker=dict(
+                symbol="diamond", color=["rgba(0, 152, 0, .8)", "rgba(0, 152, 0, .8)"]
             ),
         )
     )
@@ -330,18 +333,20 @@ def generate_az_el_graph(
 
     # Windrose lines and letters
     x_pos = [0, 90, 180, 270, 360]
-    rose_lettter = ['<b>N</b>', '<b>E</b>', '<b>S</b>', '<b>W</b>', '<b>N</b>']
-    for (a, b) in zip(x_pos ,rose_lettter):
-        fig.add_annotation(dict(font=dict(color="darkgray",size=14),
-                                    x=a,
-                                    y=1.0,
-                                    showarrow=False,
-                                    text=b,
-                                    textangle=0,
-                                    xref="x",
-                                    yref="paper"
-                                )
-                            )
+    rose_lettter = ["<b>N</b>", "<b>E</b>", "<b>S</b>", "<b>W</b>", "<b>N</b>"]
+    for a, b in zip(x_pos, rose_lettter):
+        fig.add_annotation(
+            dict(
+                font=dict(color="darkgray", size=14),
+                x=a,
+                y=1.0,
+                showarrow=False,
+                text=b,
+                textangle=0,
+                xref="x",
+                yref="paper",
+            )
+        )
 
     for val in [90, 180, 270]:
         fig.add_shape(
@@ -378,7 +383,6 @@ def generate_az_el_graph(
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         # ghostwhite, azure, # https://stackoverflow.com/a/72502441/6764984
         plot_bgcolor="rgb(252,252,252)",
-
     )
     fig.update_xaxes(range=[az_lower_display_lim, az_upper_display_lim])
     fig.update_yaxes(range=[el_lower_display_lim, el_upper_display_lim])
@@ -394,7 +398,7 @@ def generate_az_el_graph(
                 mode="lines",
                 opacity=0.5,
                 textposition="top center",
-                line = dict(color = 'MediumPurple', width = 1, dash = 'dash'),
+                line=dict(color="MediumPurple", width=1, dash="dash"),
             )
         )
 
@@ -408,7 +412,7 @@ def generate_az_el_graph(
                 name="Earth's equator",
                 mode="lines",
                 textposition="top center",
-                line = dict(color = 'LightSkyBlue', width = 1, dash = 'dot'),
+                line=dict(color="LightSkyBlue", width=1, dash="dot"),
             )
         )
 
@@ -442,17 +446,18 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_time
     if power_history is None or len(power_history) == 0:
         return emptygraph("Time", "Calibrated Power", title="Power vs Time", height=300)
     power_time, power_vals = zip(*power_history)
-    if gui_timezone == 'UTC':
+    if gui_timezone == "UTC":
         xaxis_title = "Time (UTC)"
         x_labels = [datetime.fromtimestamp(t, timezone.utc) for t in power_time]
     else:
         xaxis_title = "Time (local)"
-        x_labels = [datetime.fromtimestamp(t, timezone.utc).astimezone(get_localzone()) for t in power_time]
+        x_labels = [
+            datetime.fromtimestamp(t, timezone.utc).astimezone(get_localzone())
+            for t in power_time
+        ]
 
     fig = go.Figure(
-        data=go.Scatter(
-            x = x_labels, y=power_vals
-        ),
+        data=go.Scatter(x=x_labels, y=power_vals),
         layout={
             "title": "Power vs Time",
             "xaxis_title": xaxis_title,
@@ -470,7 +475,10 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history, gui_time
     )
     return fig
 
-def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length, gui_timezone):
+
+def generate_waterfall_graph(
+    bandwidth, cf, spectrum_history, waterfall_length, gui_timezone
+):
     """Generates a Waterfall Graph of Spectrum Data
 
     Parameters
@@ -510,7 +518,7 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length, 
             xaxis = "Frequency (kHz)"
         else:
             xaxis = "Frequency (Hz)"
-        if gui_timezone == 'UTC':
+        if gui_timezone == "UTC":
             yaxis_title = "Time (UTC)"
         else:
             yaxis_title = "Time (local)"
@@ -530,21 +538,32 @@ def generate_waterfall_graph(bandwidth, cf, spectrum_history, waterfall_length, 
                 "uirevision": True,
             },
         )
-        data_range = np.linspace(-bandwidth / 2, bandwidth / 2, num=len(waterfall[0])) + cf
-        if gui_timezone == 'UTC':
+        data_range = (
+            np.linspace(-bandwidth / 2, bandwidth / 2, num=len(waterfall[0])) + cf
+        )
+        if gui_timezone == "UTC":
             y_labels = [datetime.fromtimestamp(t, timezone.utc) for t in timestamps]
         else:
-            y_labels = [datetime.fromtimestamp(t, timezone.utc).astimezone(get_localzone()) for t in timestamps]
+            y_labels = [
+                datetime.fromtimestamp(t, timezone.utc).astimezone(get_localzone())
+                for t in timestamps
+            ]
 
         # https://plotly.com/python/builtin-colorscales/
         fig.add_trace(
-            go.Heatmap(colorbar={"title": "Temp.<br>(Unitless)"}, y=y_labels, x=data_range, 
-                    z=waterfall, colorscale = 'RdBu_r')
+            go.Heatmap(
+                colorbar={"title": "Temp.<br>(Unitless)"},
+                y=y_labels,
+                x=data_range,
+                z=waterfall,
+                colorscale="RdBu_r",
             )
+        )
 
         return fig
     else:
         return ""
+
 
 def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
     """Generates a Graph of Spectrum Data
@@ -645,14 +664,19 @@ def emptygraph(xlabel, ylabel, **kwargs):
     fig : plotly.fig
         Figure object.
     """
-    height = kwargs.get('height', None)
-    title = kwargs.get('title', None)
+    height = kwargs.get("height", None)
+    title = kwargs.get("title", None)
     if height and title:
-        layout={"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel, "height": height}
+        layout = {
+            "title": title,
+            "xaxis_title": xlabel,
+            "yaxis_title": ylabel,
+            "height": height,
+        }
     if not height:
-        layout={"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel}
+        layout = {"title": title, "xaxis_title": xlabel, "yaxis_title": ylabel}
     if (not height) and (not title):
-        layout={"xaxis_title": xlabel, "yaxis_title": ylabel}
+        layout = {"xaxis_title": xlabel, "yaxis_title": ylabel}
     fig = go.Figure(layout=layout)
 
     return fig
@@ -743,6 +767,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     )
     return fig
 
+
 def generate_bswitch_graph(power_bswitch_live, num_beamswitches):
     fig = go.Figure(
         layout={
@@ -751,7 +776,7 @@ def generate_bswitch_graph(power_bswitch_live, num_beamswitches):
             "yaxis_title": "Power",
             "height": 300,
             "uirevision": True,
-            "xaxis_range": [0.75, 3.25]
+            "xaxis_range": [0.75, 3.25],
         },
     )
     x_axis_points = [1, 2, 3, 2]
@@ -762,23 +787,18 @@ def generate_bswitch_graph(power_bswitch_live, num_beamswitches):
         go.Scatter(
             x=x_axis,
             y=power_bswitch_live,
-            mode='markers',
+            mode="markers",
             opacity=0.5,
             marker=dict(
-                color='green',
-                size=10,
-                line=dict(
-                    color='MediumPurple',
-                    width=1
-                )
+                color="green", size=10, line=dict(color="MediumPurple", width=1)
             ),
         )
     )
     left = power_bswitch_live[0::4]
     target = power_bswitch_live[1::2]
     right = power_bswitch_live[2::4]
-    background = (sum(left) + sum(right))/2
-    SN = round(sum(target)/background, 3)
+    background = (sum(left) + sum(right)) / 2
+    SN = round(sum(target) / background, 3)
     annot_text = "S/N: " + str(SN)
     fig.add_annotation(
         x=2.5,
@@ -787,26 +807,23 @@ def generate_bswitch_graph(power_bswitch_live, num_beamswitches):
         yref="y",
         text=annot_text,
         showarrow=False,
-        font=dict(
-            family="Courier New, monospace",
-            size=16,
-            color="#ffffff"
-            ),
+        font=dict(family="Courier New, monospace", size=16, color="#ffffff"),
         align="center",
         bordercolor="#c7c7c7",
         borderwidth=2,
         borderpad=6,
         bgcolor="#ff7f0e",
-        opacity=0.8
+        opacity=0.8,
     )
     fig.update_layout(
-        xaxis = dict(
-            tickmode = 'array',
-            tickvals = [1, 2, 3],
-            ticktext = ['Left offset', 'Target', 'Right offset']
+        xaxis=dict(
+            tickmode="array",
+            tickvals=[1, 2, 3],
+            ticktext=["Left offset", "Target", "Right offset"],
         )
     )
     return fig
+
 
 def sinc_interp2d(x, y, values, dx, dy, xout, yout):
     """Perform a sinc interpolation
@@ -843,6 +860,7 @@ def sinc_interp2d(x, y, values, dx, dy, xout, yout):
 
     return val_out
 
+
 def generate_ecliptic_plane(station):
     """Generates the ecliptic plane
 
@@ -856,8 +874,8 @@ def generate_ecliptic_plane(station):
         1-d lists
     """
 
-    observer_lat = station["latitude"],
-    observer_lon = station["longitude"],
+    observer_lat = (station["latitude"],)
+    observer_lon = (station["longitude"],)
     observer_elevation = 0
     location = EarthLocation.from_geodetic(
         lat=observer_lat * u.deg,
@@ -868,11 +886,16 @@ def generate_ecliptic_plane(station):
     lon_ecl = np.linspace(0, 360, 100)
     lat_ecl = np.zeros(100)
 
-    ecliptic_plane = SkyCoord(lon_ecl, lat_ecl, unit=u.deg, frame='barycentricmeanecliptic')
-    ecliptic_altaz = ecliptic_plane.transform_to(AltAz(obstime=Time.now(), location=location))
+    ecliptic_plane = SkyCoord(
+        lon_ecl, lat_ecl, unit=u.deg, frame="barycentricmeanecliptic"
+    )
+    ecliptic_altaz = ecliptic_plane.transform_to(
+        AltAz(obstime=Time.now(), location=location)
+    )
     el, az = ecliptic_altaz.alt.deg.tolist(), ecliptic_altaz.az.deg.tolist()
 
     return el, az
+
 
 def generate_equator_plane(station):
     """Generates the equator plane
@@ -887,8 +910,8 @@ def generate_equator_plane(station):
         1-d lists
     """
 
-    observer_lat = station["latitude"],
-    observer_lon = station["longitude"],
+    observer_lat = (station["latitude"],)
+    observer_lon = (station["longitude"],)
     observer_elevation = 0
     location = EarthLocation.from_geodetic(
         lat=observer_lat * u.deg,
@@ -900,7 +923,9 @@ def generate_equator_plane(station):
     lat_eq = np.zeros(100)
 
     equator_plane = SkyCoord(lon_eq, lat_eq, unit=u.deg)
-    equator_altaz = equator_plane.transform_to(AltAz(obstime=Time.now(), location=location))
+    equator_altaz = equator_plane.transform_to(
+        AltAz(obstime=Time.now(), location=location)
+    )
     el, az = equator_altaz.alt.deg.tolist(), equator_altaz.az.deg.tolist()
 
     return el, az

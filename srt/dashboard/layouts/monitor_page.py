@@ -9,14 +9,14 @@ import dash
 try:
     from dash import dcc
 except:
-    import dash_core_components as dcc #  Dash 1.x
+    import dash_core_components as dcc  #  Dash 1.x
 
 import dash_bootstrap_components as dbc
 
 try:
     from dash import html
 except:
-    import dash_html_components as html #  Dash 1.x
+    import dash_html_components as html  #  Dash 1.x
 
 from dash.exceptions import PreventUpdate
 
@@ -1023,6 +1023,7 @@ def register_callbacks(
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "start-btn-yes":
                 try:
+
                     def run_srt_daemon(configuration_dir, configuration_dict):
                         from srt.daemon import daemon as srt_d
 

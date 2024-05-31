@@ -3,6 +3,7 @@
 Module for Managing Different Motor Objects
 
 """
+
 from enum import Enum
 
 from .motors import NoMotor, Rot2Motor, H180Motor, PushRodMotor, CassiMotor
