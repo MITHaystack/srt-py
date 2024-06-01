@@ -116,6 +116,7 @@ class SmallRadioTelescopeDaemon:
         self.draw_ecliptic = config_dict["DRAW_ECLIPTIC"]
         self.draw_equator = config_dict["DRAW_EQUATOR"]
         self.n_pnt_count = config_dict["N_PNT_COUNT"]
+        self.goto_stow_at_startup = config_dict["GOTO_STOW_AT_STARTUP"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -153,7 +154,7 @@ class SmallRadioTelescopeDaemon:
             self.az_limits,
             self.el_limits,
         )
-        self.rotor_location = self.stow_location
+        self.rotor_location = self.stow_location # this may not always be true at startup
         self.rotor_destination = self.stow_location
         self.rotor_offsets = (0.0, 0.0)
         self.rotor_cmd_location = tuple(
@@ -244,7 +245,7 @@ class SmallRadioTelescopeDaemon:
             else:
                 print(
                     """Angle not within bounds, skipping iteration. Scan results will be biased. 
-                It is recommended to ignore them and run another scan further away from the bounds."""
+                It is recommended to run another scan further away from the bounds."""
                 )
             rotor_loc.append(self.rotor_location)
             self.rotor_loc_npoint_live = rotor_loc
@@ -322,7 +323,10 @@ class SmallRadioTelescopeDaemon:
                 self.rotor_destination = new_rotor_destination
                 self.point_at_offset(*new_rotor_offsets)
             else:
-                print("Angle not within bounds, skipping iteration.")
+                print(
+                    """Angle not within bounds, skipping iteration. Results will be biased. 
+                It is recommended to repeat the run further away from the boundaries."""
+                )
             rotor_loc.append(self.rotor_location)
             sleep(self.bswitch_integration_time)
             raw_spec = get_spectrum(port=5561)
@@ -848,6 +852,11 @@ class SmallRadioTelescopeDaemon:
         status_thread.start()
         radio_thread.start()
 
+        if self.goto_stow_at_startup == True:
+            self.log_message("GOTO_STOW_AT_STARTUP option is on; running command 'stow'")
+            self.stow()
+        else:
+            self.log_message("GOTO_STOW_AT_STARTUP option is off; not going to STOW")
         while self.keep_running:
             try:
                 # Await Command for the SRT

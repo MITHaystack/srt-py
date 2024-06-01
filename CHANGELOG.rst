@@ -7,7 +7,7 @@ srt-py Change Log
 
 **Added:**
 
-* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC``, ``DRAW_EQUATOR``, ``N_PNT_COUNT``, ``BSWITCH_INTEG_TIME`` parameters
+* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC``, ``DRAW_EQUATOR``, ``N_PNT_COUNT``, ``BSWITCH_INTEG_TIME``, ``GOTO_STOW_AT_STARTUP`` parameters
 * CASSI motor support
 * Baudrate check for H180 and CASSI motors classes
 * Non-physical limit warning
@@ -33,6 +33,7 @@ srt-py Change Log
 * Warning message when angle out of bounds during n-point scan and beam switch
 * Log message at the end of n-point scan and beam switch
 * Beam switch graph
+* Option to automatically go to STOW at startup
 
 **Changed:**
 

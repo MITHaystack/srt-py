@@ -193,6 +193,11 @@ DRAW_ECLIPTIC: Yes
 DRAW_EQUATOR: Yes
 ```
 
+* GOTO_STOW_AT_STARTUP - Whether to go to STOW at startup.
+```YAML
+GOTO_STOW_AT_STARTUP: Yes
+```
+
 ##### sky_coords.csv
 
 The sky_coords data file is organized into four columns, with a row for each entry.
