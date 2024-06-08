@@ -404,7 +404,7 @@ def generate_az_el_graph(
 
     # Draw equator plane
     if draw_equator == True:
-        ecl_el, ecl_az = generate_equator_plane(station)  # 0.0041 sec. every 1~2 secs
+        ecl_el, ecl_az = generate_equator_plane(station)  # 0.0041 sec @i5-11400H @ 2.70GHz
         fig.add_trace(
             go.Scatter(
                 x=[point for point in ecl_az],
