@@ -9,12 +9,13 @@
 # GNU Radio version: 3.8.1.0
 
 from gnuradio import gr
-from gnuradio.filter import firdes
+# from gnuradio.filter import firdes
 import sys
 import signal
 from argparse import ArgumentParser
-from gnuradio.eng_arg import eng_float, intx
-from gnuradio import eng_notation
+# from gnuradio.eng_arg import eng_float, intx
+from gnuradio.eng_arg import intx
+# from gnuradio import eng_notation
 from gnuradio import zeromq
 from . import save_fits_file
 

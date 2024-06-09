@@ -3,6 +3,7 @@
 Functions to Generate Sidebar
 
 """
+
 try:
     from dash import html
 except:

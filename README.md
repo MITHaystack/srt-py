@@ -20,18 +20,80 @@ This software is written in pure Python, and so depends on having an installed v
 
 ### Building the Conda Package Locally
 
-After downloading the srt-py source repository, open up a command prompt or terminal with conda installed and navigate to the folder containing the srt-py directory.  Additionally, ensure that you have conda-build and conda-verify installed
+Download srt-py source repository using command prompt or terminal with conda installed:
+```
+conda update -y --all
+git clone https://github.com/AlexKurek/srt-py
+```
+
+Ensure that you have `conda-build` and `conda-verify` installed
 
 ```
-conda install conda-build conda-verify
+conda install -y conda-build conda-verify
 ```
 
-Build and install the conda package
+Build the conda package
 
 ```
-conda-build srt-py
-conda install -c file://${CONDA_PREFIX}/conda-bld/ srt-py
+conda build -c conda-forge srt-py --no-test --no-anaconda-upload
 ```
+
+Create a new conda env, switch it to the conda-forge channel and activate it
+
+```
+conda create -y -n srtpy
+conda activate srtpy
+conda config --env --add channels conda-forge
+conda config --env --set channel_priority strict
+```
+
+Install the package
+
+```
+conda install -y --use-local srt-py
+```
+
+Copy config files and an exemplary command file to your HOME:
+
+```
+mkdir ~/.srtpy-config/
+cp -r ~/srt-py/config/{config.yaml,schema.yaml,sky_coords.csv} ~/.srtpy-config/
+cp ~/srt-py/examples/example_cmd_file.txt ~/
+rm -rf ~/srt-py/
+```
+
+Enable udev device setup of rtl-sdr hardware
+
+```
+sudo ln -s ~/miniconda3/envs/srtpy/lib/udev/rules.d/rtl-sdr.rules /etc/udev/rules.d/
+```
+
+Reload your udev rules
+
+```
+sudo udevadm control --reload && sudo udevadm trigger
+```
+
+Cleanup
+
+```
+conda deactivate
+conda build purge
+```
+
+If you have Ubuntu 22 and getting https://askubuntu.com/questions/1403705/dev-ttyusb0-not-present-in-ubuntu-22-04
+
+```
+sudo apt purge brltty
+sudo rm -rv /var/lib/BrlAPI/
+```
+
+If you are getting `Cannot open /dev/ttyUSB0: Permission denied`
+```
+sudo usermod -a -G tty,dialout $USER
+```
+
+Do a proper logout or reboot.
 
 ### Building the Pip Package Locally (Not Recommended due to Dependency Issues)
 
@@ -104,14 +166,14 @@ The bar at the top of the dashboard manages sending commands to the SRT, which a
 
 Additionally, there are four different interactive graphs displayed on this screen.
 The 'Power vs Time' graph displays the received power over a certain range of time into the past.
-The first of the two spectrum graphs, 'Raw Spectrum', shows the processed and integrated radio FFT data, whose values don't necessarily have any real world units and have a shape that is influenced by the band-pass filter.  The other, 'Calibrated Spectrum' shows the values after dividing out the calibration values taken when the 'Calibrate' command was last run on a test source of known temperature (such as a clump of trees or a noise diode).
-Finally, there is the Azimuth-Elevation graph, which shows the current position of all objects specified to be tracked in the sky_coords.csv configuration file, as well as the reachable limits of the motor and the horizon.  Clicking on a point allows you to send a command to track that object, perform an n-point scan about the object, or repeatedly move the antenna across it.
+The first of the two spectrum graphs, 'Raw Spectrum', shows the processed and integrated radio FFT data, whose values don't necessarily have any real world units and have a shape that is influenced by the band-pass filter. The other, 'Calibrated Spectrum', shows the values after dividing out the calibration values taken when the 'Calibrate' command was last run on a test source of known temperature (such as a clump of trees or a noise diode). 'Raw Spectrum History' shows a waterfall plot sometimes called also a dynamic spectrum.
+Finally, there is the Azimuth-Elevation graph, which shows the current position of all objects specified to be tracked in the sky_coords.csv configuration file, as well as the reachable limits of the motor and the horizon. Clicking on a point allows you to send a command to track that object, perform an n-point scan about the object, or repeatedly move the antenna across it.
 
 #### System Page UI
 
 ![System Page](docs/images/system_page.png)
 
-The System Page contains many displays of information not necessary for actively controlling the SRT.  In case of a serious problem occuring when operating the SRT, there is a section for Emergency Contact Info.  There is similarly a 'Message Logs' scrolling area for logs sent from the SRT, in order to assist in debugging or just determining what it has done recently.  In the middle is a more verbose status blurb about the status of the SRT's command queue, including the number of commands queued up and what the SRT is currently trying to run.  Finally, there is also a list of the files and folders in the SRT's specified recording save directory, which users can directly download files from via the dashboard if the "DASHBOARD_DOWNLOADS" setting in the configuration YAML is set to Yes.
+The System Page contains many displays of information not necessary for actively controlling the SRT.  In case of a serious problem occuring when operating the SRT, there is a section for Emergency Contact Info.  There is similarly a 'Message Logs' scrolling area for logs sent from the SRT, in order to assist in debugging or just determining what it has done recently.  In the middle is a more verbose status blurb about the status of the SRT's command queue, including the number of commands queued up and what the SRT is currently trying to run. Finally, there is also a list of the files and folders in the SRT's specified recording save directory, which users can directly download files from via the dashboard if the "DASHBOARD_DOWNLOADS" setting in the configuration YAML is set to Yes.
 
 ### Running Headless / Command Line Usage
 
@@ -164,6 +226,8 @@ srt_controller.py status --status_parameter=motor_azel
 - plotly
 - pandas
 - waitress
+- ocl-icd-system
+- tzlocal
 
 ## Accommodating Different Hardware
 
@@ -187,9 +251,10 @@ Adding a new antenna motor therefore requires:
 - Making the string name for that motor create that motor in  [rotors.py](srt/daemon/rotor_control/rotors.py)
 - Adding the string name as an valid option in the [YAML schema](config/schema.yaml) MOTOR_TYPE so the new type will be considered valid, such as:
 ```
-MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT', 'PUSHROD', 'NONE')
+MOTOR_TYPE: enum('ALFASPID', 'H180MOUNT', 'PUSHROD', 'NONE', 'CASSI')
 ```
 - Changing the MOTOR_TYPE in your own configuration YAML to the new motor type
+- Adding the string name to the condition in `generate_az_el_graph` method in [graphs.py](https://github.com/AlexKurek/srt-py/blob/master/srt/dashboard/layouts/graphs.py).
 
 ## Further Documentation
 

@@ -9,14 +9,14 @@ import dash
 try:
     from dash import dcc
 except:
-    import dash_core_components as dcc
+    import dash_core_components as dcc  #  Dash 1.x
 
 import dash_bootstrap_components as dbc
 
 try:
     from dash import html
 except:
-    import dash_html_components as html
+    import dash_html_components as html  #  Dash 1.x
 
 from dash.exceptions import PreventUpdate
 
@@ -24,16 +24,17 @@ from dash.dependencies import Input, Output, State
 
 from pathlib import Path
 from time import time
-import base64
+from base64 import b64decode
 import io
-import numpy as np
 
 from .navbar import generate_navbar
 from .graphs import (
     generate_az_el_graph,
     generate_power_history_graph,
+    generate_waterfall_graph,
     generate_spectrum_graph,
     generate_npoint,
+    generate_bswitch_graph,
     emptygraph,
 )
 
@@ -45,18 +46,33 @@ def generate_first_row():
     -------
     Div Containing First Row Objects
     """
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
+
     return html.Div(
         [
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="power-graph")],
+                        [dcc.Graph(id="power-graph", config=config)],
                         className="pretty_container six columns",
                     ),
                     html.Div(
                         [
-                            dcc.Graph(id="cal-spectrum-histogram"),
-                            dcc.Graph(id="raw-spectrum-histogram"),
+                            dcc.Graph(id="cal-spectrum-histogram", config=config),
+                            dcc.Graph(id="raw-spectrum-histogram", config=config),
                         ],
                         className="pretty_container six columns",
                     ),
@@ -72,23 +88,83 @@ def generate_first_row():
 
 
 def generate_fig_row():
-    """Generates First Row (Power and Spectrum) Display
+    """Generates Fig Row (N-point and Beam-switch) Display
 
     Returns
     -------
-    Div Containing First Row Objects
+    Div Containing Fig Row Objects
     """
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
+
     return html.Div(
         [
             html.Div(
                 [
                     dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="npoint-graph")],
+                        [dcc.Graph(id="npoint-graph", config=config)],
+                        className="pretty_container six columns",
+                    ),
+                    html.Div(
+                        [dcc.Graph(id="bswitch-graph", config=config)],
+                        className="pretty_container six columns",
+                    ),
+                ],
+                className="flex-display",
+                style={
+                    "justify-content": "left",
+                    "margin": "5px",
+                },
+            ),
+        ]
+    )
+
+
+def generate_second_fig_row():
+    """Generates Second Fig Row (Waterfall Plot and Cross Scan) Display
+
+    Returns
+    -------
+    Div Containing Second Fig Row Objects
+    """
+    config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "modeBarButtonsToAdd": [
+            "togglehover",
+            "togglespikelines",
+            "drawline",
+            "drawopenpath",
+            "drawclosedpath",
+            "drawcircle",
+            "drawrect",
+            "eraseshape",
+        ],
+    }
+    return html.Div(
+        [
+            html.Div(
+                [
+                    # dcc.Store(id="npoint_info", storage_type="session"),
+                    html.Div(
+                        [dcc.Graph(id="waterfall-graph", config=config)],
                         className="pretty_container six columns",
                     ),
                     # html.Div(
-                    #     [dcc.Graph(id="beamsswitch-graph")],
+                    #     [dcc.Graph(id="cross-scan-graph", config= config)],
                     #     className="pretty_container six columns",
                     # ),
                 ],
@@ -457,7 +533,25 @@ def generate_layout():
             html.Div(
                 [
                     html.Div(
-                        [dcc.Graph(id="az-el-graph")],
+                        [
+                            dcc.Graph(
+                                id="az-el-graph",
+                                config={
+                                    "displaylogo": False,
+                                    "scrollZoom": True,
+                                    "modeBarButtonsToAdd": [
+                                        "togglehover",
+                                        "togglespikelines",
+                                        "drawline",
+                                        "drawopenpath",
+                                        "drawclosedpath",
+                                        "drawcircle",
+                                        "drawrect",
+                                        "eraseshape",
+                                    ],
+                                },
+                            )
+                        ],
                         className="pretty_container twelve columns",
                     ),
                 ],
@@ -465,6 +559,7 @@ def generate_layout():
                 style={"margin": dict(l=10, r=5, t=5, b=5)},
             ),
             generate_fig_row(),
+            generate_second_fig_row(),
             generate_popups(),
             html.Div(id="signal", style={"display": "none"}),
         ]
@@ -501,11 +596,13 @@ def register_callbacks(
         Output("cal-spectrum-histogram", "figure"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_cal_spectrum_histogram(n):
+    def update_cal_spectrum_histogram(_):
         spectrum = cal_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
-            return ""
+            return emptygraph(
+                "Frequency", "Temperature (K)", title="Calibrated Spectrum", height=150
+            )
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=True)
@@ -514,12 +611,13 @@ def register_callbacks(
         Output("raw-spectrum-histogram", "figure"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_raw_spectrum_histogram(n):
-
+    def update_raw_spectrum_histogram(_):
         spectrum = raw_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
-            return ""
+            return emptygraph(
+                "Frequency", "Temp. (Unitless)", title="Raw Spectrum", height=150
+            )
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=False)
@@ -527,23 +625,49 @@ def register_callbacks(
     @app.callback(
         Output("power-graph", "figure"), [Input("interval-component", "n_intervals")]
     )
-    def update_power_graph(n):
+    def update_power_graph(_):
         status = status_thread.get_status()
         if status is None:
-            return ""
+            return emptygraph(
+                "Time", "Calibrated Power", title="Power vs Time", height=300
+            )
         tsys = float(status["temp_sys"])
         tcal = float(status["temp_cal"])
         cal_pwr = float(status["cal_power"])
         spectrum_history = raw_spectrum_thread.get_history()
         if spectrum_history is None:
-            return ""
-        return generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history)
+            return emptygraph(
+                "Time", "Calibrated Power", title="Power vs Time", height=300
+            )
+        gui_timezone = status["gui_timezone"]
+        return generate_power_history_graph(
+            tsys, tcal, cal_pwr, spectrum_history, gui_timezone
+        )
+
+    @app.callback(
+        Output("waterfall-graph", "figure"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_waterfall_graph(_):
+        spectrum_history = raw_spectrum_thread.get_history()
+        status = status_thread.get_status()
+        if (not spectrum_history) or (spectrum_history is None) or (status is None):
+            return emptygraph(
+                "Frequency", "Time", title="Raw Spectrum History", height=300
+            )
+        bandwidth = float(status["bandwidth"])
+        cf = float(status["center_frequency"])
+        waterfall_length = status["waterfall_length"]
+        gui_timezone = status["gui_timezone"]
+        return generate_waterfall_graph(
+            bandwidth, cf, spectrum_history, waterfall_length, gui_timezone
+        )
 
     @app.callback(
         Output("npoint_info", "data"),
         [Input("interval-component", "n_intervals"), State("npoint_info", "data")],
     )
-    def npointstore(n, npdata):
+    def npointstore(_, npdata):
         """Update the npoint track info
 
         Parameters
@@ -551,7 +675,7 @@ def register_callbacks(
         n : int
             number of Update intervals
         npdata : dict
-            will hold N- point data.
+            will hold N-point data.
 
         Returns
         -------
@@ -595,7 +719,7 @@ def register_callbacks(
         ts : int
             modified time stamp
         npdata : dict
-            will hold N- point data.
+            will hold N-point data.
 
         Returns
         -------
@@ -606,10 +730,10 @@ def register_callbacks(
         if ts is None:
             raise PreventUpdate
         if npdata is None:
-            return emptygraph("x", "y", "N-Point Scan")
+            return emptygraph("x", "y", title="N-Point Scan", height=300)
 
         if npdata.get("scan_center", [1, 1])[0] == 0:
-            return emptygraph("x", "y", "N-Point Scan")
+            return emptygraph("x", "y", title="N-Point Scan", height=300)
 
         az_a = []
         el_a = []
@@ -624,10 +748,24 @@ def register_callbacks(
         return ofig
 
     @app.callback(
+        Output("bswitch-graph", "figure"), [Input("interval-component", "n_intervals")]
+    )
+    def update_bswitch_graph(_):
+        status = status_thread.get_status()
+        if not status:
+            return emptygraph("Position", "Power", title="Beam switch", height=300)
+        power_bswitch_live = status["power_bswitch_live"]
+        if not power_bswitch_live:
+            return emptygraph("Position", "Power", title="Beam switch", height=300)
+        num_beamswitches = status["num_beamswitches"]
+        bswitch_fig = generate_bswitch_graph(power_bswitch_live, num_beamswitches)
+        return bswitch_fig
+
+    @app.callback(
         Output("start-warning", "children"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_start_daemon_warning(n):
+    def update_start_daemon_warning(_):
         status = status_thread.get_status()
         if status is None:
             return "SRT Daemon Not Detected"
@@ -641,7 +779,7 @@ def register_callbacks(
         Output("start-config-file", "options"),
         [Input("interval-component", "n_intervals")],
     )
-    def update_start_daemon_options(n):
+    def update_start_daemon_options(_):
         files = [
             {"label": file.name, "value": file.name}
             for file in Path(config["CONFIG_DIR"]).glob("*")
@@ -654,10 +792,11 @@ def register_callbacks(
         [Input("upload-data", "contents")],
         [State("upload-data", "filename"), State("upload-data", "last_modified")],
     )
-    def update_output(contents, name, date):
+    def update_output(contents, name, _):
         if contents is not None:
-            content_type, content_string = contents.split(",")
-            decoded = base64.b64decode(content_string)
+            # content_type, content_string = contents.split(",")
+            _, content_string = contents.split(",")
+            decoded = b64decode(content_string)
             try:
                 if "txt" in name or "cmd" in name:
                     # Assume that the user uploaded a txt file
@@ -675,9 +814,11 @@ def register_callbacks(
     @app.callback(
         Output("az-el-graph", "figure"), [Input("interval-component", "n_intervals")]
     )
-    def update_az_el_graph(n):
+    def update_az_el_graph(_):
         status = status_thread.get_status()
-        if status is not None:
+        if status == None:
+            return emptygraph("Azimuth", "Elevation")
+        else:
             return generate_az_el_graph(
                 status["az_limits"],
                 status["el_limits"],
@@ -687,8 +828,16 @@ def register_callbacks(
                 status["cal_loc"],
                 status["horizon_points"],
                 status["beam_width"],
+                status["rotor_loc_npoint_live"],
+                status["motor_cmd_azel"],
+                status["minimal_arrows_distance"],
+                status["npoint_arrows"],
+                status["motor_type"],
+                status["station"],
+                status["display_lim"],
+                status["draw_ecliptic"],
+                status["draw_equator"],
             )
-        return ""
 
     @app.callback(
         Output("az-el-graph-modal", "is_open"),
@@ -910,10 +1059,7 @@ def register_callbacks(
         ],
     )
     def cmd_button_pressed(
-        n_clicks_stow,
-        n_clicks_stop_record,
-        n_clicks_shutdown,
-        n_clicks_calibrate,
+        *_,
     ):
         ctx = dash.callback_context
         if not ctx.triggered:

@@ -3,6 +3,7 @@
 Moves a Motor Through 10 Random Points and Back to Stow
 
 """
+
 from random import uniform
 from time import sleep
 

@@ -3,8 +3,10 @@
 Extra Functions Condensed for Ease-of-Use
 
 """
+
 import zmq
 import numpy as np
+from math import isqrt
 
 
 def angle_within_range(actual_angle, desired_angle, bounds=0.5):
@@ -156,3 +158,20 @@ def npoint_interp(az, el, val, d_az, d_el, nout=100):
     )
 
     return azarr, elarr, val_out
+
+
+def is_square(i: int) -> bool:
+    """Check if input is a square of nautral number
+
+    Parameters
+    ----------
+    i : int
+        Number to chceck
+
+    Returns
+    -------
+    bool
+        If input is a square of nautral number
+
+    """
+    return i == isqrt(i) ** 2

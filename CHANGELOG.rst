@@ -2,9 +2,78 @@
 srt-py Change Log
 =================
 
-.. current developments
 
-vv1.1.1
+**Current developments:**
+
+**Added:**
+
+* ``DASHBOARD_THREADS``, ``NPOINT_INTEG_TIME``, ``MINIMAL_ARROWS_DISTANCE``, ``PLAY_SOUNDS``, ``NPOINT_ARROWS``, ``SPECTRUM_HISTORY_LENGTH``, ``WATERFALL_LENGTH``, ``GUI_TIMEZONE``, ``DISPLAY_LIM``, ``DRAW_ECLIPTIC``, ``DRAW_EQUATOR``, ``N_PNT_COUNT``, ``BSWITCH_INTEG_TIME``, ``GOTO_STOW_AT_STARTUP`` parameters
+* CASSI motor support
+* Baudrate check for H180 and CASSI motors classes
+* Non-physical limit warning
+* Windrose letters and lines in Azimuth and Elevation Graph
+* Buttons to modebar: all shape drawing,  ``togglespikelines`` and ``togglehover``
+* Drawing of n-point scan points on az-el graph
+* Drawing arrows showing motor route
+* ``playsound`` command
+* Optional sound when n-point scan and beam switch are complete
+* ``rot_curve.txt`` command file
+* ``ocl-icd-system`` to the recipe to avoid https://github.com/MITHaystack/srt-py/issues/21#issuecomment-1963827916
+* ``tzlocal`` to recipe
+* Optional arrows showing route of n-point scan
+* ``azel_to_coords.py``, ``coords_to_azel.py``
+* Recording indicator to system page
+* Waterfall spectrum plot
+* Spectrum history length to parameter
+* User now can choose timezone in Monitor Page
+* Az-el graph display limits to parameter
+* Optional drawing of ecliptic and equator planes
+* Real size Sun and Moon shapes
+* Logging messages to beam switch
+* Warning message when angle out of bounds during n-point scan and beam switch
+* Log message at the end of n-point scan and beam switch
+* Beam switch graph
+* Option to automatically go to STOW at startup
+
+**Changed:**
+
+* Remember zoom after refresh in Azimuth and Elevation Graph
+* Hide Plotly logo
+* Enabe scroll zoom
+* ``monitor_page.png``
+* fk4 to icrs in ``sky_coords.csv``
+* Sort the system page by newest issue first
+* Different marker types on az el graph
+* Marker for visability to circular
+* Number of n-point scan rotor positions to parameter
+* Height of n-point scan graph to 300
+* N-point scan and beam switch integration times to parameters
+
+**Fixed:**
+
+* Searching for default config dir (https://github.com/MITHaystack/srt-py/issues/23)
+* Astropy deprecations
+* H180 class: init (https://github.com/MITHaystack/srt-py/issues/21) and updating ``self.az_count``, ``self.el_count`` (https://github.com/MITHaystack/srt-py/issues/24)
+* N-point scan and beam switch numbering (off-by-one error)
+* Conda build error (https://github.com/MITHaystack/srt-py/issues/19)
+* N-point scan and beam switch center not updated during scan (https://github.com/MITHaystack/srt-py/issues/25)
+* Visability rectangle for negative STOW azimuth (overwritten by: marker for visability to circular)
+* Dash deprecation: ``className`` to ``class_name`` (https://github.com/AlexKurek/srt-py/commit/43946aa7e8453154096ddc45c092f506cda00cff)
+* ``utcfromtimestamp`` deprecation
+* Comment unused modules in ``srt/daemon/radio_control/`` (https://github.com/AlexKurek/srt-py/commit/9a3f9d05a5b0fd2e2b8300441605010e2586599c)
+* Graphs appear faster
+* Beam switch count (off-by-one error)
+
+**Known issues:**
+
+* A lot of waitress logging messages is printed (https://github.com/MITHaystack/srt-py/issues/27)
+* Beam-switch and N-Point Scan not possible after Direct Point to the same object (https://github.com/MITHaystack/srt-py/issues/29)
+* Versioneer is outdated and not supporting current Python versions
+* GOTO_STOW_AT_STARTUP not working
+
+
+
+v1.1.1
 ====================
 
 **Added:**
@@ -14,7 +83,7 @@ vv1.1.1
 
 
 
-vv1.1.0
+v1.1.0
 ====================
 
 **Added:**

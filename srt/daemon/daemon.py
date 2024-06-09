@@ -5,7 +5,7 @@ Main Control and Orchestration Class for the Small Radio Telescope
 """
 
 from time import sleep, time
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from threading import Thread
 from queue import Queue
 from xmlrpc.client import ServerProxy
@@ -25,7 +25,10 @@ from .radio_control.radio_task_starter import (
     RadioSaveSpecFitsTask,
 )
 from .utilities.object_tracker import EphemerisTracker
-from .utilities.functions import azel_within_range, get_spectrum
+from .utilities.functions import azel_within_range, get_spectrum, is_square
+
+import subprocess
+from math import sqrt, ceil
 
 
 class SmallRadioTelescopeDaemon:
@@ -52,10 +55,18 @@ class SmallRadioTelescopeDaemon:
             config_dict["AZLIMITS"]["lower_bound"],
             config_dict["AZLIMITS"]["upper_bound"],
         )
+        if abs(self.az_limits[0] - self.az_limits[1]) > 360:
+            print(
+                "Distance between AZLIMITS is greater than 360 deg. Consider lowering the upper limit."
+            )
         self.el_limits = (
             config_dict["ELLIMITS"]["lower_bound"],
             config_dict["ELLIMITS"]["upper_bound"],
         )
+        if abs(self.el_limits[0] - self.el_limits[1]) > 90:
+            print(
+                "Distance between ELLIMITS is greater than 90 deg. Consider lowering the upper limit."
+            )
         self.stow_location = (
             config_dict["STOW_LOCATION"]["azimuth"],
             config_dict["STOW_LOCATION"]["elevation"],
@@ -82,6 +93,30 @@ class SmallRadioTelescopeDaemon:
         self.temp_sys = config_dict["TSYS"]
         self.temp_cal = config_dict["TCAL"]
         self.save_dir = config_dict["SAVE_DIRECTORY"]
+        self.npoint_integration_time = config_dict["NPOINT_INTEG_TIME"]
+        self.bswitch_integration_time = config_dict["BSWITCH_INTEG_TIME"]
+        self.minimal_arrows_distance = config_dict["MINIMAL_ARROWS_DISTANCE"]
+        self.play_sounds = config_dict["PLAY_SOUNDS"]
+        self.npoint_arrows = config_dict["NPOINT_ARROWS"]
+        self.waterfall_length = config_dict["WATERFALL_LENGTH"]
+        self.gui_timezone = config_dict["GUI_TIMEZONE"]
+        if self.gui_timezone != "UTC" and self.gui_timezone != "local":
+            print(
+                "Unknows value of GUI_TIMEZONE: '"
+                + self.gui_timezone
+                + "'. It has to be 'UTC' or 'local'. Defaulting to UTC."
+            )
+            self.gui_timezone = "UTC"
+        self.display_lim = (
+            config_dict["DISPLAY_LIM"]["az_lower_display_lim"],
+            config_dict["DISPLAY_LIM"]["az_upper_display_lim"],
+            config_dict["DISPLAY_LIM"]["el_lower_display_lim"],
+            config_dict["DISPLAY_LIM"]["el_upper_display_lim"],
+        )
+        self.draw_ecliptic = config_dict["DRAW_ECLIPTIC"]
+        self.draw_equator = config_dict["DRAW_EQUATOR"]
+        self.n_pnt_count = config_dict["N_PNT_COUNT"]
+        self.goto_stow_at_startup = config_dict["GOTO_STOW_AT_STARTUP"]
 
         # Generate Default Calibration Values
         # Values are Set Up so that Uncalibrated and Calibrated Spectra are the Same Values
@@ -119,7 +154,7 @@ class SmallRadioTelescopeDaemon:
             self.az_limits,
             self.el_limits,
         )
-        self.rotor_location = self.stow_location
+        self.rotor_location = self.stow_location # this may not always be true at startup
         self.rotor_destination = self.stow_location
         self.rotor_offsets = (0.0, 0.0)
         self.rotor_cmd_location = tuple(
@@ -142,6 +177,8 @@ class SmallRadioTelescopeDaemon:
         # List for data that will be plotted in the app
         self.n_point_data = []
         self.beam_switch_data = []
+        self.rotor_loc_npoint_live = []
+        self.power_bswitch_live = []
 
     def log_message(self, message):
         """Writes Contents to a Logging List and Prints
@@ -155,11 +192,11 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
-        self.command_error_logs.append((time(), message))
+        self.command_error_logs.insert(0, (time(), message))
         print(message)
 
-    def n_point_scan(self, object_id):
-        """Runs an N-Point (25) Scan About an Object
+    def n_point_scan(self, n_pnt_count, object_id):
+        """Runs an N-Point Scan About an Object
 
         Parameters
         ----------
@@ -170,48 +207,78 @@ class SmallRadioTelescopeDaemon:
         -------
         None
         """
+        if n_pnt_count < 4:
+            print("The value of N_PNT_COUNT is <4. Scan may not work.")
+        if is_square(n_pnt_count) == False:
+            print(
+                "The value of N_PNT_COUNT is not a square of a natural number. Scan may not work."
+            )
         self.ephemeris_cmd_location = None
         self.radio_queue.put(("soutrack", object_id))
         # Send vlsr to radio queue
         cur_vlsr = self.ephemeris_vlsr[object_id]
         self.radio_queue.put(("vlsr", float(cur_vlsr)))
         self.current_vlsr = cur_vlsr
-        N_pnt_default = 25
         rotor_loc = []
         pwr_list = []
-        #
-        scan_center = self.ephemeris_locations[object_id]
-        np_sides = [5, 5]
-        for scan in range(N_pnt_default):
-            self.log_message("{0} of {1} point scan.".format(scan, N_pnt_default))
-            i = (scan // 5) - 2
-            j = (scan % 5) - 2
+        scan_center_list = []
+        np_sides = [sqrt(n_pnt_count), sqrt(n_pnt_count)]
+        for scan in range(n_pnt_count):
+            current_scan_center = self.ephemeris_locations[object_id]
+            scan_center_list.append(current_scan_center)
+            self.log_message("{0} of {1} point scan.".format(scan + 1, n_pnt_count))
+            i = (scan // sqrt(n_pnt_count)) - 2
+            j = (scan % sqrt(n_pnt_count)) - 2
             el_dif = i * self.beamwidth * 0.5
-            az_dif_scalar = np.cos((scan_center[1] + el_dif) * np.pi / 180.0)
+            az_dif_scalar = np.cos((current_scan_center[1] + el_dif) * np.pi / 180.0)
             # Avoid issues where you get close to the zenith
-            if np.abs(az_dif_scalar)<1e-4:
+            if np.abs(az_dif_scalar) < 1e-4:
                 az_dif = 0
             else:
                 az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
-    
+
             new_rotor_offsets = (az_dif, el_dif)
 
-            if self.rotor.angles_within_bounds(*scan_center):
-                self.rotor_destination = scan_center
+            if self.rotor.angles_within_bounds(*current_scan_center):
+                self.rotor_destination = current_scan_center
                 self.point_at_offset(*new_rotor_offsets)
+            else:
+                print(
+                    """Angle not within bounds, skipping iteration. Scan results will be biased. 
+                It is recommended to run another scan further away from the bounds."""
+                )
             rotor_loc.append(self.rotor_location)
-            sleep(5)
+            self.rotor_loc_npoint_live = rotor_loc
+            sleep(self.npoint_integration_time)
             raw_spec = get_spectrum(port=5561)
             p = np.sum(raw_spec)
             a = len(raw_spec)
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
+        self.log_message("N-point scan has finished.")
         maxdiff = (az_dif, el_dif)
+
+        sc_az = [t[0] for t in scan_center_list]
+        sc_el = [t[1] for t in scan_center_list]
+        sc_az_mean = sum(sc_az) / len(sc_az)
+        sc_el_mean = sum(sc_el) / len(sc_el)
+        scan_center = (sc_az_mean, sc_el_mean)
+
         self.n_point_data = [scan_center, maxdiff, rotor_loc, pwr_list, np_sides]
 
         # add code to collect spectrum data.
         self.rotor_offsets = (0.0, 0.0)
         self.ephemeris_cmd_location = object_id
+
+        if self.play_sounds == True:
+            try:
+                subprocess.call(["speech-dispatcher"], stdout=subprocess.DEVNULL)
+                subprocess.call(["spd-say", '"N-point scan has finished"'])
+            except:
+                print(
+                    """Sounds are enabled in the config file, but there was a problem and could not play sound.
+                      (The playback mechanism uses Ubuntu's speech dispatcher)."""
+                )
 
     def beam_switch(self, object_id):
         """Swings Antenna Across Object
@@ -231,10 +298,23 @@ class SmallRadioTelescopeDaemon:
         cur_vlsr = self.ephemeris_vlsr[object_id]
         self.radio_queue.put(("vlsr", float(cur_vlsr)))
         self.current_vlsr = cur_vlsr
-        new_rotor_destination = self.ephemeris_locations[object_id]
         rotor_loc = []
         pwr_list = []
-        for j in range(0, 3 * self.num_beamswitches):
+        for j in range(0, (3 * self.num_beamswitches) - 1):
+            new_rotor_destination = self.ephemeris_locations[object_id]
+            if (j == 0) or ((j + 1) % 3 == 0):
+                if j == 0:
+                    self.log_message(
+                        "{0} of {1} beam switch.".format(
+                            ceil((j + 1) / 3), self.num_beamswitches
+                        )
+                    )
+                else:
+                    self.log_message(
+                        "{0} of {1} beam switch.".format(
+                            ceil((j + 1) / 3) + 1, self.num_beamswitches
+                        )
+                    )
             self.radio_queue.put(("beam_switch", j + 1))
             az_dif_scalar = np.cos(new_rotor_destination[1] * np.pi / 180.0)
             az_dif = (j % 3 - 1) * self.beamwidth / az_dif_scalar
@@ -242,17 +322,34 @@ class SmallRadioTelescopeDaemon:
             if self.rotor.angles_within_bounds(*new_rotor_destination):
                 self.rotor_destination = new_rotor_destination
                 self.point_at_offset(*new_rotor_offsets)
+            else:
+                print(
+                    """Angle not within bounds, skipping iteration. Results will be biased. 
+                It is recommended to repeat the run further away from the boundaries."""
+                )
             rotor_loc.append(self.rotor_location)
-            sleep(5)
+            sleep(self.bswitch_integration_time)
             raw_spec = get_spectrum(port=5561)
             p = np.sum(raw_spec)
             a = len(raw_spec)
             pwr = (self.temp_sys + self.temp_cal) * p / (a * self.cal_power)
             pwr_list.append(pwr)
+            self.power_bswitch_live = pwr_list
+        self.log_message("Beam switch has finished.")
         self.rotor_offsets = (0.0, 0.0)
         self.radio_queue.put(("beam_switch", 0))
         self.ephemeris_cmd_location = object_id
         self.beam_switch_data = [rotor_loc, pwr_list]
+
+        if self.play_sounds == True:
+            try:
+                subprocess.call(["speech-dispatcher"], stdout=subprocess.DEVNULL)
+                subprocess.call(["spd-say", '"Beam switch has finished"'])
+            except:
+                print(
+                    """Sounds are enabled in the config file, but there was a problem and could not play sound.
+                      (The playback mechanism uses Ubuntu's speech dispatcher)."""
+                )
 
     def point_at_object(self, object_id):
         """Points Antenna Directly at Object, and Sets Up Tracking to Follow it
@@ -483,6 +580,30 @@ class SmallRadioTelescopeDaemon:
         self.keep_running = False
         self.radio_queue.put(("is_running", self.keep_running))
 
+    def play_sound(self, command):
+        """Declaims a text
+
+        Parameters
+        ----------
+        command : string
+            Text to declaim
+
+        Returns
+        -------
+        None
+        """
+        if self.play_sounds == True:
+            command = command.replace("playsound ", "")
+            command = '"' + command + '"'
+            try:
+                subprocess.call(["speech-dispatcher"], stdout=subprocess.DEVNULL)
+                subprocess.call(["spd-say", command])
+            except:
+                print(
+                    """Sounds are enabled in the config file, but there was a problem and could not play sound.
+                      (The playback mechanism uses Ubuntu's speech dispatcher)."""
+                )
+
     def update_ephemeris_location(self):
         """Periodically Updates Object Locations for Tracking Sky Objects
 
@@ -619,7 +740,20 @@ class SmallRadioTelescopeDaemon:
                 "temp_sys": self.temp_sys,
                 "cal_power": self.cal_power,
                 "n_point_data": self.n_point_data,
+                "rotor_loc_npoint_live": self.rotor_loc_npoint_live,
+                "power_bswitch_live": self.power_bswitch_live,
                 "beam_switch_data": self.beam_switch_data,
+                "num_beamswitches": self.num_beamswitches,
+                "minimal_arrows_distance": self.minimal_arrows_distance,
+                "npoint_arrows": self.npoint_arrows,
+                "motor_type": self.motor_type,
+                "radio_save_task": str(self.radio_save_task),
+                "waterfall_length": self.waterfall_length,
+                "gui_timezone": self.gui_timezone,
+                "display_lim": self.display_lim,
+                "station": self.station,
+                "draw_ecliptic": self.draw_ecliptic,
+                "draw_equator": self.draw_equator,
                 "time": time(),
             }
             status_socket.send_json(status)
@@ -718,11 +852,19 @@ class SmallRadioTelescopeDaemon:
         status_thread.start()
         radio_thread.start()
 
+        if self.goto_stow_at_startup == True:
+            self.log_message("GOTO_STOW_AT_STARTUP option is on; running command 'stow'")
+            self.stow()
+        else:
+            self.log_message("GOTO_STOW_AT_STARTUP option is off; not going to STOW")
         while self.keep_running:
             try:
                 # Await Command for the SRT
                 self.current_queue_item = "None"
                 command = self.command_queue.get()
+                # Make n-point scan markers disappear on next command
+                if command != "None":
+                    self.rotor_loc_npoint_live = []
                 self.log_message(f"Running Command '{command}'")
                 self.current_queue_item = command
                 if len(command) < 2 or command[0] == "*":
@@ -736,7 +878,7 @@ class SmallRadioTelescopeDaemon:
                 # If Command Starts With a Valid Object Name
                 if command_parts[0] in self.ephemeris_locations:
                     if command_parts[-1] == "n":  # N-Point Scan About Object
-                        self.n_point_scan(object_id=command_parts[0])
+                        self.n_point_scan(self.n_pnt_count, object_id=command_parts[0])
                     elif command_parts[-1] == "b":  # Beam-Switch Away From Object
                         self.beam_switch(object_id=command_parts[0])
                     else:  # Point Directly At Object
@@ -749,6 +891,8 @@ class SmallRadioTelescopeDaemon:
                     self.calibrate()
                 elif command_name == "quit":
                     self.quit()
+                elif command_name == "playsound":
+                    self.play_sound(command=command)
                 elif command_name == "record":
                     self.start_recording(
                         name=(None if len(command_parts) <= 1 else command_parts[1])
@@ -777,16 +921,16 @@ class SmallRadioTelescopeDaemon:
                 elif command_name.split(":")[0] == "lst":  # Wait Until Next Time H:M:S
                     time_string = command_name.replace("LST:", "")
                     time_val = datetime.strptime(time_string, "%H:%M:%S")
-                    while time_val < datetime.utcfromtimestamp(time()):
+                    while time_val < datetime.fromtimestamp(time(), timezone.utc):
                         time_val += timedelta(days=1)
                     time_delta = (
-                        time_val - datetime.utcfromtimestamp(time())
+                        time_val - datetime.fromtimestamp(time(), timezone.utc)
                     ).total_seconds()
                     sleep(time_delta)
                 elif len(command_name.split(":")) == 5:  # Wait Until Y:D:H:M:S
                     time_val = datetime.strptime(command_name, "%Y:%j:%H:%M:%S")
                     time_delta = (
-                        time_val - datetime.utcfromtimestamp(time())
+                        time_val - datetime.fromtimestamp(time(), timezone.utc)
                     ).total_seconds()
                     sleep(time_delta)
                 else:
