@@ -89,12 +89,35 @@ def generate_first_row():
     )
 
 
+def generate_srt_azel():
+    """Generates AzEl  Display
+
+    Returns
+    -------
+    Div: html.Div 
+        containing n point graph az el pointing
+    """
+    return html.Div(
+        html.Div(
+            [
+                html.Div(
+                    [dcc.Graph(id="az-el-graph")],
+                    className="pretty_container twelve columns",
+                ),
+
+            ],
+            className="flex-display",
+            style={"margin": dict(l=10, r=5, t=5, b=5)},
+        ),
+    )
+
 def generate_npointlayout():
     """Generates N Point Display
 
     Returns
     -------
-    Div containing n point graph if srt
+    Div: html.Div 
+        containing n point graph if srt
     """
     return html.Div(
         [
@@ -109,6 +132,37 @@ def generate_npointlayout():
                     #     [dcc.Graph(id="beamsswitch-graph")],
                     #     className="pretty_container six columns",
                     # ),
+                ],
+                className="flex-display",
+                style={
+                    "justify-content": "left",
+                    "margin": "5px",
+                },
+            ),
+        ]
+    )
+
+def generate_srt_second_row():
+    """Generates N Point Display and zoomed in map
+
+    Returns
+    -------
+    Div: html.Div 
+        containing n point graph if srt
+    """
+    return html.Div(
+        [
+            html.Div(
+                [
+                    dcc.Store(id="npoint_info", storage_type="session"),
+                    html.Div(
+                        [dcc.Graph(id="npoint-graph")],
+                        className="pretty_container six columns",
+                    ),
+                    html.Div(
+                        [dcc.Graph(id="zoom-graph")],
+                        className="pretty_container six columns",
+                    ),
                 ],
                 className="flex-display",
                 style={
@@ -783,8 +837,8 @@ def generate_layout(software):
                 dbc.Alert("Recording", color="danger",
                           id="recording-alert", is_open=False),
                 generate_first_row(),
-                generate_npointlayout(),
-                generate_second_row(),
+                generate_srt_azel(),
+                generate_srt_second_row(),
                 generate_third_row(),
                 generate_popups(software),
                 html.Div(id="signal", style={"display": "none"}),
