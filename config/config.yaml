@@ -1,49 +1,52 @@
 SOFTWARE: Small Radio Telescope
 STATION:
-  latitude: 42.5
-  longitude: -71.5
-  name: Haystack
+  latitude: 42.360236
+  longitude: -71.089694
+  name: W1XM
 EMERGENCY_CONTACT:
-  name: John Doe
-  email: test@example.com
-  phone_number: 555-555-5555
+  name: Oliver Trevor
+  email: olt@mit.edu
+  phone_number: 925-367-3607
 AZLIMITS:
-  lower_bound: 38.0
-  upper_bound: 355.0
+  lower_bound: 0.0
+  upper_bound: 360.0
 ELLIMITS:
   lower_bound: 0.0
-  upper_bound: 89.0
+  upper_bound: 87.0
 STOW_LOCATION:
-  azimuth: 38.0
-  elevation: 0.0
+  azimuth: 60.0
+  elevation: 30.0
 CAL_LOCATION:
-  azimuth: 120.0
-  elevation: 7.0
+  azimuth: 270.0
+  elevation: 50.0
 HORIZON_POINTS:
   - azimuth: 0
     elevation: 0
   - azimuth: 120
-    elevation: 5
+    elevation: 0
   - azimuth: 240
-    elevation: 5
+    elevation: 0
   - azimuth: 360
     elevation: 0
-MOTOR_TYPE: NONE
-MOTOR_PORT: /dev/ttyUSB0
-MOTOR_BAUDRATE: 600
+MOTOR_TYPE: W1XMBIGDISH
+MOTOR_PORT: None
+MOTOR_BAUDRATE: 0
 RADIO_CF: 1420000000
-RADIO_SF: 2400000
-RADIO_FREQ_CORR: -50000
-RADIO_NUM_BINS: 256
-RADIO_INTEG_CYCLES: 100000
+RADIO_SF: 2000000
+RADIO_FREQ_CORR: 00000
+RADIO_RF_GAIN: 20
+RADIO_NUM_BINS: 512
+RADIO_INTEG_CYCLES: 8192
 RADIO_AUTOSTART: Yes
-NUM_BEAMSWITCHES: 25
-BEAMWIDTH: 7.0
-TSYS: 171
-TCAL: 290
-SAVE_DIRECTORY: ~/Desktop/SRT-Saves
+NUM_BEAMSWITCHES: 10
+BEAMWIDTH: 2.9
+CAL_TYPE: NOISE_DIODE
+CAL_INTEGRATION_CYCLES: 5
+TSYS: 60.0
+TCAL: 48.5
+SAVE_DIRECTORY: /data/jlab
 RUN_HEADLESS: No
 DASHBOARD_PORT: 8080
 DASHBOARD_HOST: 0.0.0.0
 DASHBOARD_DOWNLOADS: Yes
-DASHBOARD_REFRESH_MS: 3000
+DASHBOARD_REFRESH_MS: 500

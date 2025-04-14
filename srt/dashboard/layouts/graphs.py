@@ -67,31 +67,24 @@ def generate_az_el_graph(
         )
     )
 
-    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
+    # Marker for visibility, basicaslly beamwidth  with azimuth stretched out for high elevation angles.
 
     az_l = current_location[0]
     el_l = current_location[1]
-    el_u = el_l + .5*beam_width
-    el_d = el_l - .5*beam_width
+    az_bw = beam_width/np.cos(el_l * np.pi / 180.0)
 
-    azu = .5*beam_width/np.cos(el_u * np.pi / 180.0)
-    azd = .5*beam_width/np.cos(el_d * np.pi / 180.0)
-    x_vec = [max(az_l-azd, 0), min(az_l-azu, 360),
-             max(az_l+azu, 0), min(az_l+azd, 360), max(az_l-azd, 0)]
-    y_vec = [max(el_d, 0), min(el_u, 90), min(
-        el_u, 90), min(el_d, 90), max(el_d, 0)]
-
-    fig.add_trace(
-        go.Scatter(
-            x=x_vec,
-            y=y_vec,
-            fill="toself",
-            fillcolor="rgba(147,112,219,0.1)",
-            text=["Visability"],
-            name='Visability',
-            mode="markers",
-            marker_color=["rgba(147,112,219, .8)" for _ in x_vec]
-        )
+    fig.add_shape(
+        type="circle",
+        xref="x",
+        yref="y",
+        x0=az_l-az_bw/2,
+        y0=el_l-beam_width/2,
+        x1=az_l+az_bw/2,
+        y1=el_l+beam_width/2,
+        fillcolor="grey",
+        layer="below",
+        #label=dict(text="Beamwidth", textposition="top center",
+        #           font=dict(color="White"))
     )
 
     fig.add_trace(
@@ -276,8 +269,12 @@ def generate_zoom_graph(
     """
     fig = go.Figure()
 
-    az_lower_display_lim = current_location[0]-beam_width*2
-    az_upper_display_lim = current_location[0]+beam_width*2
+    #correct for azel coordinates distortion on sky
+    #el_bw = beam_width
+    az_bw = beam_width/np.cos(current_location[1] * np.pi / 180.0)
+
+    az_lower_display_lim = current_location[0]-az_bw*2
+    az_upper_display_lim = current_location[0]+az_bw*2
     el_lower_display_lim = current_location[1]-beam_width*2
     el_upper_display_lim = current_location[1]+beam_width*2
 
@@ -295,13 +292,13 @@ def generate_zoom_graph(
         )
     )
     fig.add_shape(
-        type="rect",
+        type="circle",
         xref="x",
         yref="y",
-        x0=current_location[0]-beam_width,
-        y0=current_location[1]-beam_width,
-        x1=current_location[0]+beam_width,
-        y1=current_location[1]+beam_width,
+        x0=current_location[0]-az_bw/2,
+        y0=current_location[1]-beam_width/2,
+        x1=current_location[0]+az_bw/2,
+        y1=current_location[1]+beam_width/2,
         fillcolor="lightgrey",
         layer="below",
         label=dict(text="Beamwidth", textposition="top center",
@@ -714,8 +711,76 @@ def emptygraph(xlabel, ylabel, title):
 
     return fig
 
+def generate_npoint_raw(az_in, el_in, d_az, d_el, pow_in, cent, sides):
+    """Creates the n-point graph image with raw data without interpolation
 
-def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
+    Parameters
+    ----------
+    az_in : array_like
+        List of azimuth locations.
+    el_in : array_like
+        List of elevation locations.
+    d_az : float
+        Resolution of power measurements in the azimuth direction.
+    d_el : float
+        REsolution of power measurements in elevation direction.
+    pow_in : array_like
+        List of power measurements for the given locations of the antenna.
+    cent : array_like
+        Center point of the object being imaged.
+    sides : list
+        Number of pointers per side.
+
+    Returns
+    -------
+    fig : plotly.fig
+        Figure object.
+    """
+
+    # create the output grid
+    az_in = np.array(az_in)
+    el_in = np.array(el_in)
+    
+    idx_center = int(np.ceil(len(az_in)/2))
+    az_center = az_in[idx_center]
+    el_center = el_in[idx_center]
+    
+    az_range = np.linspace(az_center-d_az, az_center+d_az, sides[0])
+    el_range = np.linspace(el_center-d_el, el_center+d_el, sides[1])
+
+    pow_in = np.array(pow_in)
+    pow_grid = np.reshape(pow_in, (sides[0],sides[1]))
+    # Make the contour plot
+    d1 = go.Contour(z=pow_grid, x=az_range, y=el_range, colorscale="Viridis")
+    fig = go.Figure(
+        data=d1,
+        layout={
+            "title": "Raw N-Point Scan",
+            "xaxis_title": "Azimuth Angle",
+            "yaxis_title": "Elevation Angle",
+            "uirevision": True,
+        },
+    )
+    #fig.add_annotation(
+    #    x=xaout[10],
+    #    y=xaout[20],
+    #    xanchor="left",
+    #    text=antext0,
+    #    showarrow=False,
+    #    font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
+    #)
+
+    #fig.add_annotation(
+    #    x=xaout[10],
+    #    y=xaout[10],
+    #    text=antext1,
+    #    xanchor="left",
+    #    showarrow=False,
+    #    font=dict(family="Courier New, monospace", size=13, color="#ffffff"),
+    #)
+    return fig
+
+def generate_npoint_interpolated(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     """Creates the n-point graph image.
 
     Parameters
@@ -773,7 +838,7 @@ def generate_npoint(az_in, el_in, d_az, d_el, pow_in, cent, sides):
     fig = go.Figure(
         data=d1,
         layout={
-            "title": "N-Point Scan",
+            "title": "N Point Sinc Interpolated",
             "xaxis_title": "Normalized x",
             "yaxis_title": "Normalized y",
             "uirevision": True,

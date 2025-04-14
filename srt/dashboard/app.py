@@ -88,7 +88,9 @@ def generate_app(config_dir, config_dict):
     pio.templates.default = "seaborn"  # Style Choice for Graphs
     curfold = Path(__file__).parent.absolute()
     # Generate Sidebar Objects
-    side_title = software
+
+    side_title = "Medium Radio Telescope"
+
     image_filename = curfold.joinpath(
         "images", "MIT_HO_logo_landscape.png"
     )  # replace with your own image
@@ -272,7 +274,7 @@ def generate_app(config_dir, config_dict):
             az_offset = el_offset = np.nan
             cf = np.nan
             bandwidth = np.nan
-            status_string = "SRT Not Connected"
+            status_string = "MRT Not Connected"
             vlsr = np.nan
         else:
             lat = status["location"]["latitude"]
@@ -286,11 +288,11 @@ def generate_app(config_dir, config_dict):
             vlsr = status["vlsr"]
             time_dif = time() - status["time"]
             if time_dif > 5:
-                status_string = "SRT Daemon Not Available"
+                status_string = "MRT Daemon Not Available"
             elif status["queue_size"] == 0 and status["queued_item"] == "None":
-                status_string = "SRT Inactive"
+                status_string = "MRT Inactive"
             else:
-                status_string = "SRT In Use!"
+                status_string = "MRT In Use!"
 
         if config_dict["SOFTWARE"] == "Very Small Radio Telescope":
             status_string = f"""
@@ -304,12 +306,12 @@ def generate_app(config_dir, config_dict):
         else:
             status_string = f"""
             #### {status_string}
-            - Location Lat, Long: {lat:.1f}, {lon:.1f} deg
-            - Motor Az, El: {az:.1f}, {el:.1f} deg
-            - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
+            - Location Lat, Long: {lat:.2f}, {lon:.2f} deg
+            - Motor Az, El: {az:.2f}, {el:.2f} deg
+            - Motor Offsets: {az_offset:.2f}, {el_offset:.2f} deg
             - Center Frequency: {cf / pow(10, 6)} MHz
             - Bandwidth: {bandwidth / pow(10, 6)} MHz
-            - VLSR: {vlsr:.1f} km/s
+            - VLSR: {vlsr:.2f} km/s
             """
 
         return status_string

@@ -1,6 +1,7 @@
 options:
   parameters:
     author: ''
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -125,25 +126,26 @@ blocks:
       \ = metadata[\"num_bins\"]\n    tsys = metadata[\"tsys\"]\n    tcal = metadata[\"\
       tcal\"]\n    cal_pwr = metadata[\"cal_pwr\"]\n    vslr = metadata[\"vslr\"]\n\
       \    glat = metadata[\"glat\"]\n    glon = metadata[\"glon\"]\n    soutrack\
-      \ = metadata[\"soutrack\"]\n    bsw = metadata[\"bsw\"]\n    return (\n    \
-      \    motor_az,\n        motor_el,\n        freq / pow(10, 6),\n        samp_rate\
-      \ / pow(10, 6),\n        num_integrations,\n        num_bins,\n        tsys,\n\
-      \        tcal,\n        cal_pwr,\n        vslr,\n        glat,\n        glon,\n\
-      \        soutrack,\n        bsw,\n    )\n\n\nclass blk(\n    gr.sync_block\n\
-      ):  # other base classes are basic_block, decim_block, interp_block\n    \"\"\
-      \"Embedded Python Block example - a simple multiply const\"\"\"\n\n    def __init__(\n\
-      \        self, directory=\".\", filename=\"test.rad\", vec_length=4096\n   \
-      \ ):  # only default arguments here\n        \"\"\"arguments to this function\
-      \ show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n    \
-      \        self,\n            name=\"Embedded Python Block\",  # will show up\
-      \ in GRC\n            in_sig=[(np.float32, vec_length)],\n            out_sig=None,\n\
-      \        )\n        # if an attribute with the same name as a parameter is found,\n\
-      \        # a callback is registered (properties work, too).\n        self.directory\
-      \ = directory\n        self.filename = filename\n        self.vec_length = vec_length\n\
-      \        self.obsn = 0\n\n    def work(self, input_items, output_items):\n \
-      \       \"\"\"example: multiply with constant\"\"\"\n        file = open(pathlib.Path(self.directory,\
-      \ self.filename), \"a+\")\n        tags = self.get_tags_in_window(0, 0, len(input_items[0]))\n\
-      \        latest_data_dict = {\n            pmt.to_python(tag.key): pmt.to_python(tag.value)\
+      \ = metadata[\"soutrack\"]\n    bsw = metadata[\"bsw\"]\n    cal_on = metadata[\"\
+      cal_on\"]\n    return (\n        motor_az,\n        motor_el,\n        freq\
+      \ / pow(10, 6),\n        samp_rate / pow(10, 6),\n        num_integrations,\n\
+      \        num_bins,\n        tsys,\n        tcal,\n        cal_pwr,\n       \
+      \ vslr,\n        glat,\n        glon,\n        soutrack,\n        bsw,\n   \
+      \ )\n\n\nclass blk(\n    gr.sync_block\n):  # other base classes are basic_block,\
+      \ decim_block, interp_block\n    \"\"\"Embedded Python Block example - a simple\
+      \ multiply const\"\"\"\n\n    def __init__(\n        self, directory=\".\",\
+      \ filename=\"test.rad\", vec_length=4096\n    ):  # only default arguments here\n\
+      \        \"\"\"arguments to this function show up as parameters in GRC\"\"\"\
+      \n        gr.sync_block.__init__(\n            self,\n            name=\"Embedded\
+      \ Python Block\",  # will show up in GRC\n            in_sig=[(np.float32, vec_length)],\n\
+      \            out_sig=None,\n        )\n        # if an attribute with the same\
+      \ name as a parameter is found,\n        # a callback is registered (properties\
+      \ work, too).\n        self.directory = directory\n        self.filename = filename\n\
+      \        self.vec_length = vec_length\n        self.obsn = 0\n\n    def work(self,\
+      \ input_items, output_items):\n        \"\"\"example: multiply with constant\"\
+      \"\"\n        file = open(pathlib.Path(self.directory, self.filename), \"a+\"\
+      )\n        tags = self.get_tags_in_window(0, 0, len(input_items[0]))\n     \
+      \   latest_data_dict = {\n            pmt.to_python(tag.key): pmt.to_python(tag.value)\
       \ for tag in tags\n        }\n        yr, da, hr, mn, sc = parse_time(latest_data_dict[\"\
       rx_time\"])\n        (\n            aznow,\n            elnow,\n           \
       \ freq,\n            bw,\n            integ,\n            nfreq,\n         \
@@ -199,8 +201,10 @@ blocks:
     address: tcp://127.0.0.1:5562
     affinity: ''
     alias: ''
+    bind: 'False'
     comment: ''
     hwm: '-1'
+    key: ''
     maxoutbuf: '0'
     minoutbuf: '0'
     pass_tags: 'True'
@@ -220,3 +224,4 @@ connections:
 
 metadata:
   file_format: 1
+  grc_version: 3.10.9.2

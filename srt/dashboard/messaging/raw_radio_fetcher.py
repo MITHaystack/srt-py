@@ -51,7 +51,7 @@ class RadioThread(Thread):
         socket.subscribe("")
         while True:
             rec = socket.recv()
-            print(len(rec))
+            #print(len(rec))
             var = np.frombuffer(rec, dtype="complex64")
             new_history_index = self.history_index + len(var)
             self.history.put(

@@ -1,6 +1,7 @@
 options:
   parameters:
     author: ''
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -49,17 +50,48 @@ blocks:
     coordinate: [11, 203]
     rotation: 0
     state: true
-- name: gr_digital_rf_digital_rf_channel_sink_0
-  id: gr_digital_rf_digital_rf_channel_sink
+- name: gr_digital_rf_digital_rf_sink_0
+  id: gr_digital_rf_digital_rf_sink
   parameters:
     affinity: ''
     alias: ''
     center_freqs: '[]'
+    channel0: ch0
+    channel1: ch1
+    channel10: ch10
+    channel11: ch11
+    channel12: ch12
+    channel13: ch13
+    channel14: ch14
+    channel15: ch15
+    channel16: ch16
+    channel17: ch17
+    channel18: ch18
+    channel19: ch19
+    channel2: ch2
+    channel20: ch20
+    channel21: ch21
+    channel22: ch22
+    channel23: ch23
+    channel24: ch24
+    channel25: ch25
+    channel26: ch26
+    channel27: ch27
+    channel28: ch28
+    channel29: ch29
+    channel3: ch3
+    channel30: ch30
+    channel31: ch31
+    channel4: ch4
+    channel5: ch5
+    channel6: ch6
+    channel7: ch7
+    channel8: ch8
+    channel9: ch9
     checksum: 'False'
     comment: ''
     compression_level: '0'
     debug: 'False'
-    dir: directory_name
     file_cadence_ms: '1000'
     ignore_tags: 'False'
     input: fc32
@@ -67,21 +99,23 @@ blocks:
     marching_periods: 'True'
     metadata: '{}'
     min_chunksize: '0'
+    nchan: '1'
     sample_rate_denominator: '1'
     sample_rate_numerator: int(samp_rate)
     start: '''now'''
     stop_on_skipped: 'False'
     stop_on_time_tag: 'False'
     subdir_cadence_s: '3600'
+    top_level_dir: directory_name
     uuid: ''
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [659, 110]
+    coordinate: [656, 108.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: samp_rate
   id: parameter
   parameters:
@@ -105,8 +139,10 @@ blocks:
     address: tcp://127.0.0.1:5558
     affinity: ''
     alias: ''
+    bind: 'False'
     comment: ''
     hwm: '-1'
+    key: ''
     maxoutbuf: '0'
     minoutbuf: '0'
     pass_tags: 'True'
@@ -122,7 +158,8 @@ blocks:
     state: true
 
 connections:
-- [zeromq_sub_source_0, '0', gr_digital_rf_digital_rf_channel_sink_0, '0']
+- [zeromq_sub_source_0, '0', gr_digital_rf_digital_rf_sink_0, '0']
 
 metadata:
   file_format: 1
+  grc_version: 3.10.9.2

@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from time import sleep
 from math import cos, acos, pi, sqrt, floor
 
+from .bigdish_client import BigDishClient
 
 class Motor(ABC):
     """Abstract Class for All Motors Types
@@ -295,6 +296,7 @@ class Rot2Motor(Motor):
         az_relative = az - self.az_limits[0]
         el_relative = el - self.el_limits[0]
         self.send_rot2_pkt(cmd, az=az_relative, el=el_relative)
+        sleep(0.3)
 
     def status(self):
         """Requests the Current Location of the ROT2 Motor
@@ -783,6 +785,7 @@ class PushRodMotor(Motor):  # TODO: Test!
         None
         """
         self.send_pushrod_cmd(az, el, 0)
+        sleep(0.5)
 
     def status(self):
         """Requests the Current Location of the Pushrod Motor
@@ -793,3 +796,46 @@ class PushRodMotor(Motor):  # TODO: Test!
             Current Azimuth and Elevation Coordinate as a Tuple of Floats
         """
         return self.az, self.el
+
+class W1XMBigDishMotor(Motor):
+    """
+    Class for Controlling the 54 roof Big Dish
+    """
+
+    def __init__(self):
+        """
+        Initializer for W1XM Big Dish controller
+        """
+        super().__init__(None, None, (0.0, 360.0), (0.0, 85.0))
+        self.position = (60.0, 30.0)
+        self.client = BigDishClient("172.25.15.11", 1234, "w1xm", "test", True)
+
+    def point(self, az, el):
+        """Points the dish at a point
+
+        Parameters
+        ----------
+        az : float
+            Azimuth Coordinate to Point At
+        el : float
+            Elevation Coordinate to Point At
+
+        Returns
+        -------
+        None
+        """
+        self.client.goto_posvel_azel(az, el, 0.0, 0.0)
+        sleep(0.01)
+        #self.position = (az, el)
+
+    def status(self):
+        """Returns the Position of the Dish
+
+        Returns
+        -------
+        (float, float)
+            Current Azimuth and Elevation Coordinate as a Tuple of Floats
+        """
+        pos = self.client.get_posvel("azel", False)
+        self.position = (pos["az_pos"], pos["el_pos"])
+        return self.position

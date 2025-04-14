@@ -36,7 +36,7 @@ from .graphs import (
     generate_power_history_graph,
     generate_spectrum_graph,
     generate_zoom_graph,
-    generate_npoint,
+    generate_npoint_raw,
     emptygraph,
 )
 
@@ -44,15 +44,20 @@ from astropy.table import Table
 from srt import config_loader
 
 
-root_folder = Path(__file__).parent.parent.parent.parent
+#root_folder = Path(__file__).parent.parent.parent.parent
+#the above appears to be broken
+root_folder = "$HOME/srt-py"
 
-
-def get_all_objects(config_file="config/sky_coords.csv",):
-    table = Table.read(Path(root_folder, config_file), format="ascii.csv")
+def get_all_objects(coords_file="config/sky_coords.csv",):
     all_objects = ["Sun", "Moon"]
-    for index, row in enumerate(table):
-        name = row["name"]
-        all_objects.append(name)
+    try:
+        table = Table.read(Path(root_folder, coords_file), format="ascii.csv")
+
+        for index, row in enumerate(table):
+            name = row["name"]
+            all_objects.append(name)
+    except:
+        table = all_objects #just to do something
     return all_objects
 
 
@@ -89,6 +94,7 @@ def generate_first_row():
     )
 
 
+
 def generate_srt_azel():
     """Generates AzEl  Display
 
@@ -111,36 +117,6 @@ def generate_srt_azel():
         ),
     )
 
-def generate_npointlayout():
-    """Generates N Point Display
-
-    Returns
-    -------
-    Div: html.Div 
-        containing n point graph if srt
-    """
-    return html.Div(
-        [
-            html.Div(
-                [
-                    dcc.Store(id="npoint_info", storage_type="session"),
-                    html.Div(
-                        [dcc.Graph(id="npoint-graph")],
-                        className="pretty_container six columns",
-                    ),
-                    # html.Div(
-                    #     [dcc.Graph(id="beamsswitch-graph")],
-                    #     className="pretty_container six columns",
-                    # ),
-                ],
-                className="flex-display",
-                style={
-                    "justify-content": "left",
-                    "margin": "5px",
-                },
-            ),
-        ]
-    )
 
 def generate_srt_second_row():
     """Generates N Point Display and zoomed in map
@@ -156,7 +132,7 @@ def generate_srt_second_row():
                 [
                     dcc.Store(id="npoint_info", storage_type="session"),
                     html.Div(
-                        [dcc.Graph(id="npoint-graph")],
+                        [dcc.Graph(id="npoint-graph-1")],
                         className="pretty_container six columns",
                     ),
                     html.Div(
@@ -198,6 +174,41 @@ def generate_second_row():
             style={"margin": dict(l=10, r=5, t=5, b=5)},
         ),
     )
+
+def generate_npointlayout():
+    """Generates N Point Display
+
+    Returns
+    -------
+    Div containing n point graph if srt
+    """
+    return html.Div(
+        [
+            html.Div(
+                [
+                    dcc.Store(id="npoint_info", storage_type="session"),
+                    html.Div(
+                        [dcc.Graph(id="npoint-graph-1")],
+                        className="pretty_container six columns",
+                    ),
+                    #html.Div(
+                    #     [dcc.Graph(id="npoint-graph-2")],
+                    #     className="pretty_container six columns",
+                    # ),
+                    # html.Div(
+                    #     [dcc.Graph(id="beamsswitch-graph")],
+                    #     className="pretty_container six columns",
+                    # ),
+                ],
+                className="flex-display",
+                style={
+                    "justify-content": "left",
+                    "margin": "5px",
+                },
+            ),
+        ]
+    )
+
 
 
 def generate_third_row():
@@ -488,23 +499,40 @@ def generate_popups(software):
 
             dbc.Modal(
                 [
-                    dbc.ModalHeader("Enter Azimuth and Elevation"),
+                    dbc.ModalHeader("Enter Pointing Coordinates"),
                     dbc.ModalBody(
                         [
                             dcc.Input(
-                                id="azimuth",
+                                id="val1",
                                 type="number",
                                 debounce=True,
-                                placeholder="Azimuth",
+                                placeholder="Az/RA/l",
                             ),
                             dcc.Input(
-                                id="elevation",
+                                id="val2",
                                 type="number",
                                 debounce=True,
-                                placeholder="Elevation",
+                                placeholder="El/Dec/b",
+                            ),
+                            dcc.RadioItems(
+                                options=[
+                                    {"label": "Az/El",
+                                     "value": "AzEl"},
+                                    {
+                                        "label": "Ra/Dec",
+                                        "value": "RaDec",
+                                    },
+                                    {
+                                        "label": "Galactic",
+                                        "value": "Galactic",
+                                    },
+                                ],
+                                id="coord-options",
+                                value="",
                             ),
                         ]
                     ),
+
                     dbc.ModalFooter(
                         [
                             dbc.Button(
@@ -526,6 +554,41 @@ def generate_popups(software):
                 ],
                 id="point-modal",
         ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Enter the New N-point Grid Size"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(
+                                id="npoint-size",
+                                type="number",
+                                debounce=True,
+                                placeholder="Grid Edge Points sqrt(N)",
+                                style={"width": "100%"},
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="npoint-set-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="npoint-set-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="n-point-modal",
+            ),
             dbc.Modal(
                 [
                     dbc.ModalHeader("Enter the New Center Frequency"),
@@ -598,6 +661,41 @@ def generate_popups(software):
         ),
             dbc.Modal(
                 [
+                    dbc.ModalHeader("Enter the New RF Gain"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(
+                                id="rf_gain",
+                                type="number",
+                                debounce=True,
+                                placeholder="RF Gain (dB)",
+                                style={"width": "100%"},
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="gain-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="gain-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="gain-modal",
+            ),
+            dbc.Modal(
+                [
                     dbc.ModalHeader("Enter the Motor Offsets"),
                     dbc.ModalBody(
                         [
@@ -635,7 +733,9 @@ def generate_popups(software):
                     ),
                 ],
                 id="offset-modal",
+
         ),
+            
             dbc.Modal(
                 [
                     dbc.ModalHeader("Start Recording"),
@@ -799,17 +899,24 @@ def generate_layout(software):
         # ],
         "Antenna": [
             dbc.DropdownMenuItem("Stow", id="btn-stow"),
-            dbc.DropdownMenuItem("Set AzEl", id="btn-point-azel"),
+            #dbc.DropdownMenuItem("Set AzEl", id="btn-point-azel"),
+            dbc.DropdownMenuItem("Set Coordinates", id="btn-point-coords"),
             dbc.DropdownMenuItem("Set Offsets", id="btn-set-offset"),
+            dbc.DropdownMenuItem("Set N-point size", id="btn-set-npoint"),
         ],
         "Radio": [
             dbc.DropdownMenuItem("Set Frequency", id="btn-set-freq"),
             dbc.DropdownMenuItem("Set Bandwidth", id="btn-set-samp"),
+            dbc.DropdownMenuItem("Set RF Gain", id="btn-set-gain"),
+        ],
+        "Calibration": [
+            dbc.DropdownMenuItem("Calibrate", id="btn-calibrate"),
+            dbc.DropdownMenuItem("Noise Reference on", id="btn-calon"),
+            dbc.DropdownMenuItem("Noise Reference off", id="btn-caloff"),
         ],
         "Routine": [
             dbc.DropdownMenuItem("Start Recording", id="btn-start-record"),
             dbc.DropdownMenuItem("Stop Recording", id="btn-stop-record"),
-            dbc.DropdownMenuItem("Calibrate", id="btn-calibrate"),
             dbc.DropdownMenuItem("Upload CMD File", id="btn-cmd-file"),
         ],
         "Power": [
@@ -839,7 +946,7 @@ def generate_layout(software):
                 generate_first_row(),
                 generate_srt_azel(),
                 generate_srt_second_row(),
-                generate_third_row(),
+                #generate_third_row(),
                 generate_popups(software),
                 html.Div(id="signal", style={"display": "none"}),
             ]
@@ -967,11 +1074,11 @@ def register_callbacks(
             raise PreventUpdate
 
     @app.callback(
-        Output("npoint-graph", "figure"),
+        Output("npoint-graph-1", "figure"),
         [Input("npoint_info", "modified_timestamp")],
         [State("npoint_info", "data")],
     )
-    def update_n_point(ts, npdata):
+    def update_n_point_raw(ts, npdata):
         """Update the npoint track info
 
         Parameters
@@ -1004,8 +1111,50 @@ def register_callbacks(
         sc = npdata["scan_center"]
         plist = npdata["pwr"]
         sd = npdata["sides"]
-        ofig = generate_npoint(az_a, el_a, mdiff[0], mdiff[1], plist, sc, sd)
+        ofig = generate_npoint_raw(az_a, el_a, mdiff[0], mdiff[1], plist, sc, sd)
         return ofig
+        
+    # @app.callback(
+    #     Output("npoint-graph-2", "figure"),
+    #     [Input("npoint_info", "modified_timestamp")],
+    #     [State("npoint_info", "data")],
+    # )
+    # def update_n_point_interpolated(ts, npdata):
+    #     """Update the npoint track info
+
+    #     Parameters
+    #     ----------
+    #     ts : int
+    #         modified time stamp
+    #     npdata : dict
+    #         will hold N- point data.
+
+    #     Returns
+    #     -------
+    #     ofig : plotly.fig
+    #         Plotly figure
+    #     """
+
+    #     if ts is None:
+    #         raise PreventUpdate
+    #     if npdata is None:
+    #         return emptygraph("x", "y", "N-Point Scan")
+
+    #     if npdata.get("scan_center", [1, 1])[0] == 0:
+    #         return emptygraph("x", "y", "N-Point Scan")
+
+    #     az_a = []
+    #     el_a = []
+    #     for irot in npdata["rotor_loc"]:
+    #         az_a.append(irot[0])
+    #         el_a.append(irot[1])
+    #     mdiff = npdata["maxdiff"]
+    #     sc = npdata["scan_center"]
+    #     plist = npdata["pwr"]
+    #     sd = npdata["sides"]
+    #     ofig = generate_npoint_interpolated(az_a, el_a, mdiff[0], mdiff[1], plist, sc, sd)
+    #     return ofig
+        
 
     @app.callback(
         Output("start-warning", "children"),
@@ -1280,28 +1429,58 @@ def register_callbacks(
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
             return is_open
-
+            
     @ app.callback(
         Output("point-modal", "is_open"),
         [
-            Input("btn-point-azel", "n_clicks"),
+            Input("btn-point-coords", "n_clicks"),
             Input("point-btn-yes", "n_clicks"),
             Input("point-btn-no", "n_clicks"),
         ],
         [
             State("point-modal", "is_open"),
-            State("azimuth", "value"),
-            State("elevation", "value"),
+            State("val1", "value"),
+            State("val2", "value"),
+            State("coord-options", "value"),
         ],
     )
-    def point_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, az, el):
+    def point_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, val1, val2, coord_option):
         ctx = dash.callback_context
         if not ctx.triggered:
             return is_open
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "point-btn-yes":
-                command_thread.add_to_queue(f"azel {az} {el}")
+                if coord_option == "RaDec":
+                    command_thread.add_to_queue(f"radec {val1} {val2}")
+                elif coord_option == "Galactic":
+                    command_thread.add_to_queue(f"galactic {val1} {val2}")
+                else: #coord_option == "AzEl":
+                    command_thread.add_to_queue(f"azel {val1} {val2}")
+            if n_clicks_yes or n_clicks_no or n_clicks_btn:
+                return not is_open
+            return is_open
+    
+    @app.callback(
+        Output("n-point-modal", "is_open"),
+        [
+            Input("btn-set-npoint", "n_clicks"),
+            Input("npoint-set-btn-yes", "n_clicks"),
+            Input("npoint-set-btn-no", "n_clicks"),
+        ],
+        [
+            State("n-point-modal", "is_open"),
+            State("npoint-size", "value"),
+        ],
+    )
+    def freq_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, npoints):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            if button_id == "npoint-set-btn-yes":
+                command_thread.add_to_queue(f"npointset {npoints}")
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
             return is_open
@@ -1354,6 +1533,30 @@ def register_callbacks(
                 return not is_open
             return is_open
 
+    @app.callback(
+        Output("gain-modal", "is_open"),
+        [
+            Input("btn-set-gain", "n_clicks"),
+            Input("gain-btn-yes", "n_clicks"),
+            Input("gain-btn-no", "n_clicks"),
+        ],
+        [
+            State("gain-modal", "is_open"),
+            State("rf_gain", "value"),
+        ],
+    )
+    def gain_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, gain):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            if button_id == "gain-btn-yes":
+                command_thread.add_to_queue(f"rf_gain {gain}")
+            if n_clicks_yes or n_clicks_no or n_clicks_btn:
+                return not is_open
+            return is_open
+
     @ app.callback(
         Output("offset-modal", "is_open"),
         [
@@ -1386,8 +1589,11 @@ def register_callbacks(
             Input("record-btn-yes", "n_clicks"),
             Input("record-btn-no", "n_clicks"),
         ],
-        [State("record-modal", "is_open"), State("record-options",
-                                                 "value"), State("recording-alert", "is_open")],
+        [
+            State("record-modal", "is_open"), 
+            State("record-options","value"), 
+            State("recording-alert", "is_open")
+        ],
     )
     def record_click_func(
         n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, record_option, is_open_alert
@@ -1399,17 +1605,19 @@ def register_callbacks(
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "record-btn-yes":
                 command_thread.add_to_queue(f"record {record_option}")
-                print("alert")
+                #print("alert")
 
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
-                print("open")
+                #print("open")
                 return not is_open
             return is_open
 
     @ app.callback(
         Output("recording-alert", "is_open"),
-        [Input("record-btn-yes", "n_clicks"),
-         Input("btn-stop-record", "n_clicks")],
+        [
+            Input("record-btn-yes", "n_clicks"),
+            Input("btn-stop-record", "n_clicks")
+        ],
         [],
     )
     def record_alert_func(n_clicks_start, n_clicks_stop):
@@ -1489,19 +1697,25 @@ def register_callbacks(
     @ app.callback(
         Output("signal", "children"),
         [
-            # Input("btn-stow", "n_clicks"),
+            Input("btn-stow", "n_clicks"),
             Input("btn-stop-record", "n_clicks"),
             Input("btn-quit", "n_clicks"),
             Input("btn-calibrate", "n_clicks"),
+            Input("btn-calon", "n_clicks"),
+            Input("btn-caloff", "n_clicks"),
         ],
-        [State("recording-alert", "is_open")]
+        [
+            State("recording-alert", "is_open")
+        ]
     )
     def cmd_button_pressed(
-        # n_clicks_stow,
+        n_clicks_stow,
         n_clicks_stop_record,
         n_clicks_shutdown,
         n_clicks_calibrate,
-        is_open
+        n_clicks_calon,
+        n_clicks_caloff,
+        is_open,
     ):
         ctx = dash.callback_context
         if not ctx.triggered:
@@ -1517,3 +1731,7 @@ def register_callbacks(
                 command_thread.add_to_queue("quit")
             elif button_id == "btn-calibrate":
                 command_thread.add_to_queue("calibrate")
+            elif button_id == "btn-calon":
+                command_thread.add_to_queue("calon")
+            elif button_id == "btn-caloff":
+                command_thread.add_to_queue("caloff")
