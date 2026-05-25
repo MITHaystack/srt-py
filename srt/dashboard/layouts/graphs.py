@@ -5,7 +5,7 @@ Contains the Code for Generating Complicated Graphs
 """
 
 import plotly.graph_objects as go
-from datetime import datetime
+from datetime import datetime, timezone
 import numpy as np
 from dash import Dash, dcc, html, Input, Output, callback
 import pandas as pd
@@ -589,7 +589,8 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     power_time, power_vals = zip(*power_history)
     fig = go.Figure(
         data=go.Scatter(
-            x=[datetime.utcfromtimestamp(t) for t in power_time], y=power_vals
+            x=[datetime.fromtimestamp(t, tz=timezone.utc) for t in power_time],
+            y=power_vals,
         ),
         layout={
             "title": "Power vs Time",
